@@ -1,21 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import {
-  User,
-  signInWithPopup,
-  signOut,
-  onAuthStateChanged,
-} from 'firebase/auth';
-import {
-  doc,
-  getDoc,
-  setDoc,
-  updateDoc,
-  collection,
-  query,
-  where,
-  getDocs,
-} from 'firebase/firestore';
-import { auth, db, googleProvider } from '../lib/firebase';
+import { User } from '@supabase/supabase-js';
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { UserProfile } from '../types';
 
 interface AuthContextType {
@@ -35,19 +20,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Check if username is available in Firestore
+  // Check if username is available in Supabase users table
   const checkUsernameAvailability = async (username: string): Promise<boolean> => {
     const cleanUsername = username.trim().toLowerCase();
     if (!cleanUsername || cleanUsername.length < 3) return false;
 
-    try {
-      const usersRef = collection(db, 'users');
-      const q = query(usersRef, where('usernameLower', '==', cleanUsername));
-      const querySnapshot = await getDocs(q);
+    if (!isSupabaseConfigured) return true;
 
-      if (querySnapshot.empty) return true;
-      // If the doc found belongs to the current user, it's still "available" for them
-      if (currentUser && querySnapshot.docs.length === 1 && querySnapshot.docs[0].id === currentUser.uid) {
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('uid')
+        .eq('usernameLower', cleanUsername);
+
+      if (error) {
+        console.warn('Username check Supabase table fallback:', error.message);
+        return true;
+      }
+
+      if (!data || data.length === 0) return true;
+      if (currentUser && data.length === 1 && data[0].uid === currentUser.id) {
         return true;
       }
       return false;
@@ -57,17 +49,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Login or sign up with Google
-  const loginWithGoogle = async (): Promise<{ isNewUser: boolean; profile: UserProfile }> => {
-    const result = await signInWithPopup(auth, googleProvider);
-    const user = result.user;
+  // Helper to fetch or create user profile
+  const fetchOrCreateProfile = async (user: User): Promise<UserProfile> => {
+    if (!isSupabaseConfigured) {
+      const mockProfile: UserProfile = {
+        uid: user.id,
+        username: user.email?.split('@')[0] || 'user',
+        usernameLower: (user.email?.split('@')[0] || 'user').toLowerCase(),
+        email: user.email || '',
+        photoURL: user.user_metadata?.avatar_url || '',
+        createdAt: new Date().toISOString(),
+        preferredSiteLanguage: 'uzbek',
+        preferredTypingLanguage: 'uzbek',
+        isProfileComplete: false,
+      };
+      return mockProfile;
+    }
 
-    // Check if user doc exists in Firestore
-    const userDocRef = doc(db, 'users', user.uid);
-    const userDocSnap = await getDoc(userDocRef);
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('uid', user.id)
+        .maybeSingle();
 
-    if (!userDocSnap.exists()) {
-      // Create a default profile
+      if (data) {
+        return data as UserProfile;
+      }
+
+      // Profile doesn't exist, create it
       const rawBase = (user.email?.split('@')[0] || 'user').replace(/[^a-zA-Z0-9_]/g, '');
       let candidateUsername = rawBase.length >= 3 ? rawBase : `user_${Math.floor(100 + Math.random() * 900)}`;
 
@@ -76,75 +86,142 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         candidateUsername = `${candidateUsername}_${Math.floor(1000 + Math.random() * 9000)}`;
       }
 
-      const nameParts = (user.displayName || '').trim().split(' ');
+      const meta = user.user_metadata || {};
+      const fullName = (meta.full_name || meta.name || '').trim();
+      const nameParts = fullName.split(' ');
       const firstName = nameParts[0] || '';
       const lastName = nameParts.slice(1).join(' ') || '';
 
       const newProfile: UserProfile = {
-        uid: user.uid,
+        uid: user.id,
         username: candidateUsername,
         usernameLower: candidateUsername.toLowerCase(),
         email: user.email || '',
         firstName: firstName,
         lastName: lastName,
-        photoURL: user.photoURL || '',
+        photoURL: meta.avatar_url || meta.picture || '',
         createdAt: new Date().toISOString(),
         preferredSiteLanguage: 'uzbek',
         preferredTypingLanguage: 'uzbek',
         isProfileComplete: false,
       };
 
-      await setDoc(userDocRef, newProfile);
-      setUserProfile(newProfile);
-      return { isNewUser: true, profile: newProfile };
-    } else {
-      const existingProfile = userDocSnap.data() as UserProfile;
-      setUserProfile(existingProfile);
+      const { error: insertError } = await supabase.from('users').upsert(newProfile);
+      if (insertError) {
+        console.warn('Supabase profile creation fallback:', insertError.message);
+      }
 
-      const needsCompletion =
-        !existingProfile.isProfileComplete ||
-        !existingProfile.firstName?.trim() ||
-        !existingProfile.lastName?.trim();
-
-      return { isNewUser: needsCompletion, profile: existingProfile };
+      return newProfile;
+    } catch (err) {
+      console.error('Error in fetchOrCreateProfile:', err);
+      return {
+        uid: user.id,
+        username: user.email?.split('@')[0] || 'user',
+        usernameLower: (user.email?.split('@')[0] || 'user').toLowerCase(),
+        email: user.email || '',
+        createdAt: new Date().toISOString(),
+        preferredSiteLanguage: 'uzbek',
+        preferredTypingLanguage: 'uzbek',
+        isProfileComplete: false,
+      };
     }
   };
 
-  // Logout
+  // Login with Google via Supabase OAuth
+  const loginWithGoogle = async (): Promise<{ isNewUser: boolean; profile: UserProfile }> => {
+    if (!isSupabaseConfigured) {
+      throw new Error('Supabase is not configured. Please add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to environment variables.');
+    }
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin,
+      },
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    const dummyProfile: UserProfile = userProfile || {
+      uid: currentUser?.id || '',
+      username: '',
+      usernameLower: '',
+      email: currentUser?.email || '',
+      createdAt: new Date().toISOString(),
+      preferredSiteLanguage: 'uzbek',
+      preferredTypingLanguage: 'uzbek',
+    };
+
+    return {
+      isNewUser: !dummyProfile.isProfileComplete,
+      profile: dummyProfile,
+    };
+  };
+
+  // Logout via Supabase
   const logout = async () => {
-    await signOut(auth);
+    if (isSupabaseConfigured) {
+      await supabase.auth.signOut();
+    }
+    setCurrentUser(null);
     setUserProfile(null);
   };
 
-  // Update user profile fields
+  // Update user profile
   const updateUserProfile = async (data: Partial<UserProfile>) => {
     if (!currentUser) return;
-    const userDocRef = doc(db, 'users', currentUser.uid);
-    await updateDoc(userDocRef, data);
+
+    if (isSupabaseConfigured) {
+      const { error } = await supabase
+        .from('users')
+        .update(data)
+        .eq('uid', currentUser.id);
+
+      if (error) {
+        console.warn('Supabase profile update warning:', error.message);
+      }
+    }
 
     setUserProfile((prev) => (prev ? { ...prev, ...data } : null));
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      setCurrentUser(firebaseUser);
-      if (firebaseUser) {
-        try {
-          const userDocRef = doc(db, 'users', firebaseUser.uid);
-          const userDocSnap = await getDoc(userDocRef);
-          if (userDocSnap.exists()) {
-            setUserProfile(userDocSnap.data() as UserProfile);
-          }
-        } catch (err) {
-          console.error('Error fetching user profile:', err);
-        }
+    if (!isSupabaseConfigured) {
+      setLoading(false);
+      return;
+    }
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      const user = session?.user ?? null;
+      setCurrentUser(user);
+      if (user) {
+        fetchOrCreateProfile(user).then((profile) => {
+          setUserProfile(profile);
+          setLoading(false);
+        });
+      } else {
+        setUserProfile(null);
+        setLoading(false);
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      const user = session?.user ?? null;
+      setCurrentUser(user);
+      if (user) {
+        const profile = await fetchOrCreateProfile(user);
+        setUserProfile(profile);
       } else {
         setUserProfile(null);
       }
       setLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   return (

@@ -101,21 +101,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
       }
     } catch (err: any) {
       console.error('Google Auth Error:', err);
-      if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') {
+      if (err.message?.includes('closed') || err.message?.includes('cancel')) {
         return;
       }
-      if (err.code === 'auth/operation-not-allowed') {
-        setError('Google sign-in is disabled in your Firebase Console. Please enable Google provider under Authentication > Sign-in method.');
-      } else if (err.code === 'auth/api-key-not-valid' || err.code === 'auth/invalid-api-key') {
-        setError('The Firebase API key is invalid or not active.');
-      } else if (err.code === 'auth/unauthorized-domain') {
-        const domain = window.location.hostname;
-        setError(`This web app domain (${domain}) is not authorized in Firebase Console yet. Please add "${domain}" under Authentication > Settings > Authorized domains.`);
-      } else if (err.code === 'auth/popup-blocked') {
-        setError('Popup was blocked by your browser. Please allow popups for this site and try again.');
-      } else {
-        setError('failed to sign in with google: ' + (err.message || ''));
-      }
+      setError('failed to sign in with google: ' + (err.message || 'please check your credentials or setup'));
     } finally {
       setSubmitting(false);
     }
