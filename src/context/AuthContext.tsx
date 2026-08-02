@@ -75,14 +75,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
-      const { data, error } = await supabase
-        .from('users')
+      // Check 'profiles' table first, fallback to 'users' table
+      let { data, error } = await supabase
+        .from('profiles')
         .select('*')
-        .eq('uid', user.id)
+        .eq('id', user.id)
         .maybeSingle();
 
+      if (!data) {
+        const { data: usersData } = await supabase
+          .from('users')
+          .select('*')
+          .eq('uid', user.id)
+          .maybeSingle();
+        data = usersData;
+      }
+
       if (data) {
-        return data as UserProfile;
+        return {
+          uid: data.id || data.uid || user.id,
+          username: data.username || user.email?.split('@')[0] || 'user',
+          usernameLower: (data.username_lower || data.usernameLower || data.username || '').toLowerCase(),
+          email: data.email || user.email || '',
+          firstName: data.first_name || data.firstName || '',
+          lastName: data.last_name || data.lastName || '',
+          photoURL: data.avatar_url || data.photo_url || data.photoURL || '',
+          createdAt: data.created_at || data.createdAt || new Date().toISOString(),
+          preferredSiteLanguage: data.preferred_site_language || data.preferredSiteLanguage || 'uzbek',
+          preferredTypingLanguage: data.preferred_typing_language || data.preferredTypingLanguage || 'uzbek',
+          isProfileComplete: true,
+        };
       }
 
       // Profile doesn't exist, create it
@@ -122,10 +144,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isProfileComplete: true,
       };
 
-      const { error: insertError } = await supabase.from('users').upsert(newProfile);
-      if (insertError) {
-        console.warn('Supabase profile creation fallback:', insertError.message);
-      }
+      // Upsert into both 'profiles' and 'users' for maximum compatibility
+      await supabase.from('profiles').upsert({
+        id: user.id,
+        username: candidateUsername,
+        first_name: firstName,
+        last_name: lastName,
+        avatar_url: newProfile.photoURL,
+        updated_at: new Date().toISOString(),
+      });
+
+      await supabase.from('users').upsert(newProfile);
 
       return newProfile;
     } catch (err) {
@@ -252,13 +281,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!currentUser) return;
 
     if (isSupabaseConfigured) {
+      // Map to profiles table column names
+      const profileUpdates: Record<string, any> = {
+        updated_at: new Date().toISOString(),
+      };
+      if (data.firstName !== undefined) profileUpdates.first_name = data.firstName;
+      if (data.lastName !== undefined) profileUpdates.last_name = data.lastName;
+      if (data.photoURL !== undefined) profileUpdates.avatar_url = data.photoURL;
+
+      const { error: profileErr } = await supabase
+        .from('profiles')
+        .update(profileUpdates)
+        .eq('id', currentUser.id);
+
+      if (profileErr) {
+        console.warn('Supabase profiles update warning:', profileErr.message);
+      }
+
+      // Also update users table for backward compatibility
       const { error } = await supabase
         .from('users')
         .update(data)
         .eq('uid', currentUser.id);
 
       if (error) {
-        console.warn('Supabase profile update warning:', error.message);
+        console.warn('Supabase users update warning:', error.message);
       }
     }
 

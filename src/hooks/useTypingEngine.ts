@@ -23,6 +23,7 @@ export interface UseTypingEngineOptions {
 export interface CharDisplayInfo {
   char: string;
   status: 'untouched' | 'correct' | 'incorrect' | 'extra';
+  globalIndex: number;
 }
 
 export interface WordDisplayInfo {
@@ -310,11 +311,14 @@ export function useTypingEngine({
           }
         }
 
-        charsInfo.push({ char: targetChar, status });
+        charsInfo.push({
+          char: targetChar,
+          status,
+          globalIndex: charIdx,
+        });
       }
 
       // Check for extra typed characters before space or end of word
-      const wordStartOffset = globalCharOffset;
       const wordEndOffset = globalCharOffset + origWord.length;
       let extraTypedIdx = wordEndOffset;
 
@@ -328,6 +332,7 @@ export function useTypingEngine({
           charsInfo.push({
             char: typedChars[extraTypedIdx],
             status: 'extra',
+            globalIndex: extraTypedIdx,
           });
           wordHasError = true;
           extraTypedIdx++;
@@ -344,7 +349,7 @@ export function useTypingEngine({
       });
 
       // Account for space after word
-      globalCharOffset += origWord.length + 1;
+      globalCharOffset = Math.max(wordEndOffset + 1, extraTypedIdx + 1);
     }
 
     return resultWords;

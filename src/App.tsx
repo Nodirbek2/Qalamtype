@@ -80,20 +80,20 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  // Save result to Firestore automatically on test completion if logged in
+  // Save result automatically on test completion (for logged in users and guests)
   useEffect(() => {
-    if (phase === 'completed' && result && currentUser && userProfile) {
+    if (phase === 'completed' && result) {
       // Unique key for current result based on WPM, accuracy, and timestamp
       const resultKey = `${result.wpm}_${result.rawWpm}_${result.accuracy}_${result.timeSec}`;
 
       if (savedResultKey !== resultKey) {
         setSavedResultKey(resultKey);
-        saveTestResult(result, userProfile).catch((err) => {
+        saveTestResult(result, userProfile || null).catch((err) => {
           console.error('Failed to save test result:', err);
         });
       }
     }
-  }, [phase, result, currentUser, userProfile, savedResultKey]);
+  }, [phase, result, userProfile, savedResultKey]);
 
   // Reset test and navigate back to test view on logo click or next test
   const handleNextTest = useCallback(() => {

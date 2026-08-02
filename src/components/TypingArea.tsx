@@ -36,7 +36,6 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
 }) => {
   const { smoothCaret, t } = useSettings();
   const containerRef = useRef<HTMLDivElement>(null);
-  const activeCharRef = useRef<HTMLSpanElement | null>(null);
   const [caretPos, setCaretPos] = useState({ top: 0, left: 0, height: 28 });
   const [isFocused, setIsFocused] = useState(true);
 
@@ -56,35 +55,96 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
   }, [onKeyDown]);
 
-  // Update Caret position relative to active character
+  // Update Caret position relative to current typing index
   useLayoutEffect(() => {
-    if (!containerRef.current || !activeCharRef.current) return;
+    if (!containerRef.current) return;
 
     const containerRect = containerRef.current.getBoundingClientRect();
-    const charRect = activeCharRef.current.getBoundingClientRect();
 
-    setCaretPos({
-      top: charRect.top - containerRect.top,
-      left: charRect.left - containerRect.left,
-      height: charRect.height || 28,
-    });
+    // Look for exact character element matching currentIndex
+    const targetEl = containerRef.current.querySelector<HTMLElement>(
+      `[data-char-idx="${currentIndex}"]`
+    );
+
+    if (targetEl) {
+      const targetRect = targetEl.getBoundingClientRect();
+      setCaretPos({
+        top: targetRect.top - containerRect.top,
+        left: targetRect.left - containerRect.left,
+        height: targetRect.height || 28,
+      });
+      return;
+    }
+
+    // If target element doesn't exist (e.g. space between words or end of test),
+    // position caret immediately after the previous character element (currentIndex - 1)
+    if (currentIndex > 0) {
+      const prevEl = containerRef.current.querySelector<HTMLElement>(
+        `[data-char-idx="${currentIndex - 1}"]`
+      );
+      if (prevEl) {
+        const prevRect = prevEl.getBoundingClientRect();
+        setCaretPos({
+          top: prevRect.top - containerRect.top,
+          left: prevRect.right - containerRect.left,
+          height: prevRect.height || 28,
+        });
+        return;
+      }
+    }
+
+    // Fallback if no elements found yet (e.g. initial render before text populates)
+    const firstEl = containerRef.current.querySelector<HTMLElement>(
+      `[data-char-idx="0"]`
+    );
+    if (firstEl) {
+      const firstRect = firstEl.getBoundingClientRect();
+      setCaretPos({
+        top: firstRect.top - containerRect.top,
+        left: firstRect.left - containerRect.left,
+        height: firstRect.height || 28,
+      });
+    }
   }, [currentIndex, wordsDisplay]);
 
   // Handle window resize to adjust caret position
   useEffect(() => {
     const handleResize = () => {
-      if (!containerRef.current || !activeCharRef.current) return;
+      if (!containerRef.current) return;
       const containerRect = containerRef.current.getBoundingClientRect();
-      const charRect = activeCharRef.current.getBoundingClientRect();
-      setCaretPos({
-        top: charRect.top - containerRect.top,
-        left: charRect.left - containerRect.left,
-        height: charRect.height || 28,
-      });
+
+      const targetEl = containerRef.current.querySelector<HTMLElement>(
+        `[data-char-idx="${currentIndex}"]`
+      );
+
+      if (targetEl) {
+        const targetRect = targetEl.getBoundingClientRect();
+        setCaretPos({
+          top: targetRect.top - containerRect.top,
+          left: targetRect.left - containerRect.left,
+          height: targetRect.height || 28,
+        });
+        return;
+      }
+
+      if (currentIndex > 0) {
+        const prevEl = containerRef.current.querySelector<HTMLElement>(
+          `[data-char-idx="${currentIndex - 1}"]`
+        );
+        if (prevEl) {
+          const prevRect = prevEl.getBoundingClientRect();
+          setCaretPos({
+            top: prevRect.top - containerRect.top,
+            left: prevRect.right - containerRect.left,
+            height: prevRect.height || 28,
+          });
+        }
+      }
     };
+
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [currentIndex]);
 
   // Compute total typed word progress for words mode
   const completedWordsCount = wordsDisplay.filter(
@@ -153,15 +213,7 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
                 key={`word-${wIdx}`}
                 className="inline-flex flex-wrap relative my-0.5"
               >
-                {word.chars.map((charObj, cIdx) => {
-                  // Determine global character index
-                  let prevCharsCount = 0;
-                  for (let i = 0; i < wIdx; i++) {
-                    prevCharsCount += wordsDisplay[i].chars.length + 1; // +1 for space
-                  }
-                  const globalCharIdx = prevCharsCount + cIdx;
-                  const isActive = globalCharIdx === currentIndex;
-
+                {word.chars.map((charObj) => {
                   // Character color styling according to design system
                   let colorClass = 'text-[#5C574C]'; // untouched / muted
                   let bgClass = '';
@@ -178,8 +230,8 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
 
                   return (
                     <span
-                      key={`char-${wIdx}-${cIdx}`}
-                      ref={isActive ? activeCharRef : null}
+                      key={`char-${charObj.globalIndex}`}
+                      data-char-idx={charObj.globalIndex}
                       className={`relative px-[0.5px] transition-colors duration-75 ${colorClass} ${bgClass}`}
                     >
                       {charObj.char}

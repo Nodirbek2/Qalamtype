@@ -9,7 +9,7 @@ interface CaretProps {
   isIdle?: boolean;
 }
 
-export const Caret: React.FC<CaretProps> = ({
+export const Caret: React.FC<CaretProps> = React.memo(({
   top,
   left,
   height,
@@ -20,15 +20,17 @@ export const Caret: React.FC<CaretProps> = ({
 
   return (
     <div
-      className={`absolute w-[2.5px] bg-[#E85D3D] rounded-full pointer-events-none z-10 ${
+      className={`absolute top-0 left-0 w-[2.5px] bg-[#E85D3D] rounded-full pointer-events-none z-10 will-change-transform ${
         isIdle ? 'animate-caret-blink' : ''
       }`}
       style={{
-        top: `${top}px`,
-        left: `${left}px`,
         height: `${height}px`,
-        transition: speed === 'off' ? 'none' : `left ${transitionMs}ms cubic-bezier(0.2, 0, 0, 1), top ${transitionMs}ms cubic-bezier(0.2, 0, 0, 1)`,
+        transform: `translate3d(${left}px, ${top}px, 0)`,
+        transition:
+          speed === 'off'
+            ? 'none'
+            : `transform ${transitionMs}ms cubic-bezier(0.2, 0, 0, 1)`,
       }}
     />
   );
-};
+});

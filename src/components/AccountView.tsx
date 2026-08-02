@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useSettings } from '../context/SettingsContext';
 import {
   subscribeToUserResults,
   uploadAvatarImage,
@@ -29,13 +30,11 @@ import {
   YAxis,
   Tooltip,
   CartesianGrid,
-  BarChart,
-  Bar,
-  Cell,
 } from 'recharts';
 
 export const AccountView: React.FC = () => {
   const { currentUser, userProfile, updateUserProfile } = useAuth();
+  const { t } = useSettings();
 
   // Profile Form States
   const [firstName, setFirstName] = useState('');
@@ -149,9 +148,9 @@ export const AccountView: React.FC = () => {
       <div className="w-full max-w-md mx-auto py-20 px-4 text-center font-sans">
         <div className="p-8 bg-[#1A1917] rounded-xl border border-[rgba(232,226,216,0.12)] space-y-4">
           <User className="w-12 h-12 text-[#E85D3D] mx-auto" />
-          <h2 className="text-xl font-medium text-[#E8E2D8]">account login required</h2>
+          <h2 className="text-xl font-medium text-[#E8E2D8]">{t('acc_login_required')}</h2>
           <p className="text-xs text-[#9A9488] font-mono">
-            please sign in with google to view your personal account profile and typing statistics
+            {t('acc_login_desc')}
           </p>
         </div>
       </div>
@@ -173,7 +172,6 @@ export const AccountView: React.FC = () => {
   // Calculate total time spent typing in seconds
   const totalTimeSeconds = userResults.reduce((acc, r) => {
     if (r.mode === 'time') return acc + (r.modeValue || 30);
-    // For word mode, approximate time spent = (wordCount / wpm) * 60 or raw estimate
     const approxSec = r.wpm > 0 ? Math.round(((r.modeValue || 25) / (r.wpm / 5)) * 60) : 30;
     return acc + Math.min(approxSec, 300);
   }, 0);
@@ -201,40 +199,40 @@ export const AccountView: React.FC = () => {
       rawWpm: r.rawWpm,
       accuracy: r.accuracy,
       mode: r.mode === 'time' ? `${r.modeValue}s` : `${r.modeValue}w`,
-      language: r.typingLanguage,
+      language: t(`lang_${r.typingLanguage}` as any) || r.typingLanguage,
     };
   });
 
   // Language Breakdown Data
-  const languagesList: Array<{ lang: 'uzbek' | 'russian' | 'english'; label: string }> = [
-    { lang: 'uzbek', label: 'Uzbek' },
-    { lang: 'russian', label: 'Russian' },
-    { lang: 'english', label: 'English' },
+  const languagesList: Array<{ lang: 'uzbek' | 'russian' | 'english'; labelKey: string }> = [
+    { lang: 'uzbek', labelKey: 'lang_uzbek' },
+    { lang: 'russian', labelKey: 'lang_russian' },
+    { lang: 'english', labelKey: 'lang_english' },
   ];
 
-  const languageStats = languagesList.map(({ lang, label }) => {
+  const languageStats = languagesList.map(({ lang, labelKey }) => {
     const langRuns = userResults.filter((r) => r.typingLanguage === lang);
     const count = langRuns.length;
     const avg =
       count > 0 ? Math.round(langRuns.reduce((acc, r) => acc + r.wpm, 0) / count) : 0;
     const max = count > 0 ? Math.max(...langRuns.map((r) => r.wpm)) : 0;
-    return { lang, label, count, avg, max };
+    return { lang, label: t(labelKey as any), count, avg, max };
   });
 
   // Difficulty Breakdown Data
-  const difficultiesList: Array<{ diff: 'easy' | 'medium' | 'hard'; label: string }> = [
-    { diff: 'easy', label: 'Easy' },
-    { diff: 'medium', label: 'Medium' },
-    { diff: 'hard', label: 'Hard' },
+  const difficultiesList: Array<{ diff: 'easy' | 'medium' | 'hard'; labelKey: string }> = [
+    { diff: 'easy', labelKey: 'diff_easy' },
+    { diff: 'medium', labelKey: 'diff_medium' },
+    { diff: 'hard', labelKey: 'diff_hard' },
   ];
 
-  const difficultyStats = difficultiesList.map(({ diff, label }) => {
+  const difficultyStats = difficultiesList.map(({ diff, labelKey }) => {
     const diffRuns = userResults.filter((r) => r.difficulty === diff);
     const count = diffRuns.length;
     const avg =
       count > 0 ? Math.round(diffRuns.reduce((acc, r) => acc + r.wpm, 0) / count) : 0;
     const max = count > 0 ? Math.max(...diffRuns.map((r) => r.wpm)) : 0;
-    return { diff, label, count, avg, max };
+    return { diff, label: t(labelKey as any), count, avg, max };
   });
 
   // Initials for fallback avatar
@@ -249,10 +247,10 @@ export const AccountView: React.FC = () => {
       <div className="border-b border-[rgba(232,226,216,0.08)] pb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-medium text-[#E8E2D8] tracking-tight">
-            account settings & stats
+            {t('acc_title')}
           </h1>
           <p className="text-xs text-[#9A9488] font-mono mt-1">
-            manage your profile details and inspect your typing speed metrics over time
+            {t('acc_subtitle')}
           </p>
         </div>
       </div>
@@ -283,7 +281,7 @@ export const AccountView: React.FC = () => {
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploadingAvatar}
                 className="absolute inset-0 rounded-full bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-[#E8E2D8] cursor-pointer"
-                title="Change profile photo"
+                title={t('acc_change_photo')}
               >
                 {uploadingAvatar ? (
                   <Loader2 className="w-6 h-6 animate-spin text-[#E85D3D]" />
@@ -312,7 +310,7 @@ export const AccountView: React.FC = () => {
               className="text-xs font-mono text-[#E85D3D] hover:underline cursor-pointer flex items-center gap-1"
             >
               <Camera className="w-3.5 h-3.5" />
-              <span>{uploadingAvatar ? 'uploading...' : 'change photo'}</span>
+              <span>{uploadingAvatar ? t('acc_saving') : t('acc_change_photo')}</span>
             </button>
 
             {avatarError && (
@@ -326,9 +324,9 @@ export const AccountView: React.FC = () => {
           <div className="flex-1 w-full">
             <form onSubmit={handleSaveProfile} className="space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-base font-medium text-[#E8E2D8]">personal information</h2>
+                <h2 className="text-base font-medium text-[#E8E2D8]">{t('acc_personal_info')}</h2>
                 <span className="text-[11px] text-[#9A9488] font-mono">
-                  joined {new Date(userProfile.createdAt).toLocaleDateString()}
+                  {new Date(userProfile.createdAt).toLocaleDateString()}
                 </span>
               </div>
 
@@ -342,7 +340,7 @@ export const AccountView: React.FC = () => {
               {profileSuccess && (
                 <div className="p-3 bg-[#6FA85C]/10 border border-[#6FA85C]/30 rounded-lg flex items-center space-x-2 text-xs text-[#6FA85C] font-mono">
                   <CheckCircle2 className="w-4 h-4 shrink-0" />
-                  <span>profile updated successfully!</span>
+                  <span>{t('acc_saved')}</span>
                 </div>
               )}
 
@@ -350,7 +348,7 @@ export const AccountView: React.FC = () => {
                 {/* First Name */}
                 <div>
                   <label className="block text-xs text-[#9A9488] mb-1 font-mono">
-                    first name *
+                    {t('acc_first_name')}
                   </label>
                   <input
                     type="text"
@@ -364,7 +362,7 @@ export const AccountView: React.FC = () => {
                 {/* Surname / Last Name */}
                 <div>
                   <label className="block text-xs text-[#9A9488] mb-1 font-mono">
-                    surname / last name *
+                    {t('acc_last_name')}
                   </label>
                   <input
                     type="text"
@@ -380,7 +378,7 @@ export const AccountView: React.FC = () => {
                 {/* Username (Read-only) */}
                 <div>
                   <label className="block text-xs text-[#9A9488] mb-1 font-mono flex items-center justify-between">
-                    <span>username</span>
+                    <span>{t('acc_username')}</span>
                     <span className="text-[10px] text-[#5C574C] flex items-center gap-1">
                       <Lock className="w-3 h-3" /> read-only
                     </span>
@@ -396,7 +394,7 @@ export const AccountView: React.FC = () => {
                 {/* Email Address */}
                 <div>
                   <label className="block text-xs text-[#9A9488] mb-1 font-mono">
-                    email address
+                    {t('acc_email')}
                   </label>
                   <input
                     type="text"
@@ -418,7 +416,7 @@ export const AccountView: React.FC = () => {
                   ) : (
                     <>
                       <Save className="w-4 h-4" />
-                      <span>save changes</span>
+                      <span>{t('acc_save_changes')}</span>
                     </>
                   )}
                 </button>
@@ -431,10 +429,10 @@ export const AccountView: React.FC = () => {
       {/* Dashboard Section Title */}
       <div className="pt-2">
         <h2 className="text-xl font-medium text-[#E8E2D8] tracking-tight mb-1">
-          personal typing statistics
+          {t('acc_stats_title')}
         </h2>
         <p className="text-xs text-[#9A9488] font-mono">
-          comprehensive overview of your typing speed, accuracy, and practice volume
+          {t('acc_stats_subtitle')}
         </p>
       </div>
 
@@ -450,7 +448,7 @@ export const AccountView: React.FC = () => {
             <div className="text-2xl sm:text-3xl font-mono font-bold text-[#F4A340]">
               {bestWpm}
             </div>
-            <div className="text-[11px] font-mono text-[#9A9488] mt-0.5">best wpm</div>
+            <div className="text-[11px] font-mono text-[#9A9488] mt-0.5">{t('acc_best_wpm')}</div>
           </div>
         </div>
 
@@ -464,7 +462,7 @@ export const AccountView: React.FC = () => {
             <div className="text-2xl sm:text-3xl font-mono font-bold text-[#E8E2D8]">
               {avgWpm}
             </div>
-            <div className="text-[11px] font-mono text-[#9A9488] mt-0.5">average wpm</div>
+            <div className="text-[11px] font-mono text-[#9A9488] mt-0.5">{t('acc_avg_wpm')}</div>
           </div>
         </div>
 
@@ -478,7 +476,7 @@ export const AccountView: React.FC = () => {
             <div className="text-2xl sm:text-3xl font-mono font-bold text-[#6FA85C]">
               {avgAccuracy}%
             </div>
-            <div className="text-[11px] font-mono text-[#9A9488] mt-0.5">avg accuracy</div>
+            <div className="text-[11px] font-mono text-[#9A9488] mt-0.5">{t('acc_avg_acc')}</div>
           </div>
         </div>
 
@@ -492,7 +490,7 @@ export const AccountView: React.FC = () => {
             <div className="text-2xl sm:text-3xl font-mono font-bold text-[#E8E2D8]">
               {totalTests}
             </div>
-            <div className="text-[11px] font-mono text-[#9A9488] mt-0.5">tests completed</div>
+            <div className="text-[11px] font-mono text-[#9A9488] mt-0.5">{t('acc_tests_completed')}</div>
           </div>
         </div>
 
@@ -506,7 +504,7 @@ export const AccountView: React.FC = () => {
             <div className="text-2xl sm:text-3xl font-mono font-bold text-[#E8E2D8]">
               {formatTotalTime(totalTimeSeconds)}
             </div>
-            <div className="text-[11px] font-mono text-[#9A9488] mt-0.5">typing time</div>
+            <div className="text-[11px] font-mono text-[#9A9488] mt-0.5">{t('acc_typing_time')}</div>
           </div>
         </div>
       </div>
@@ -515,10 +513,7 @@ export const AccountView: React.FC = () => {
       <div className="bg-[#1A1917] rounded-xl border border-[rgba(232,226,216,0.08)] p-6 shadow-lg">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-6">
           <div>
-            <h3 className="text-base font-medium text-[#E8E2D8]">wpm & accuracy progress</h3>
-            <p className="text-xs text-[#9A9488] font-mono">
-              showing historical performance across your last {lineChartData.length} tests
-            </p>
+            <h3 className="text-base font-medium text-[#E8E2D8]">{t('acc_progress_title')}</h3>
           </div>
 
           <div className="flex items-center space-x-4 font-mono text-xs">
@@ -536,15 +531,12 @@ export const AccountView: React.FC = () => {
         {loadingResults ? (
           <div className="h-64 flex flex-col items-center justify-center text-[#9A9488] font-mono text-xs space-y-2">
             <Loader2 className="w-5 h-5 animate-spin text-[#E85D3D]" />
-            <span>loading performance metrics...</span>
+            <span>{t('lb_loading')}</span>
           </div>
         ) : lineChartData.length === 0 ? (
           <div className="h-64 flex flex-col items-center justify-center text-center p-6 space-y-2">
             <Activity className="w-8 h-8 text-[#5C574C]" />
-            <p className="text-xs font-mono text-[#E8E2D8]">no test history recorded yet</p>
-            <p className="text-[11px] font-mono text-[#9A9488]">
-              complete a typing test on the main page to start tracking your progress over time
-            </p>
+            <p className="text-xs font-mono text-[#E8E2D8]">{t('lb_empty')}</p>
           </div>
         ) : (
           <div className="w-full h-72">
@@ -630,7 +622,7 @@ export const AccountView: React.FC = () => {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-2">
                 <Globe className="w-4 h-4 text-[#E85D3D]" />
-                <h3 className="text-base font-medium text-[#E8E2D8]">by language</h3>
+                <h3 className="text-base font-medium text-[#E8E2D8]">{t('acc_by_language')}</h3>
               </div>
               <span className="text-[11px] font-mono text-[#9A9488]">avg wpm</span>
             </div>
@@ -642,7 +634,7 @@ export const AccountView: React.FC = () => {
                     <span className="text-[#E8E2D8] font-medium">{item.label}</span>
                     <div className="flex items-center space-x-2">
                       <span className="text-[#9A9488] text-[10px]">
-                        {item.count} test{item.count === 1 ? '' : 's'}
+                        {item.count} test
                       </span>
                       <span className="text-[#F4A340] font-bold">{item.avg} wpm</span>
                     </div>
@@ -669,7 +661,7 @@ export const AccountView: React.FC = () => {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-2">
                 <Zap className="w-4 h-4 text-[#F4A340]" />
-                <h3 className="text-base font-medium text-[#E8E2D8]">by difficulty</h3>
+                <h3 className="text-base font-medium text-[#E8E2D8]">{t('acc_by_difficulty')}</h3>
               </div>
               <span className="text-[11px] font-mono text-[#9A9488]">avg wpm</span>
             </div>
@@ -681,7 +673,7 @@ export const AccountView: React.FC = () => {
                     <span className="text-[#E8E2D8] font-medium capitalize">{item.label}</span>
                     <div className="flex items-center space-x-2">
                       <span className="text-[#9A9488] text-[10px]">
-                        {item.count} test{item.count === 1 ? '' : 's'}
+                        {item.count} test
                       </span>
                       <span className="text-[#F4A340] font-bold">{item.avg} wpm</span>
                     </div>

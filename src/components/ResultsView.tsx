@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { TestResult } from '../types';
+import { useSettings } from '../context/SettingsContext';
 import { RotateCcw, ArrowRight, Trophy, CheckCircle2 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -26,7 +27,8 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
   onNextTest,
   onRestart,
 }) => {
-  // Listen for Tab+Enter or Esc to start next test quickly
+  const { t } = useSettings();
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Enter' || e.key === 'Escape') {
@@ -56,7 +58,6 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
     history,
   } = result;
 
-  // Format data for Recharts chart
   const chartData =
     history.length > 0
       ? history
@@ -65,13 +66,16 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
           { second: Math.round(timeSec), wpm, rawWpm, errors: incorrectChars },
         ];
 
+  const langText = t(`lang_${language}` as any) || language;
+  const diffText = t(`diff_${difficulty}` as any) || difficulty;
+
   return (
-    <div className="w-full max-w-4xl mx-auto flex flex-col gap-8 py-6 sm:py-10 animate-fade-in font-sans">
+    <div className="w-full max-w-4xl mx-auto flex flex-col gap-8 py-6 sm:py-10 animate-fade-in font-sans select-none">
       {/* Primary WPM & Accuracy Highlight Header */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {/* WPM Main Metric */}
         <div className="bg-[#1A1917] p-5 rounded-xl border border-[rgba(232,226,216,0.08)] flex flex-col justify-between">
-          <span className="text-xs font-sans text-[#9A9488]">wpm</span>
+          <span className="text-xs font-sans text-[#9A9488]">{t('results_wpm')}</span>
           <div className="flex items-baseline gap-2 mt-1">
             <span className="text-4xl sm:text-5xl font-mono font-medium text-[#F4A340]">
               {wpm}
@@ -82,7 +86,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
 
         {/* Accuracy */}
         <div className="bg-[#1A1917] p-5 rounded-xl border border-[rgba(232,226,216,0.08)] flex flex-col justify-between">
-          <span className="text-xs font-sans text-[#9A9488]">accuracy</span>
+          <span className="text-xs font-sans text-[#9A9488]">{t('results_acc')}</span>
           <div className="flex items-baseline gap-1 mt-1">
             <span className="text-4xl sm:text-5xl font-mono font-medium text-[#E8E2D8]">
               {accuracy}%
@@ -92,7 +96,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
 
         {/* Raw WPM */}
         <div className="bg-[#1A1917] p-5 rounded-xl border border-[rgba(232,226,216,0.08)] flex flex-col justify-between">
-          <span className="text-xs font-sans text-[#9A9488]">raw wpm</span>
+          <span className="text-xs font-sans text-[#9A9488]">{t('results_raw')}</span>
           <div className="flex items-baseline gap-1 mt-1">
             <span className="text-3xl sm:text-4xl font-mono font-medium text-[#9A9488]">
               {rawWpm}
@@ -102,7 +106,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
 
         {/* Consistency */}
         <div className="bg-[#1A1917] p-5 rounded-xl border border-[rgba(232,226,216,0.08)] flex flex-col justify-between">
-          <span className="text-xs font-sans text-[#9A9488]">consistency</span>
+          <span className="text-xs font-sans text-[#9A9488]">{t('results_consistency')}</span>
           <div className="flex items-baseline gap-1 mt-1">
             <span className="text-3xl sm:text-4xl font-mono font-medium text-[#9A9488]">
               {consistency}%
@@ -114,7 +118,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
       {/* WPM Over Time Timeline Chart */}
       <div className="bg-[#1A1917] p-5 rounded-xl border border-[rgba(232,226,216,0.08)]">
         <div className="flex items-center justify-between mb-4">
-          <span className="text-xs font-sans text-[#9A9488]">speed progression</span>
+          <span className="text-xs font-sans text-[#9A9488]">{t('results_speed_progression')}</span>
           <div className="flex items-center gap-4 text-xs font-mono">
             <div className="flex items-center gap-1.5">
               <span className="w-2.5 h-2.5 rounded-full bg-[#E85D3D]" />
@@ -180,39 +184,39 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Character Breakdown */}
         <div className="bg-[#1A1917] p-4 rounded-xl border border-[rgba(232,226,216,0.08)] flex flex-col justify-between">
-          <span className="text-xs text-[#9A9488]">characters</span>
+          <span className="text-xs text-[#9A9488]">{t('results_chars')}</span>
           <div className="font-mono text-sm text-[#E8E2D8] mt-2 flex items-center gap-2 flex-wrap">
-            <span className="text-[#6FA85C]" title="correct">{correctChars}</span>
+            <span className="text-[#6FA85C]">{correctChars}</span>
             <span className="text-[#5C574C]">/</span>
-            <span className="text-[#D64545]" title="incorrect">{incorrectChars}</span>
+            <span className="text-[#D64545]">{incorrectChars}</span>
             <span className="text-[#5C574C]">/</span>
-            <span className="text-[#F4A340]" title="extra">{extraChars}</span>
+            <span className="text-[#F4A340]">{extraChars}</span>
             <span className="text-[#5C574C]">/</span>
-            <span className="text-[#9A9488]" title="missed">{missedChars}</span>
+            <span className="text-[#9A9488]">{missedChars}</span>
           </div>
-          <span className="text-[11px] text-[#5C574C] mt-1">correct / incorrect / extra / missed</span>
+          <span className="text-[11px] text-[#5C574C] mt-1">{t('results_char_sub')}</span>
         </div>
 
         {/* Test Parameters */}
         <div className="bg-[#1A1917] p-4 rounded-xl border border-[rgba(232,226,216,0.08)] flex flex-col justify-between">
-          <span className="text-xs text-[#9A9488]">test mode</span>
+          <span className="text-xs text-[#9A9488]">{t('lb_all_modes')}</span>
           <div className="font-mono text-sm text-[#E8E2D8] mt-2 capitalize flex items-center gap-2">
-            <span className="text-[#E85D3D]">{language}</span>
+            <span className="text-[#E85D3D]">{langText}</span>
             <span className="text-[#5C574C]">•</span>
-            <span>{difficulty}</span>
+            <span>{diffText}</span>
             <span className="text-[#5C574C]">•</span>
-            <span>{mode === 'time' ? `${duration}s` : `${wordCount} words`}</span>
+            <span>{mode === 'time' ? `${duration}s` : `${wordCount} ${t('mode_words')}`}</span>
           </div>
-          <span className="text-[11px] text-[#5C574C] mt-1">language / difficulty / mode</span>
+          <span className="text-[11px] text-[#5C574C] mt-1">{t('results_params_sub')}</span>
         </div>
 
         {/* Time Taken */}
         <div className="bg-[#1A1917] p-4 rounded-xl border border-[rgba(232,226,216,0.08)] flex flex-col justify-between">
-          <span className="text-xs text-[#9A9488]">time elapsed</span>
+          <span className="text-xs text-[#9A9488]">{t('results_time')}</span>
           <div className="font-mono text-sm text-[#E8E2D8] mt-2">
             <span>{timeSec}s</span>
           </div>
-          <span className="text-[11px] text-[#5C574C] mt-1">total test duration</span>
+          <span className="text-[11px] text-[#5C574C] mt-1">{t('results_time_sub')}</span>
         </div>
       </div>
 
@@ -221,7 +225,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
         <div className="bg-[#6FA85C]/10 border border-[#6FA85C]/30 rounded-xl p-3 flex items-center justify-between text-xs font-mono text-[#6FA85C]">
           <div className="flex items-center space-x-2">
             <CheckCircle2 className="w-4 h-4 shrink-0" />
-            <span>result saved to global leaderboard!</span>
+            <span>{t('results_saved_banner')}</span>
           </div>
           {onViewLeaderboard && (
             <button
@@ -230,13 +234,13 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
               className="text-[#E8E2D8] hover:text-[#E85D3D] underline underline-offset-4 cursor-pointer transition-colors flex items-center gap-1"
             >
               <Trophy className="w-3.5 h-3.5" />
-              <span>view leaderboard</span>
+              <span>{t('results_view_leaderboard')}</span>
             </button>
           )}
         </div>
       ) : (
         <div className="bg-[#1A1917] border border-[rgba(232,226,216,0.08)] rounded-xl p-3 flex items-center justify-between text-xs font-mono text-[#9A9488]">
-          <span>sign in with google to save your score to the global leaderboard</span>
+          <span>{t('results_guest_banner')}</span>
           {onViewLeaderboard && (
             <button
               type="button"
@@ -244,7 +248,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
               className="text-[#E85D3D] hover:underline cursor-pointer transition-colors flex items-center gap-1"
             >
               <Trophy className="w-3.5 h-3.5" />
-              <span>leaderboard</span>
+              <span>{t('nav_leaderboard')}</span>
             </button>
           )}
         </div>
@@ -257,7 +261,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
           onClick={onNextTest}
           className="w-full sm:w-auto px-6 py-3 bg-[#E85D3D] text-[#E8E2D8] font-medium text-sm rounded-lg hover:bg-[#E85D3D]/90 transition-all flex items-center justify-center gap-2 group cursor-pointer"
         >
-          <span>next test</span>
+          <span>{t('results_next_test')}</span>
           <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
         </button>
 
@@ -267,12 +271,12 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
           className="w-full sm:w-auto px-6 py-3 bg-[#1A1917] text-[#9A9488] hover:text-[#E8E2D8] font-medium text-sm rounded-lg border border-[rgba(232,226,216,0.08)] hover:border-[rgba(232,226,216,0.2)] transition-all flex items-center justify-center gap-2 cursor-pointer"
         >
           <RotateCcw className="w-4 h-4" />
-          <span>restart same test</span>
+          <span>{t('results_restart')}</span>
         </button>
       </div>
 
       <div className="text-center font-mono text-xs text-[#5C574C]">
-        press <kbd className="bg-[#1A1917] px-1.5 py-0.5 rounded border border-[rgba(232,226,216,0.1)] text-[#9A9488]">enter</kbd> or <kbd className="bg-[#1A1917] px-1.5 py-0.5 rounded border border-[rgba(232,226,216,0.1)] text-[#9A9488]">esc</kbd> for next test
+        {t('results_press_hint')}
       </div>
     </div>
   );

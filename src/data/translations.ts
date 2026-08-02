@@ -33,6 +33,11 @@ export type TranslationKey =
   | 'results_next_test'
   | 'results_restart'
   | 'results_view_leaderboard'
+  | 'results_speed_progression'
+  | 'results_char_sub'
+  | 'results_params_sub'
+  | 'results_time_sub'
+  | 'results_press_hint'
   // Leaderboard
   | 'lb_title'
   | 'lb_subtitle'
@@ -49,6 +54,25 @@ export type TranslationKey =
   | 'lb_empty'
   | 'lb_empty_sub'
   | 'lb_loading'
+  | 'filter_today'
+  | 'filter_week'
+  | 'filter_month'
+  | 'filter_all'
+  | 'lb_all_languages'
+  | 'lb_all_modes_durations'
+  | 'lb_time_mode'
+  | 'lb_words_mode'
+  | 'lb_all_difficulties'
+  | 'lb_runs_loaded'
+  | 'lb_just_now'
+  | 'lb_ago_mins'
+  | 'lb_ago_hours'
+  | 'lb_ago_days'
+  | 'lb_you'
+  | 'lb_notice_title'
+  | 'lb_notice_copy'
+  | 'lb_notice_copied'
+  | 'lb_notice_desc'
   // Account
   | 'acc_title'
   | 'acc_subtitle'
@@ -72,6 +96,7 @@ export type TranslationKey =
   | 'acc_by_difficulty'
   | 'acc_change_photo'
   | 'acc_login_required'
+  | 'acc_login_desc'
   // Settings Panel
   | 'settings_title'
   | 'settings_subtitle'
@@ -131,20 +156,25 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     results_acc: 'aniqlik',
     results_raw: 'xom wpm',
     results_chars: 'belgilar',
-    results_time: 'vaqt',
+    results_time: 'sarflangan vaqt',
     results_consistency: 'barqarorlik',
     results_saved_banner: 'natija umumiy peshqadamlar jadvaliga saqlandi!',
     results_guest_banner: 'natijangizni saqlash uchun google orqali kiring',
     results_next_test: 'keyingi test',
     results_restart: 'qayta boshlash',
     results_view_leaderboard: 'peshqadamlarni ko‘rish',
+    results_speed_progression: 'tezlik o‘sishi',
+    results_char_sub: 'to‘g‘ri / xato / ortiqcha / o‘tkazilgan',
+    results_params_sub: 'til / qiyinchilik / rejim',
+    results_time_sub: 'testning umumiy davomiyligi',
+    results_press_hint: 'keyingi test uchun enter yoki esc tugmasini bosing',
 
     lb_title: 'peshqadamlar jadvali',
     lb_subtitle: 'barcha tillar va rejimlar bo‘yicha eng yaxshi natijalar',
-    lb_live: 'canli ulanish',
+    lb_live: 'jonli ulanish',
     lb_today: 'bugun',
-    lb_week: 'shu hafta',
-    lb_month: 'shu oy',
+    lb_week: 'hafta',
+    lb_month: 'oy',
     lb_all_time: 'barcha vaqt',
     lb_all_langs: 'barcha tillar',
     lb_all_modes: 'barcha rejimlar',
@@ -154,6 +184,25 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     lb_empty: 'bu filtr bo‘yicha natijalar hali yo‘q',
     lb_empty_sub: 'birinchi bo‘lib testni yakunlang va 1-o‘rinni egallang!',
     lb_loading: 'natijalar yuklanmoqda...',
+    filter_today: 'bugun',
+    filter_week: 'hafta',
+    filter_month: 'oy',
+    filter_all: 'barchasi',
+    lb_all_languages: 'barcha tillar',
+    lb_all_modes_durations: 'barcha rejimlar',
+    lb_time_mode: 'vaqt rejimi',
+    lb_words_mode: 'so‘zlar rejimi',
+    lb_all_difficulties: 'barcha qiyinchiliklar',
+    lb_runs_loaded: 'ta natija',
+    lb_just_now: 'hozirgina',
+    lb_ago_mins: 'd oldin',
+    lb_ago_hours: 's oldin',
+    lb_ago_days: 'k oldin',
+    lb_you: 'siz',
+    lb_notice_title: 'Supabase results jadvalini sozlash',
+    lb_notice_copy: 'sql nusxalash',
+    lb_notice_copied: 'sql nusxalandi!',
+    lb_notice_desc: 'Quyida mahalliy natijalar ko‘rsatilmoqda. Jonli peshqadamlar jadvali uchun Supabase SQL Editor scriptini bajaring.',
 
     acc_title: 'hisob sozlamalari va statistikasi',
     acc_subtitle: 'profil ma‘lumotlarini boshqaring va tezyozarlik ko‘rsatkichlarini kuzating',
@@ -177,6 +226,7 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     acc_by_difficulty: 'qiyinchilik bo‘yicha',
     acc_change_photo: 'rasmni o‘zgartirish',
     acc_login_required: 'hisobga kirish talab qilinadi',
+    acc_login_desc: 'shaxsiy profil va statistikani ko‘rish uchun google orqali kiring',
 
     settings_title: 'sozlamalar',
     settings_subtitle: 'klaviatura ovozlari, kursor va interfeys sozlamalari',
@@ -235,20 +285,25 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     results_acc: 'точность',
     results_raw: 'чистый wpm',
     results_chars: 'символы',
-    results_time: 'время',
+    results_time: 'прошедшее время',
     results_consistency: 'стабильность',
     results_saved_banner: 'результат сохранен в глобальной таблице лидеров!',
     results_guest_banner: 'войдите через google, чтобы сохранить ваш результат',
     results_next_test: 'следующий тест',
     results_restart: 'перезапустить',
     results_view_leaderboard: 'открыть таблицу лидеров',
+    results_speed_progression: 'прогресс скорости',
+    results_char_sub: 'верно / ошибка / лишние / пропущено',
+    results_params_sub: 'язык / сложность / режим',
+    results_time_sub: 'общая длительность теста',
+    results_press_hint: 'нажмите enter или esc для следующего теста',
 
     lb_title: 'глобальный рейтинг',
     lb_subtitle: 'лучшие результаты скоропечатания по языкам и режимам',
     lb_live: 'живая синхронизация',
     lb_today: 'сегодня',
-    lb_week: 'за неделю',
-    lb_month: 'за месяц',
+    lb_week: 'неделя',
+    lb_month: 'месяц',
     lb_all_time: 'за все время',
     lb_all_langs: 'все языки',
     lb_all_modes: 'все режимы',
@@ -258,6 +313,25 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     lb_empty: 'нет результатов по этому фильтру',
     lb_empty_sub: 'станьте первым, кто завершит тест и займет #1 место!',
     lb_loading: 'загрузка рейтинга...',
+    filter_today: 'сегодня',
+    filter_week: 'неделя',
+    filter_month: 'месяц',
+    filter_all: 'все',
+    lb_all_languages: 'все языки',
+    lb_all_modes_durations: 'все режимы',
+    lb_time_mode: 'режим времени',
+    lb_words_mode: 'режим слов',
+    lb_all_difficulties: 'все сложности',
+    lb_runs_loaded: 'результатов',
+    lb_just_now: 'только что',
+    lb_ago_mins: 'мин назад',
+    lb_ago_hours: 'ч назад',
+    lb_ago_days: 'дн назад',
+    lb_you: 'вы',
+    lb_notice_title: 'Настройка таблицы Supabase results',
+    lb_notice_copy: 'скопировать sql',
+    lb_notice_copied: 'sql скопирован!',
+    lb_notice_desc: 'Показаны локальные результаты. Для глобального рейтинга выполните скрипт в Supabase SQL Editor.',
 
     acc_title: 'настройки аккаунта и статистика',
     acc_subtitle: 'управляйте профилем и отслеживайте прогресс скорости печати',
@@ -281,6 +355,7 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     acc_by_difficulty: 'по сложности',
     acc_change_photo: 'изменить фото',
     acc_login_required: 'требуется вход в аккаунт',
+    acc_login_desc: 'войдите через google, чтобы просмотреть профиль и статистику',
 
     settings_title: 'настройки',
     settings_subtitle: 'звуки клавиш, каретка и язык интерфейса',
@@ -339,29 +414,53 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     results_acc: 'accuracy',
     results_raw: 'raw wpm',
     results_chars: 'characters',
-    results_time: 'time',
+    results_time: 'time elapsed',
     results_consistency: 'consistency',
     results_saved_banner: 'result saved to global leaderboard!',
     results_guest_banner: 'sign in with google to save your score to the global leaderboard',
     results_next_test: 'next test',
     results_restart: 'restart',
     results_view_leaderboard: 'view leaderboard',
+    results_speed_progression: 'speed progression',
+    results_char_sub: 'correct / incorrect / extra / missed',
+    results_params_sub: 'language / difficulty / mode',
+    results_time_sub: 'total test duration',
+    results_press_hint: 'press enter or esc for next test',
 
     lb_title: 'global rankings',
     lb_subtitle: 'real-time top typing test scores across languages & modes',
     lb_live: 'live sync active',
     lb_today: 'today',
-    lb_week: 'this week',
-    lb_month: 'this month',
+    lb_week: 'week',
+    lb_month: 'month',
     lb_all_time: 'all time',
     lb_all_langs: 'all languages',
-    lb_all_modes: 'all modes & durations',
+    lb_all_modes: 'all modes',
     lb_all_diffs: 'all difficulties',
     lb_user: 'user',
     lb_date: 'date',
     lb_empty: 'no results recorded for this filter yet',
     lb_empty_sub: 'be the first to complete a test in this category to claim #1 rank!',
     lb_loading: 'fetching live rankings...',
+    filter_today: 'today',
+    filter_week: 'week',
+    filter_month: 'month',
+    filter_all: 'all',
+    lb_all_languages: 'all languages',
+    lb_all_modes_durations: 'all modes & durations',
+    lb_time_mode: 'time mode',
+    lb_words_mode: 'words mode',
+    lb_all_difficulties: 'all difficulties',
+    lb_runs_loaded: 'runs loaded',
+    lb_just_now: 'just now',
+    lb_ago_mins: 'm ago',
+    lb_ago_hours: 'h ago',
+    lb_ago_days: 'd ago',
+    lb_you: 'you',
+    lb_notice_title: 'Supabase results table setup recommended for global live sync',
+    lb_notice_copy: 'copy sql setup',
+    lb_notice_copied: 'copied sql!',
+    lb_notice_desc: 'Showing local scores below. To enable live multi-user global rankings across all devices, run the setup script.',
 
     acc_title: 'account settings & stats',
     acc_subtitle: 'manage your profile details and inspect your typing speed metrics over time',
@@ -385,6 +484,7 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     acc_by_difficulty: 'by difficulty',
     acc_change_photo: 'change photo',
     acc_login_required: 'account login required',
+    acc_login_desc: 'please sign in with google to view your personal account profile and typing statistics',
 
     settings_title: 'settings',
     settings_subtitle: 'customize key sounds, smooth caret motion, and site language',
