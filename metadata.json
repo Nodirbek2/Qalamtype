@@ -1,0 +1,6 @@
+{
+  "name": "Qalampir",
+  "description": "Multilingual typing-speed test website for Uzbekistan supporting Uzbek, Russian, and English",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

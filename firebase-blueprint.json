@@ -1,0 +1,52 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile information",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "username": { "type": "string" },
+        "usernameLower": { "type": "string" },
+        "email": { "type": "string" },
+        "firstName": { "type": "string" },
+        "lastName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "preferredSiteLanguage": { "type": "string" },
+        "preferredTypingLanguage": { "type": "string" },
+        "isProfileComplete": { "type": "boolean" }
+      },
+      "required": ["uid", "username", "email"]
+    },
+    "Result": {
+      "title": "Result",
+      "description": "Typing test result document for leaderboard",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "username": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "wpm": { "type": "number" },
+        "rawWpm": { "type": "number" },
+        "accuracy": { "type": "number" },
+        "mode": { "type": "string", "enum": ["time", "words"] },
+        "modeValue": { "type": "number" },
+        "difficulty": { "type": "string", "enum": ["easy", "medium", "hard"] },
+        "typingLanguage": { "type": "string", "enum": ["uzbek", "russian", "english"] },
+        "timestamp": { "type": "object" }
+      },
+      "required": ["uid", "username", "wpm", "rawWpm", "accuracy", "mode", "modeValue", "difficulty", "typingLanguage"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profiles collection"
+    },
+    "/results/{resultId}": {
+      "schema": "Result",
+      "description": "Typing test results collection for leaderboard and statistics"
+    }
+  }
+}

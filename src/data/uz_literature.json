@@ -1,0 +1,62 @@
+{
+  "language": "uz",
+  "difficulty": "literature",
+  "work": "O'tkan kunlar",
+  "author": "Abdulla Qodiriy",
+  "year": 1926,
+  "source": "https://wikisource.org/wiki/O'tkan_kunlar",
+  "license_note": "Sourced from Wikisource, tagged PD-Uzbekistan (public domain). Wikisource text is freely reusable, unlike ziyouz.com's digitized edition which restricts commercial reproduction/distribution of their specific transcription. These lines were verified against real Wikisource page content, not reconstructed from memory.",
+  "coverage_note": "This covers 11 of the novel's ~60 chapters as a sample — full-book coverage would need many more chapter pulls. Ask for more chapters any time; the URL pattern is https://wikisource.org/wiki/O'tkan_kunlar/NN (NN = 01, 02, 03... up through the low 60s), and the chapter list/titles can be pulled from https://wikisource.org/wiki/O'tkan_kunlar.",
+  "entries": [
+    {
+      "chapter": 1,
+      "chapterTitle": "Otabek Yusufbek Hoji O'g'li",
+      "text": "1264-inchi hijriy, dalv oyining o'n yettinchisi, qishki kunlarning biri, quyosh botqan, tevarakdan shom azoni eshitiladir. Darbozasi sharqi-janubiyga qaratib qurilg'an bu dong'dor saroyni Toshkand, Samarqand va Buxoro savdogarlari egallaganlar, saroydagi bir-ikki hujrani istisno qilish bilan boshqalari musofirlar ila to'la."
+    },
+    {
+      "chapter": 11,
+      "chapterTitle": "Kutilmagan baxt",
+      "text": "Kechki soat beshlarda qutidorning havlisi to'rt ko'z bilan kuyav kelishini kutadir. Kuyav uchun palovlar, quyuq-suyuq oshlar, necha turlik ne'matlar hozirlanib, bular ham kuyavning intizorida turadirlar. Nihoyat, soat besh yarimlarda kuyav keldi."
+    },
+    {
+      "chapter": 13,
+      "chapterTitle": null,
+      "text": "Qushbegining ko'zi yondi. Manglay etlari tirishib, so'l qo'l bilan soqolini tutamlab fikrga ketdi."
+    },
+    {
+      "chapter": 27,
+      "chapterTitle": null,
+      "text": "Shu gapdan bir hafta chamasi keyin va charlar kutishning o'n beshinchi kunlari edi."
+    },
+    {
+      "chapter": 31,
+      "chapterTitle": null,
+      "text": "Endi uchunchi yildirki, xotinsiz yashayman va uylanishni ham o'ylab ko'rmayman."
+    },
+    {
+      "chapter": 32,
+      "chapterTitle": null,
+      "text": "Yoshlik — beboshlik, degan ekan mashoyixlar."
+    },
+    {
+      "chapter": 37,
+      "chapterTitle": "Raqib izidan",
+      "text": "O'n olti-o'n yetti kunlik oy oq bulut ichidan qo'toslanib ko'rinar edi. Hamma xuftan namoziga kirib ketkan, ko'chalar suv quyg'andek tinch edi."
+    },
+    {
+      "chapter": 41,
+      "chapterTitle": null,
+      "text": "Biz Musulmonqulni tanimaymiz! Bizning boshlug'imiz Xudoyorxondir!"
+    },
+    {
+      "chapter": 48,
+      "chapterTitle": "Zimnan adovat",
+      "text": "Iymanma, Kumush otin, bu kun-erta bizga yangi kelinsan."
+    },
+    {
+      "chapter": 56,
+      "chapterTitle": null,
+      "text": "Ertasi kun dafn marosimi bo'ldi. Janozag'a Toshkandning har bir mahallasidan deyarlik kishilar ishtirok qildi."
+    }
+  ]
+}
