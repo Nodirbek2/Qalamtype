@@ -8,6 +8,14 @@ interface AuthContextType {
   userProfile: UserProfile | null;
   loading: boolean;
   loginWithGoogle: () => Promise<{ isNewUser: boolean; profile: UserProfile }>;
+  loginWithEmail: (email: string, password: string) => Promise<void>;
+  signupWithEmail: (
+    email: string,
+    password: string,
+    firstName?: string,
+    lastName?: string,
+    username?: string
+  ) => Promise<{ isNewUser: boolean; profile: UserProfile }>;
   logout: () => Promise<void>;
   checkUsernameAvailability: (username: string) => Promise<boolean>;
   updateUserProfile: (data: Partial<UserProfile>) => Promise<void>;
@@ -78,19 +86,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       // Profile doesn't exist, create it
-      const rawBase = (user.email?.split('@')[0] || 'user').replace(/[^a-zA-Z0-9_]/g, '');
+      const meta = user.user_metadata || {};
+      const fullName = (meta.full_name || meta.name || meta.given_name || '').trim();
+      const nameParts = fullName ? fullName.split(' ') : [];
+      const firstName =
+        meta.first_name ||
+        meta.given_name ||
+        nameParts[0] ||
+        user.email?.split('@')[0] ||
+        'User';
+      const lastName =
+        meta.last_name ||
+        meta.family_name ||
+        (nameParts.length > 1 ? nameParts.slice(1).join(' ') : '');
+
+      const rawBase = (meta.username || user.email?.split('@')[0] || 'user').replace(/[^a-zA-Z0-9_]/g, '');
       let candidateUsername = rawBase.length >= 3 ? rawBase : `user_${Math.floor(100 + Math.random() * 900)}`;
 
       const isAvailable = await checkUsernameAvailability(candidateUsername);
-      if (!isAvailable) {
+      if (!isAvailable && !meta.username) {
         candidateUsername = `${candidateUsername}_${Math.floor(1000 + Math.random() * 9000)}`;
       }
-
-      const meta = user.user_metadata || {};
-      const fullName = (meta.full_name || meta.name || '').trim();
-      const nameParts = fullName.split(' ');
-      const firstName = nameParts[0] || '';
-      const lastName = nameParts.slice(1).join(' ') || '';
 
       const newProfile: UserProfile = {
         uid: user.id,
@@ -103,7 +119,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         createdAt: new Date().toISOString(),
         preferredSiteLanguage: 'uzbek',
         preferredTypingLanguage: 'uzbek',
-        isProfileComplete: false,
+        isProfileComplete: true,
       };
 
       const { error: insertError } = await supabase.from('users').upsert(newProfile);
@@ -124,6 +140,68 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         preferredTypingLanguage: 'uzbek',
         isProfileComplete: false,
       };
+    }
+  };
+
+  // Signup with Email & Password
+  const signupWithEmail = async (
+    email: string,
+    password: string,
+    firstName?: string,
+    lastName?: string,
+    username?: string
+  ): Promise<{ isNewUser: boolean; profile: UserProfile }> => {
+    if (!isSupabaseConfigured) {
+      throw new Error('Supabase is not configured. Please check your configuration.');
+    }
+
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: `${firstName || ''} ${lastName || ''}`.trim(),
+          first_name: firstName || '',
+          last_name: lastName || '',
+          username: username || '',
+        },
+      },
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    if (data.user) {
+      const profile = await fetchOrCreateProfile(data.user);
+      setUserProfile(profile);
+      return {
+        isNewUser: !profile.isProfileComplete,
+        profile,
+      };
+    }
+
+    throw new Error('signup submitted successfully.');
+  };
+
+  // Login with Email & Password
+  const loginWithEmail = async (email: string, password: string): Promise<void> => {
+    if (!isSupabaseConfigured) {
+      throw new Error('Supabase is not configured. Please check your configuration.');
+    }
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    if (data.user) {
+      const profile = await fetchOrCreateProfile(data.user);
+      setUserProfile(profile);
     }
   };
 
@@ -231,6 +309,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         userProfile,
         loading,
         loginWithGoogle,
+        loginWithEmail,
+        signupWithEmail,
         logout,
         checkUsernameAvailability,
         updateUserProfile,
