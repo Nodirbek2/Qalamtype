@@ -61,11 +61,11 @@ export const IntroOverlay: React.FC<IntroOverlayProps> = ({
     };
   }, [introState, onSkip]);
 
-  if (introState === 'checking') {
+  if (introState === 'checking' || introState === 'done') {
     return null;
   }
 
-  const isAnimating = introState === 'animating' || introState === 'done';
+  const isAnimating = introState === 'animating';
 
   return (
     <motion.div

@@ -138,6 +138,14 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleGlobalShortcuts);
   }, [handleNextTest]);
 
+  const handleStartAnimation = useCallback(() => {
+    setIntroState('animating');
+  }, []);
+
+  const handleCompleteAnimation = useCallback(() => {
+    setIntroState('done');
+  }, []);
+
   const handleSkipIntro = useCallback(() => {
     setIntroState((prev) => {
       if (prev === 'hero') return 'animating';
@@ -154,8 +162,8 @@ export default function App() {
         {introState !== 'done' && introState !== 'checking' && (
           <IntroOverlay
             introState={introState}
-            onStartAnimation={() => setIntroState('animating')}
-            onCompleteAnimation={() => setIntroState('done')}
+            onStartAnimation={handleStartAnimation}
+            onCompleteAnimation={handleCompleteAnimation}
             onSkip={handleSkipIntro}
           />
         )}
