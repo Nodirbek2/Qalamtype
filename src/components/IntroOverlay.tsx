@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 
 interface IntroOverlayProps {
   introState: 'checking' | 'hero' | 'animating' | 'done';
@@ -38,7 +38,7 @@ export const IntroOverlay: React.FC<IntroOverlayProps> = ({
 
   // Skip handler on click or keydown
   useEffect(() => {
-    if (introState !== 'hero' && introState !== 'animating') return;
+    if (introState !== 'hero') return;
 
     const handleKeyDown = () => {
       onSkip();

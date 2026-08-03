@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { LayoutGroup, AnimatePresence } from 'motion/react';
+import { LayoutGroup } from 'motion/react';
 import { TestMode, Duration, WordCount, Difficulty, Language } from './types';
 import { useTypingEngine } from './hooks/useTypingEngine';
 import { useAuth } from './context/AuthContext';
@@ -151,16 +151,14 @@ export default function App() {
     <LayoutGroup id="app-intro-group">
       <div className="min-h-screen bg-[#0F0E0D] text-[#E8E2D8] flex flex-col font-sans selection:bg-[#E85D3D] selection:text-[#0F0E0D] relative">
         {/* Intro Fullscreen Overlay */}
-        <AnimatePresence>
-          {introState !== 'done' && introState !== 'checking' && (
-            <IntroOverlay
-              introState={introState}
-              onStartAnimation={() => setIntroState('animating')}
-              onCompleteAnimation={() => setIntroState('done')}
-              onSkip={handleSkipIntro}
-            />
-          )}
-        </AnimatePresence>
+        {introState !== 'done' && introState !== 'checking' && (
+          <IntroOverlay
+            introState={introState}
+            onStartAnimation={() => setIntroState('animating')}
+            onCompleteAnimation={() => setIntroState('done')}
+            onSkip={handleSkipIntro}
+          />
+        )}
 
         {/* Subtle Focus Ring Overlay */}
         <div className="fixed inset-0 pointer-events-none border border-[#E85D3D] opacity-10 z-40"></div>
