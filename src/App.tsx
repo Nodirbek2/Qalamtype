@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { LayoutGroup } from 'motion/react';
 import { TestMode, Duration, WordCount, Difficulty, Language } from './types';
 import { useTypingEngine } from './hooks/useTypingEngine';
 import { useAuth } from './context/AuthContext';
@@ -12,10 +13,26 @@ import { LeaderboardView } from './components/LeaderboardView';
 import { AccountView } from './components/AccountView';
 import { SettingsModal } from './components/SettingsModal';
 import { Footer } from './components/Footer';
+import { IntroOverlay } from './components/IntroOverlay';
 
 export default function App() {
   const { currentUser, userProfile } = useAuth();
   const { typingSound, typingLanguage, setTypingLanguage } = useSettings();
+
+  // Intro animation state
+  const [introState, setIntroState] = useState<'checking' | 'hero' | 'animating' | 'done'>('checking');
+
+  useEffect(() => {
+    const isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isAlreadyShown = sessionStorage.getItem('qalampir_intro_shown');
+
+    if (isReducedMotion || isAlreadyShown) {
+      setIntroState('done');
+    } else {
+      sessionStorage.setItem('qalampir_intro_shown', 'true');
+      setIntroState('hero');
+    }
+  }, []);
 
   // Active View ('test' | 'leaderboard' | 'account') with URL path synchronization
   const [activeView, setActiveView] = useState<'test' | 'leaderboard' | 'account'>(() => {
@@ -39,10 +56,13 @@ export default function App() {
     wordsDisplay,
     currentIndex,
     phase,
+    isPaused,
     timeLeft,
     result,
     getLiveStats,
     resetTest,
+    pauseTest,
+    resumeTest,
     handleKeyDown,
   } = useTypingEngine({
     mode,
@@ -119,72 +139,87 @@ export default function App() {
   const liveStats = getLiveStats();
 
   return (
-    <div className="min-h-screen bg-[#0F0E0D] text-[#E8E2D8] flex flex-col font-sans selection:bg-[#E85D3D] selection:text-[#0F0E0D] relative">
-      {/* Subtle Focus Ring Overlay */}
-      <div className="fixed inset-0 pointer-events-none border border-[#E85D3D] opacity-10 z-50"></div>
-
-      {/* Top Navbar */}
-      <Navbar
-        onLogoClick={handleNextTest}
-        activeView={activeView}
-        onNavigate={navigateTo}
-        onOpenSettings={() => setIsSettingsOpen(true)}
-      >
-        <ModeSelector
-          mode={mode}
-          duration={duration}
-          wordCount={wordCount}
-          difficulty={difficulty}
-          language={typingLanguage}
-          onModeChange={setMode}
-          onDurationChange={setDuration}
-          onWordCountChange={setWordCount}
-          onDifficultyChange={setDifficulty}
-          onLanguageChange={setTypingLanguage}
+    <LayoutGroup id="app-intro-group">
+      <div className="min-h-screen bg-[#0F0E0D] text-[#E8E2D8] flex flex-col font-sans selection:bg-[#E85D3D] selection:text-[#0F0E0D] relative">
+        {/* Intro Fullscreen Overlay */}
+        <IntroOverlay
+          introState={introState}
+          onStartAnimation={() => setIntroState('animating')}
+          onCompleteAnimation={() => setIntroState('done')}
+          onSkip={() => setIntroState('done')}
         />
-      </Navbar>
 
-      {/* Main Container */}
-      <main className="flex-1 flex flex-col justify-center px-4 py-8 max-w-6xl w-full mx-auto">
-        {activeView === 'account' ? (
-          <AccountView />
-        ) : activeView === 'leaderboard' ? (
-          <LeaderboardView />
-        ) : phase === 'completed' && result ? (
-          <ResultsView
-            result={result}
-            savedToLeaderboard={Boolean(savedResultKey && currentUser)}
-            onViewLeaderboard={() => navigateTo('leaderboard')}
-            onNextTest={handleNextTest}
-            onRestart={handleNextTest}
-          />
-        ) : (
-          <TypingArea
-            wordsDisplay={wordsDisplay}
-            currentIndex={currentIndex}
-            phase={phase}
-            timeLeft={timeLeft}
+        {/* Subtle Focus Ring Overlay */}
+        <div className="fixed inset-0 pointer-events-none border border-[#E85D3D] opacity-10 z-40"></div>
+
+        {/* Top Navbar */}
+        <Navbar
+          onLogoClick={handleNextTest}
+          activeView={activeView}
+          onNavigate={navigateTo}
+          onOpenSettings={() => setIsSettingsOpen(true)}
+          showWordmark={introState !== 'hero'}
+          isIntroDone={introState === 'done'}
+        >
+          <ModeSelector
             mode={mode}
             duration={duration}
             wordCount={wordCount}
             difficulty={difficulty}
             language={typingLanguage}
-            onRestart={handleNextTest}
-            onKeyDown={handleKeyDown}
-            liveWpm={liveStats.wpm}
+            onModeChange={setMode}
+            onDurationChange={setDuration}
+            onWordCountChange={setWordCount}
+            onDifficultyChange={setDifficulty}
+            onLanguageChange={setTypingLanguage}
           />
-        )}
-      </main>
+        </Navbar>
 
-      {/* Settings Modal */}
-      <SettingsModal
-        isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
-      />
+        {/* Main Container */}
+        <main className="flex-1 flex flex-col justify-center px-4 py-8 max-w-6xl w-full mx-auto">
+          {activeView === 'account' ? (
+            <AccountView />
+          ) : activeView === 'leaderboard' ? (
+            <LeaderboardView />
+          ) : phase === 'completed' && result ? (
+            <ResultsView
+              result={result}
+              savedToLeaderboard={Boolean(savedResultKey && currentUser)}
+              onViewLeaderboard={() => navigateTo('leaderboard')}
+              onNextTest={handleNextTest}
+              onRestart={handleNextTest}
+            />
+          ) : (
+            <TypingArea
+              wordsDisplay={wordsDisplay}
+              currentIndex={currentIndex}
+              phase={phase}
+              isPaused={isPaused}
+              timeLeft={timeLeft}
+              mode={mode}
+              duration={duration}
+              wordCount={wordCount}
+              difficulty={difficulty}
+              language={typingLanguage}
+              onRestart={handleNextTest}
+              onPause={pauseTest}
+              onResume={resumeTest}
+              onKeyDown={handleKeyDown}
+              liveWpm={liveStats.wpm}
+            />
+          )}
+        </main>
 
-      {/* Footer */}
-      <Footer />
-    </div>
+        {/* Settings Modal */}
+        <SettingsModal
+          isOpen={isSettingsOpen}
+          onClose={() => setIsSettingsOpen(false)}
+        />
+
+        {/* Footer */}
+        <Footer />
+      </div>
+    </LayoutGroup>
   );
 }
 

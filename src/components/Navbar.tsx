@@ -10,6 +10,8 @@ interface NavbarProps {
   activeView?: 'test' | 'leaderboard' | 'account';
   onNavigate?: (view: 'test' | 'leaderboard' | 'account') => void;
   onOpenSettings?: () => void;
+  showWordmark?: boolean;
+  isIntroDone?: boolean;
   children?: React.ReactNode;
 }
 
@@ -18,6 +20,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   activeView = 'test',
   onNavigate,
   onOpenSettings,
+  showWordmark = true,
+  isIntroDone = true,
   children,
 }) => {
   const { currentUser, userProfile, logout } = useAuth();
@@ -43,7 +47,12 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Top Left Logo & Nav Links */}
         <div className="flex items-center space-x-6">
           <div onClick={onLogoClick} className="cursor-pointer">
-            <Logo size="md" showText={true} />
+            <Logo
+              size="md"
+              showText={true}
+              showWordmark={showWordmark}
+              isIntroDone={isIntroDone}
+            />
           </div>
 
           <nav className="flex items-center space-x-1 font-mono text-xs">

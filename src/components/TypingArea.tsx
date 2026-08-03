@@ -9,6 +9,7 @@ interface TypingAreaProps {
   wordsDisplay: WordDisplayInfo[];
   currentIndex: number;
   phase: 'idle' | 'running' | 'completed';
+  isPaused?: boolean;
   timeLeft: number;
   mode: TestMode;
   duration: Duration;
@@ -16,6 +17,8 @@ interface TypingAreaProps {
   difficulty: Difficulty;
   language: Language;
   onRestart: () => void;
+  onPause?: () => void;
+  onResume?: () => void;
   onKeyDown: (e: KeyboardEvent) => void;
   liveWpm?: number;
 }
@@ -24,6 +27,7 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
   wordsDisplay,
   currentIndex,
   phase,
+  isPaused = false,
   timeLeft,
   mode,
   duration,
@@ -31,6 +35,8 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
   difficulty,
   language,
   onRestart,
+  onPause,
+  onResume,
   onKeyDown,
   liveWpm = 0,
 }) => {
@@ -38,6 +44,35 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [caretPos, setCaretPos] = useState({ top: 0, left: 0, height: 28 });
   const [isFocused, setIsFocused] = useState(true);
+  const lastMousePosRef = useRef<{ x: number; y: number } | null>(null);
+
+  // Pause test if mouse moves while writing
+  useEffect(() => {
+    if (phase !== 'running' || isPaused) {
+      lastMousePosRef.current = null;
+      return;
+    }
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!lastMousePosRef.current) {
+        lastMousePosRef.current = { x: e.clientX, y: e.clientY };
+        return;
+      }
+      const dist = Math.hypot(
+        e.clientX - lastMousePosRef.current.x,
+        e.clientY - lastMousePosRef.current.y
+      );
+      if (dist > 8) {
+        lastMousePosRef.current = { x: e.clientX, y: e.clientY };
+        if (onPause) {
+          onPause();
+        }
+      }
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, [phase, isPaused, onPause]);
 
   // Global keydown handler when focused
   useEffect(() => {
@@ -48,12 +83,15 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
         return;
       }
       setIsFocused(true);
+      if (isPaused && onResume) {
+        onResume();
+      }
       onKeyDown(e);
     };
 
     window.addEventListener('keydown', handleGlobalKeyDown);
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
-  }, [onKeyDown]);
+  }, [onKeyDown, isPaused, onResume]);
 
   // Update Caret position relative to current typing index
   useLayoutEffect(() => {
@@ -158,23 +196,27 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
     >
       {/* Top Info Bar directly above typing box */}
       <div className="w-full flex items-center justify-between mb-4 px-2 font-mono text-xs">
-        {/* Language & Difficulty indicator (e.g., uzbek / easy) */}
+        {/* Language & Difficulty indicator (e.g., o'zbekcha / oson) */}
         <div className="flex flex-col">
-          <span className="text-[10px] uppercase tracking-widest text-[#5C574C] font-semibold font-sans">language</span>
-          <span className="text-[#E85D3D] text-sm font-mono">{language}_{difficulty}</span>
+          <span className="text-[10px] uppercase tracking-widest text-[#5C574C] font-semibold font-sans">
+            {t('typing_language_label')}
+          </span>
+          <span className="text-[#E85D3D] text-sm font-mono">
+            {t(`lang_${language}` as any)} / {t(`diff_${difficulty}` as any)}
+          </span>
         </div>
 
         {/* Live metric timer / progress */}
-        <div className="flex items-center space-x-8">
+        <div className="flex items-center space-x-6">
           <div className="flex flex-col items-end">
             <span className="text-[10px] uppercase tracking-widest text-[#5C574C] font-semibold font-sans">wpm</span>
-            <span className="text-2xl font-mono text-[#F4A340]">{liveWpm}</span>
+            <span className="text-xl font-mono text-[#F4A340]">{liveWpm}</span>
           </div>
           <div className="flex flex-col items-end">
             <span className="text-[10px] uppercase tracking-widest text-[#5C574C] font-semibold font-sans">
               {mode === 'time' ? 'time' : 'words'}
             </span>
-            <span className="text-2xl font-mono text-[#E85D3D]">
+            <span className="text-xl font-mono text-[#E85D3D]">
               {mode === 'time' ? `${timeLeft}s` : `${completedWordsCount}/${wordCount}`}
             </span>
           </div>
@@ -187,11 +229,19 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
         className="relative w-full min-h-[160px] p-4 sm:p-6 bg-[#1A1917] rounded-xl border border-[rgba(232,226,216,0.08)] cursor-text overflow-hidden focus:outline-none"
         tabIndex={0}
       >
-        {/* Out of focus warning overlay */}
-        {!isFocused && (
-          <div className="absolute inset-0 bg-[#0F0E0D]/80 backdrop-blur-[1px] z-20 flex items-center justify-center rounded-xl transition-all">
-            <span className="font-sans text-sm text-[#E8E2D8] bg-[#1A1917] px-4 py-2 rounded-lg border border-[rgba(232,226,216,0.12)]">
-              {t('typing_focus_prompt')}
+        {/* Out of focus or Paused warning overlay */}
+        {(isPaused || !isFocused) && (
+          <div
+            className="absolute inset-0 bg-[#0F0E0D]/20 z-20 flex items-center justify-center rounded-xl transition-all cursor-pointer pointer-events-auto"
+            onClick={() => {
+              setIsFocused(true);
+              if (isPaused && onResume) {
+                onResume();
+              }
+            }}
+          >
+            <span className="font-sans text-xs sm:text-sm text-[#E85D3D] bg-[#1A1917]/90 px-4 py-2 rounded-lg border border-[rgba(232,93,61,0.35)] shadow-xl animate-pulse">
+              {isPaused ? t('typing_paused_prompt') : t('typing_focus_prompt')}
             </span>
           </div>
         )}
@@ -259,7 +309,7 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
           <span className="bg-[#1A1917] px-1.5 py-0.5 rounded border border-[#5C574C] text-[#9A9488]">tab</span>
           <span>+</span>
           <span className="bg-[#1A1917] px-1.5 py-0.5 rounded border border-[#5C574C] text-[#9A9488]">enter</span>
-          <span className="ml-2">to restart test</span>
+          <span className="ml-2">{t('typing_restart_hint')}</span>
         </div>
       </div>
     </div>

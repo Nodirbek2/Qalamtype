@@ -1,11 +1,19 @@
 import React from 'react';
+import { motion } from 'motion/react';
 
 interface LogoProps {
   size?: 'sm' | 'md' | 'lg';
   showText?: boolean;
+  showWordmark?: boolean;
+  isIntroDone?: boolean;
 }
 
-export const Logo: React.FC<LogoProps> = ({ size = 'md', showText = true }) => {
+export const Logo: React.FC<LogoProps> = ({
+  size = 'md',
+  showText = true,
+  showWordmark = true,
+  isIntroDone = true,
+}) => {
   const iconSizes = {
     sm: 'w-5 h-5',
     md: 'w-7 h-7',
@@ -21,7 +29,12 @@ export const Logo: React.FC<LogoProps> = ({ size = 'md', showText = true }) => {
   return (
     <div className="flex items-center gap-2.5 select-none cursor-pointer group">
       {/* Chili Pepper + Caret / I-Beam SVG Icon */}
-      <div className={`${iconSizes[size]} text-[#E85D3D] transition-transform duration-200 group-hover:scale-105 flex items-center justify-center`}>
+      <motion.div
+        initial={isIntroDone ? false : { opacity: 0, scale: 0.3 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
+        className={`${iconSizes[size]} text-[#E85D3D] transition-transform duration-200 group-hover:scale-105 flex items-center justify-center`}
+      >
         <svg
           viewBox="0 0 32 32"
           fill="none"
@@ -61,12 +74,16 @@ export const Logo: React.FC<LogoProps> = ({ size = 'md', showText = true }) => {
             strokeLinecap="round"
           />
         </svg>
-      </div>
+      </motion.div>
 
-      {showText && (
-        <span className={`font-mono font-medium tracking-tight text-[#E8E2D8] ${textSizes[size]}`}>
+      {showText && showWordmark && (
+        <motion.span
+          layoutId="logo-wordmark"
+          transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
+          className={`inline-block font-mono font-medium tracking-tight text-[#E8E2D8] ${textSizes[size]}`}
+        >
           qalampir
-        </span>
+        </motion.span>
       )}
     </div>
   );

@@ -44,14 +44,44 @@ export function useTypingEngine({
   const [targetText, setTargetText] = useState<string>('');
   const [typedChars, setTypedChars] = useState<string[]>([]);
   const [phase, setPhase] = useState<'idle' | 'running' | 'completed'>('idle');
+  const [isPaused, setIsPaused] = useState<boolean>(false);
   const [timeLeft, setTimeLeft] = useState<number>(duration);
   const [result, setResult] = useState<TestResult | null>(null);
 
   const startTimeRef = useRef<number | null>(null);
+  const pauseStartRef = useRef<number | null>(null);
+  const pausedTotalRef = useRef<number>(0);
   const timerIntervalRef = useRef<number | null>(null);
   const snapshotsRef = useRef<TimeSnapshot[]>([]);
   const totalTypedCountRef = useRef<number>(0);
   const errorCountRef = useRef<number>(0);
+
+  const typedCharsRef = useRef<string[]>([]);
+  useEffect(() => {
+    typedCharsRef.current = typedChars;
+  }, [typedChars]);
+
+  const targetTextRef = useRef<string>('');
+  useEffect(() => {
+    targetTextRef.current = targetText;
+  }, [targetText]);
+
+  const pauseTest = useCallback(() => {
+    if (phase === 'running' && !isPaused) {
+      pauseStartRef.current = Date.now();
+      setIsPaused(true);
+    }
+  }, [phase, isPaused]);
+
+  const resumeTest = useCallback(() => {
+    if (isPaused) {
+      if (pauseStartRef.current) {
+        pausedTotalRef.current += Date.now() - pauseStartRef.current;
+        pauseStartRef.current = null;
+      }
+      setIsPaused(false);
+    }
+  }, [isPaused]);
 
   // Initialize test text when configuration changes
   const resetTest = useCallback(() => {
@@ -64,9 +94,12 @@ export function useTypingEngine({
     setTargetText(text);
     setTypedChars([]);
     setPhase('idle');
+    setIsPaused(false);
     setTimeLeft(mode === 'time' ? duration : 0);
     setResult(null);
     startTimeRef.current = null;
+    pauseStartRef.current = null;
+    pausedTotalRef.current = 0;
     snapshotsRef.current = [];
     totalTypedCountRef.current = 0;
     errorCountRef.current = 0;
@@ -85,7 +118,10 @@ export function useTypingEngine({
   const calculateFinalStats = useCallback(
     (endTime: number): TestResult => {
       const startTime = startTimeRef.current || endTime;
-      const timeSec = Math.max(0.1, (endTime - startTime) / 1000);
+      const currentPaused =
+        pausedTotalRef.current +
+        (pauseStartRef.current ? endTime - pauseStartRef.current : 0);
+      const timeSec = Math.max(0.1, (endTime - startTime - currentPaused) / 1000);
       const minutes = timeSec / 60;
 
       let correctChars = 0;
@@ -158,6 +194,7 @@ export function useTypingEngine({
     }
     const now = Date.now();
     setPhase('completed');
+    setIsPaused(false);
     const finalResult = calculateFinalStats(now);
     setResult(finalResult);
   }, [calculateFinalStats]);
@@ -166,16 +203,25 @@ export function useTypingEngine({
   useEffect(() => {
     if (phase === 'running') {
       const interval = window.setInterval(() => {
+        if (pauseStartRef.current) {
+          return; // Skip tick while paused
+        }
         const now = Date.now();
-        const elapsedSec = Math.floor((now - (startTimeRef.current || now)) / 1000);
+        const elapsedMs = Math.max(
+          0,
+          now - (startTimeRef.current || now) - pausedTotalRef.current
+        );
+        const elapsedSec = Math.floor(elapsedMs / 1000);
 
         // Collect snapshot for chart
         if (elapsedSec > 0) {
-          const minutes = (now - (startTimeRef.current || now)) / 60000;
+          const minutes = elapsedMs / 60000;
           let currentCorrect = 0;
-          const minLen = Math.min(targetText.length, typedChars.length);
+          const target = targetTextRef.current;
+          const typed = typedCharsRef.current;
+          const minLen = Math.min(target.length, typed.length);
           for (let i = 0; i < minLen; i++) {
-            if (typedChars[i] === targetText[i]) currentCorrect++;
+            if (typed[i] === target[i]) currentCorrect++;
           }
           const currentWpm = minutes > 0 ? Math.round((currentCorrect / 5) / minutes) : 0;
           const currentRawWpm = minutes > 0 ? Math.round((totalTypedCountRef.current / 5) / minutes) : 0;
@@ -198,12 +244,12 @@ export function useTypingEngine({
             finishTest();
           }
         }
-      }, 250);
+      }, 100);
 
       timerIntervalRef.current = interval;
       return () => clearInterval(interval);
     }
-  }, [phase, mode, duration, targetText, typedChars, finishTest]);
+  }, [phase, mode, duration, finishTest]);
 
   // Key press handler
   const handleKeyDown = useCallback(
@@ -236,6 +282,15 @@ export function useTypingEngine({
       }
 
       if (phase === 'completed') return;
+
+      // Automatically resume if test was paused by mouse movement
+      if (isPaused) {
+        if (pauseStartRef.current) {
+          pausedTotalRef.current += Date.now() - pauseStartRef.current;
+          pauseStartRef.current = null;
+        }
+        setIsPaused(false);
+      }
 
       if (e.key === 'Backspace') {
         e.preventDefault();
@@ -279,7 +334,7 @@ export function useTypingEngine({
         });
       }
     },
-    [phase, targetText, typedChars.length, typingSound, finishTest]
+    [phase, isPaused, targetText, typedChars.length, typingSound, finishTest]
   );
 
   // Group characters into word structures for structured UI rendering
@@ -360,7 +415,12 @@ export function useTypingEngine({
     if (phase === 'idle' || !startTimeRef.current) {
       return { wpm: 0, rawWpm: 0, accuracy: 100, progress: 0 };
     }
-    const elapsedMinutes = (Date.now() - startTimeRef.current) / 60000;
+    const now = pauseStartRef.current || Date.now();
+    const elapsedMs = Math.max(
+      0,
+      now - startTimeRef.current - pausedTotalRef.current
+    );
+    const elapsedMinutes = elapsedMs / 60000;
     if (elapsedMinutes <= 0) return { wpm: 0, rawWpm: 0, accuracy: 100, progress: 0 };
 
     let correct = 0;
@@ -378,7 +438,7 @@ export function useTypingEngine({
 
     let progress = 0;
     if (mode === 'time') {
-      const elapsedSec = (Date.now() - startTimeRef.current) / 1000;
+      const elapsedSec = Math.floor(elapsedMs / 1000);
       progress = Math.min(100, Math.round((elapsedSec / duration) * 100));
     } else {
       progress = Math.min(100, Math.round((typedChars.length / targetText.length) * 100));
@@ -392,11 +452,14 @@ export function useTypingEngine({
     typedChars,
     currentIndex: typedChars.length,
     phase,
+    isPaused,
     timeLeft,
     result,
     wordsDisplay,
     getLiveStats,
     resetTest,
+    pauseTest,
+    resumeTest,
     handleKeyDown,
     finishTest,
   };
