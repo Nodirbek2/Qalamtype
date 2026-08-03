@@ -398,7 +398,7 @@ function filterAndSortResults(
   return filtered.sort((a, b) => {
     if (b.wpm !== a.wpm) return b.wpm - a.wpm;
     return b.accuracy - a.accuracy;
-  });
+  }).slice(0, 20);
 }
 
 /**
