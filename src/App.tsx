@@ -14,10 +14,11 @@ import { AccountView } from './components/AccountView';
 import { SettingsModal } from './components/SettingsModal';
 import { Footer } from './components/Footer';
 import { IntroOverlay } from './components/IntroOverlay';
+import { PrivacyModal } from './components/PrivacyModal';
 
 export default function App() {
   const { currentUser, userProfile } = useAuth();
-  const { typingSound, typingLanguage, setTypingLanguage } = useSettings();
+  const { typingSound, typingLanguage, setTypingLanguage, siteLanguage } = useSettings();
 
   // Intro animation state
   const [introState, setIntroState] = useState<'checking' | 'hero' | 'animating' | 'done'>('checking');
@@ -48,6 +49,7 @@ export default function App() {
   const [wordCount, setWordCount] = useState<WordCount>(25);
   const [difficulty, setDifficulty] = useState<Difficulty>('easy');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
 
   // Track if current test result has been saved to Firestore
   const [savedResultKey, setSavedResultKey] = useState<string | null>(null);
@@ -216,8 +218,15 @@ export default function App() {
           onClose={() => setIsSettingsOpen(false)}
         />
 
+        {/* Privacy Policy Modal */}
+        <PrivacyModal
+          isOpen={isPrivacyOpen}
+          onClose={() => setIsPrivacyOpen(false)}
+          defaultLanguage={siteLanguage}
+        />
+
         {/* Footer */}
-        <Footer />
+        <Footer onOpenPrivacy={() => setIsPrivacyOpen(true)} />
       </div>
     </LayoutGroup>
   );

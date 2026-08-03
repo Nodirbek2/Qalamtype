@@ -78,21 +78,8 @@ export const IntroOverlay: React.FC<IntroOverlayProps> = ({
         className="fixed inset-0 z-50 bg-[#0F0E0D] flex flex-col items-center justify-center select-none overflow-hidden cursor-pointer"
       >
         <div className="flex flex-col items-center text-center px-4 max-w-xl mx-auto">
-          {/* Line 1: "Qalamingizni" */}
-          <motion.p
-            initial={{ opacity: 1, y: 0 }}
-            animate={{
-              opacity: isAnimating ? 0 : 1,
-              y: isAnimating ? -16 : 0,
-            }}
-            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="text-[28px] sm:text-[32px] font-normal text-[#E8E2D8] leading-tight"
-          >
-            Qalamingizni
-          </motion.p>
-
           {/* Line 2: "qalampir" (Wordmark) */}
-          <div className="my-2 flex items-center justify-center min-h-[60px]">
+          <div className="my-4 flex items-center justify-center min-h-[60px]">
             {introState === 'hero' && (
               <motion.span
                 layoutId="logo-wordmark"
@@ -103,19 +90,6 @@ export const IntroOverlay: React.FC<IntroOverlayProps> = ({
               </motion.span>
             )}
           </div>
-
-          {/* Line 3: "bilan qizdiring." */}
-          <motion.p
-            initial={{ opacity: 1, y: 0 }}
-            animate={{
-              opacity: isAnimating ? 0 : 1,
-              y: isAnimating ? 16 : 0,
-            }}
-            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="text-[28px] sm:text-[32px] font-normal text-[#E8E2D8] leading-tight"
-          >
-            bilan qizdiring.
-          </motion.p>
 
           {/* CTA Pill: "Boshlash" */}
           <motion.div

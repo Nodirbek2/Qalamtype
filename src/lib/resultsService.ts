@@ -82,6 +82,19 @@ export function saveLocalResult(result: LeaderboardResult) {
   }
 }
 
+export function updateLocalResultId(oldId: string, newId: string) {
+  try {
+    const current = getLocalResults();
+    const index = current.findIndex((r) => r.id === oldId);
+    if (index !== -1) {
+      current[index].id = newId;
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(current));
+    }
+  } catch (err) {
+    console.warn('Failed to update local result ID:', err);
+  }
+}
+
 /**
  * Saves a completed typing test result to local storage and Supabase.
  */
@@ -144,7 +157,12 @@ export async function saveTestResult(
       console.warn('Supabase save warning (saved locally):', error.message);
       return localRes.id;
     }
-    return inserted?.id || localRes.id;
+    
+    if (inserted?.id) {
+      updateLocalResultId(localRes.id, String(inserted.id));
+      return String(inserted.id);
+    }
+    return localRes.id;
   } catch (err) {
     console.warn('Failed to save test result to Supabase (saved locally):', err);
     return localRes.id;
@@ -281,8 +299,27 @@ export function subscribeToUserResults(
       const localResults = getLocalResults().filter((r) => r.uid === uid);
       const combinedMap = new Map<string, LeaderboardResult>();
 
-      localResults.forEach((r) => combinedMap.set(r.id, r));
+      // Put Supabase results first
       parsedDocs.forEach((r) => combinedMap.set(r.id, r));
+
+      // Add only non-duplicate local results
+      localResults.forEach((r) => {
+        if (combinedMap.has(r.id)) return;
+
+        // Semantic duplicate check: if there is a Supabase result with the exact same stats and close time
+        const isDuplicate = parsedDocs.some(
+          (sr) =>
+            sr.wpm === r.wpm &&
+            sr.accuracy === r.accuracy &&
+            sr.mode === r.mode &&
+            sr.modeValue === r.modeValue &&
+            Math.abs(new Date(sr.date).getTime() - new Date(r.date).getTime()) < 30000
+        );
+
+        if (!isDuplicate) {
+          combinedMap.set(r.id, r);
+        }
+      });
 
       onData(Array.from(combinedMap.values()));
     } catch (err: any) {
@@ -466,10 +503,28 @@ export function subscribeToLeaderboard(
       const localResults = getLocalResults();
       const combinedMap = new Map<string, LeaderboardResult>();
 
-      // Add local real results
-      localResults.forEach((r) => combinedMap.set(r.id, r));
-      // Add / overwrite with Supabase results
+      // Put Supabase results first
       parsedDocs.forEach((r) => combinedMap.set(r.id, r));
+
+      // Add only non-duplicate local results
+      localResults.forEach((r) => {
+        if (combinedMap.has(r.id)) return;
+
+        // Semantic duplicate check: if there is a Supabase result with the exact same stats and close time for the same user
+        const isDuplicate = parsedDocs.some(
+          (sr) =>
+            sr.uid === r.uid &&
+            sr.wpm === r.wpm &&
+            sr.accuracy === r.accuracy &&
+            sr.mode === r.mode &&
+            sr.modeValue === r.modeValue &&
+            Math.abs(new Date(sr.date).getTime() - new Date(r.date).getTime()) < 30000
+        );
+
+        if (!isDuplicate) {
+          combinedMap.set(r.id, r);
+        }
+      });
 
       const combinedList = Array.from(combinedMap.values());
       const processed = filterAndSortResults(combinedList, filters);

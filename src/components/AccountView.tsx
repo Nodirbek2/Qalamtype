@@ -69,7 +69,7 @@ export const AccountView: React.FC = () => {
 
     setLoadingResults(true);
     const unsubscribe = subscribeToUserResults(
-      currentUser.uid,
+      currentUser.id,
       (data) => {
         setUserResults(data);
         setLoadingResults(false);
@@ -132,7 +132,7 @@ export const AccountView: React.FC = () => {
     setUploadingAvatar(true);
 
     try {
-      const downloadUrl = await uploadAvatarImage(currentUser.uid, file);
+      const downloadUrl = await uploadAvatarImage(currentUser.id, file);
       await updateUserProfile({ photoURL: downloadUrl });
     } catch (err: any) {
       console.error('Avatar upload error:', err);

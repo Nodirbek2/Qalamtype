@@ -129,7 +129,10 @@ export type TranslationKey =
   | 'auth_sign_up'
   | 'auth_no_account'
   | 'auth_has_account'
-  | 'auth_err_username_taken';
+  | 'auth_err_username_taken'
+  | 'footer_privacy'
+  | 'footer_contact'
+  | 'footer_join_blog';
 
 export const translations: Record<Language, Record<TranslationKey, string>> = {
   uzbek: {
@@ -140,6 +143,9 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     nav_login: 'kirish',
     nav_logout: 'chiqish',
     nav_account_settings: 'hisob sozlamalari',
+    footer_privacy: 'maxfiylik siyosati',
+    footer_contact: 'aloqa',
+    footer_join_blog: 'blogga qo\'shilish',
 
     mode_time: 'vaqt',
     mode_words: "so'zlar",
@@ -271,6 +277,9 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     nav_login: 'войти',
     nav_logout: 'выйти',
     nav_account_settings: 'настройки аккаунта',
+    footer_privacy: 'политика конфиденциальности',
+    footer_contact: 'контакты',
+    footer_join_blog: 'присоединиться к блогу',
 
     mode_time: 'время',
     mode_words: 'слова',
@@ -402,6 +411,9 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     nav_login: 'log in',
     nav_logout: 'log out',
     nav_account_settings: 'account settings',
+    footer_privacy: 'privacy policy',
+    footer_contact: 'contact',
+    footer_join_blog: 'join my blog',
 
     mode_time: 'time',
     mode_words: 'words',
