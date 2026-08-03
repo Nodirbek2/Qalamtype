@@ -41,141 +41,42 @@ export interface LeaderboardFilters {
 
 const LOCAL_STORAGE_KEY = 'qalampirtype_local_results';
 
-// Initial seed leaderboard entries so leaderboard is never empty
-const INITIAL_DEMO_LEADERBOARD: LeaderboardResult[] = [
-  {
-    id: 'demo_1',
-    uid: 'demo_1',
-    username: 'sanjar_type',
-    wpm: 124,
-    rawWpm: 128,
-    accuracy: 98.4,
-    mode: 'time',
-    modeValue: 30,
-    difficulty: 'easy',
-    typingLanguage: 'uzbek',
-    date: new Date(Date.now() - 1000 * 60 * 15),
-  },
-  {
-    id: 'demo_2',
-    uid: 'demo_2',
-    username: 'nodirbek_dev',
-    wpm: 112,
-    rawWpm: 115,
-    accuracy: 97.8,
-    mode: 'time',
-    modeValue: 30,
-    difficulty: 'medium',
-    typingLanguage: 'uzbek',
-    date: new Date(Date.now() - 1000 * 60 * 45),
-  },
-  {
-    id: 'demo_3',
-    uid: 'demo_3',
-    username: 'typing_master',
-    wpm: 105,
-    rawWpm: 108,
-    accuracy: 96.5,
-    mode: 'words',
-    modeValue: 25,
-    difficulty: 'easy',
-    typingLanguage: 'uzbek',
-    date: new Date(Date.now() - 1000 * 60 * 120),
-  },
-  {
-    id: 'demo_4',
-    uid: 'demo_4',
-    username: 'aziza_speed',
-    wpm: 98,
-    rawWpm: 102,
-    accuracy: 97.1,
-    mode: 'time',
-    modeValue: 60,
-    difficulty: 'easy',
-    typingLanguage: 'uzbek',
-    date: new Date(Date.now() - 1000 * 60 * 300),
-  },
-  {
-    id: 'demo_5',
-    uid: 'demo_5',
-    username: 'doston_keys',
-    wpm: 91,
-    rawWpm: 94,
-    accuracy: 95.8,
-    mode: 'time',
-    modeValue: 15,
-    difficulty: 'medium',
-    typingLanguage: 'uzbek',
-    date: new Date(Date.now() - 1000 * 60 * 600),
-  },
-  {
-    id: 'demo_6',
-    uid: 'demo_6',
-    username: 'malika_fast',
-    wpm: 88,
-    rawWpm: 90,
-    accuracy: 99.1,
-    mode: 'words',
-    modeValue: 50,
-    difficulty: 'easy',
-    typingLanguage: 'uzbek',
-    date: new Date(Date.now() - 1000 * 60 * 1200),
-  },
-  {
-    id: 'demo_7',
-    uid: 'demo_7',
-    username: 'alex_russia',
-    wpm: 95,
-    rawWpm: 99,
-    accuracy: 96.2,
-    mode: 'time',
-    modeValue: 30,
-    difficulty: 'easy',
-    typingLanguage: 'russian',
-    date: new Date(Date.now() - 1000 * 60 * 90),
-  },
-  {
-    id: 'demo_8',
-    uid: 'demo_8',
-    username: 'john_fastfingers',
-    wpm: 103,
-    rawWpm: 106,
-    accuracy: 97.5,
-    mode: 'time',
-    modeValue: 30,
-    difficulty: 'easy',
-    typingLanguage: 'english',
-    date: new Date(Date.now() - 1000 * 60 * 180),
-  },
-];
-
+/**
+ * Returns user test results stored in browser localStorage.
+ * Filters out legacy demo entries.
+ */
 export function getLocalResults(): LeaderboardResult[] {
   try {
     const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
-    if (!raw) {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(INITIAL_DEMO_LEADERBOARD));
-      return INITIAL_DEMO_LEADERBOARD;
-    }
+    if (!raw) return [];
+    
     const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed) || parsed.length === 0) {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(INITIAL_DEMO_LEADERBOARD));
-      return INITIAL_DEMO_LEADERBOARD;
+    if (!Array.isArray(parsed)) return [];
+
+    // Clean legacy demo items if any existed
+    const realResults = parsed
+      .filter((row: any) => row && row.id && !String(row.id).startsWith('demo_'))
+      .map((row: any) => ({
+        ...row,
+        date: new Date(row.date || row.created_at || Date.now()),
+      }));
+
+    // Update localStorage to strip any old demo items
+    if (realResults.length !== parsed.length) {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(realResults));
     }
-    return parsed.map((row: any) => ({
-      ...row,
-      date: new Date(row.date || row.created_at || Date.now()),
-    }));
+
+    return realResults;
   } catch {
-    return INITIAL_DEMO_LEADERBOARD;
+    return [];
   }
 }
 
 export function saveLocalResult(result: LeaderboardResult) {
   try {
     const current = getLocalResults();
-    // Prepend new result
     current.unshift(result);
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(current.slice(0, 150)));
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(current.slice(0, 100)));
   } catch (err) {
     console.warn('Failed to save local result:', err);
   }
@@ -327,7 +228,7 @@ export function subscribeToUserResults(
   const loadLocalUserResults = () => {
     const allLocal = getLocalResults();
     const userLocal = allLocal.filter((r) => r.uid === uid);
-    onData(userLocal.length > 0 ? userLocal : allLocal);
+    onData(userLocal);
   };
 
   if (!isSupabaseConfigured) {
@@ -356,12 +257,12 @@ export function subscribeToUserResults(
         }
       }
 
-      if (error || !data || data.length === 0) {
+      if (error || !data) {
         loadLocalUserResults();
         return;
       }
 
-      const parsedDocs: LeaderboardResult[] = (data || []).map((row: any) => ({
+      const parsedDocs: LeaderboardResult[] = data.map((row: any) => ({
         id: String(row.id || row.user_id || row.uid),
         uid: row.user_id || row.uid || '',
         username: row.username || '',
@@ -376,7 +277,14 @@ export function subscribeToUserResults(
         date: new Date(row.created_at || row.timestamp || Date.now()),
       }));
 
-      onData(parsedDocs);
+      // Combine with local user results if any are unsynced
+      const localResults = getLocalResults().filter((r) => r.uid === uid);
+      const combinedMap = new Map<string, LeaderboardResult>();
+
+      localResults.forEach((r) => combinedMap.set(r.id, r));
+      parsedDocs.forEach((r) => combinedMap.set(r.id, r));
+
+      onData(Array.from(combinedMap.values()));
     } catch (err: any) {
       loadLocalUserResults();
       if (onError) onError(err);
@@ -404,7 +312,6 @@ export function subscribeToUserResults(
 /**
  * Helper to filter & sort any array of LeaderboardResult objects
  */
-
 function filterAndSortResults(
   rawData: LeaderboardResult[],
   filters: LeaderboardFilters
@@ -520,10 +427,9 @@ export function subscribeToLeaderboard(
 
       const { data, error } = await query;
 
-      if (error || !data || data.length === 0) {
-        // Fallback to local data if table doesn't exist or has 0 entries
+      if (error) {
         emitLocalFallback();
-        if (error && onError) {
+        if (onError) {
           const errMsg = error.message || '';
           if (
             errMsg.includes('Could not find the table') ||
@@ -541,7 +447,7 @@ export function subscribeToLeaderboard(
       }
 
       // Map Supabase rows to LeaderboardResult
-      const parsedDocs: LeaderboardResult[] = data.map((row: any) => ({
+      const parsedDocs: LeaderboardResult[] = (data || []).map((row: any) => ({
         id: String(row.id || row.user_id || row.uid),
         uid: row.user_id || row.uid || '',
         username: row.username || 'anonymous',
@@ -560,7 +466,7 @@ export function subscribeToLeaderboard(
       const localResults = getLocalResults();
       const combinedMap = new Map<string, LeaderboardResult>();
 
-      // Add local results first
+      // Add local real results
       localResults.forEach((r) => combinedMap.set(r.id, r));
       // Add / overwrite with Supabase results
       parsedDocs.forEach((r) => combinedMap.set(r.id, r));
