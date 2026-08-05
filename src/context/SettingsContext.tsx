@@ -36,11 +36,11 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   });
 
   const [siteLanguage, setSiteLanguageState] = useState<Language>(() => {
-    return (localStorage.getItem(LS_SITE_LANG) as Language) || 'uzbek';
+    return (localStorage.getItem(LS_SITE_LANG) as Language) || 'uzbek_latin';
   });
 
   const [typingLanguage, setTypingLanguageState] = useState<Language>(() => {
-    return (localStorage.getItem(LS_TYPING_LANG) as Language) || 'uzbek';
+    return (localStorage.getItem(LS_TYPING_LANG) as Language) || 'uzbek_latin';
   });
 
   // Sync settings with userProfile if logged in
@@ -95,8 +95,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const t = useCallback(
     (key: TranslationKey): string => {
-      const langDict = translations[siteLanguage] || translations.uzbek;
-      return langDict[key] || translations.uzbek[key] || key;
+      const langDict = translations[siteLanguage] || translations.uzbek_latin;
+      return langDict[key] || translations.uzbek_latin[key] || key;
     },
     [siteLanguage]
   );

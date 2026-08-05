@@ -9,7 +9,7 @@ interface PrivacyModalProps {
 }
 
 export const PrivacyModal: React.FC<PrivacyModalProps> = ({ isOpen, onClose, defaultLanguage }) => {
-  const [activeTab, setActiveTab] = useState<Language>('uzbek');
+  const [activeTab, setActiveTab] = useState<Language>('uzbek_latin');
 
   useEffect(() => {
     if (isOpen) {
@@ -36,7 +36,7 @@ export const PrivacyModal: React.FC<PrivacyModalProps> = ({ isOpen, onClose, def
                 {activeTab === 'english' && 'Privacy Policy'}
               </h2>
               <p className="text-[11px] font-mono text-[#9A9488]">
-                {activeTab === 'uzbek' && 'Oxirgi yangilanish: 03.08.2026'}
+                {activeTab.startsWith('uzbek') && 'Oxirgi yangilanish: 03.08.2026'}
                 {activeTab === 'russian' && 'Последнее обновление: 03.08.2026'}
                 {activeTab === 'english' && 'Last updated: 03.08.2026'}
               </p>
@@ -48,9 +48,9 @@ export const PrivacyModal: React.FC<PrivacyModalProps> = ({ isOpen, onClose, def
             <div className="flex bg-[#0F0E0D] border border-[rgba(232,226,216,0.08)] rounded-lg p-0.5 font-mono text-[10px]">
               <button
                 type="button"
-                onClick={() => setActiveTab('uzbek')}
+                onClick={() => setActiveTab('uzbek_latin')}
                 className={`px-2 py-1 rounded-md transition-colors cursor-pointer ${
-                  activeTab === 'uzbek'
+                  activeTab.startsWith('uzbek')
                     ? 'bg-[#E85D3D] text-[#4A1B0C] font-semibold'
                     : 'text-[#9A9488] hover:text-[#E8E2D8]'
                 }`}
@@ -95,7 +95,7 @@ export const PrivacyModal: React.FC<PrivacyModalProps> = ({ isOpen, onClose, def
         <div className="p-6 overflow-y-auto space-y-6 text-[#9A9488] font-sans text-xs leading-relaxed max-h-[calc(85vh-70px)] selection:bg-[#E85D3D] selection:text-[#0F0E0D]">
           
           {/* UZBEK VERSION */}
-          {activeTab === 'uzbek' && (
+          {activeTab.startsWith('uzbek') && (
             <>
               <section className="space-y-2">
                 <h3 className="text-sm font-semibold text-[#E8E2D8] flex items-center gap-2">

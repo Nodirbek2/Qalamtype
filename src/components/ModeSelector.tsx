@@ -37,7 +37,8 @@ export const ModeSelector: React.FC<ModeSelectorProps> = ({
 
   // Uzbek listed first
   const languages: { id: Language; labelKey: string }[] = [
-    { id: 'uzbek', labelKey: 'lang_uzbek' },
+    { id: 'uzbek_latin', labelKey: 'lang_uzbek_latin' },
+    { id: 'uzbek_cyrillic', labelKey: 'lang_uzbek_cyrillic' },
     { id: 'russian', labelKey: 'lang_russian' },
     { id: 'english', labelKey: 'lang_english' },
   ];

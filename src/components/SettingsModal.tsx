@@ -44,7 +44,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
   // Uzbek listed FIRST in all language selectors
   const languageOptions: Array<{ id: Language; labelKey: string; flag: string }> = [
-    { id: 'uzbek', labelKey: 'lang_uzbek', flag: 'UZ' },
+    { id: 'uzbek_latin', labelKey: 'lang_uzbek_latin', flag: 'UZ' },
+    { id: 'uzbek_cyrillic', labelKey: 'lang_uzbek_cyrillic', flag: 'UZ' },
     { id: 'russian', labelKey: 'lang_russian', flag: 'RU' },
     { id: 'english', labelKey: 'lang_english', flag: 'EN' },
   ];

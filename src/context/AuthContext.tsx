@@ -67,8 +67,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         email: user.email || '',
         photoURL: user.user_metadata?.avatar_url || '',
         createdAt: new Date().toISOString(),
-        preferredSiteLanguage: 'uzbek',
-        preferredTypingLanguage: 'uzbek',
+        preferredSiteLanguage: 'uzbek_latin',
+        preferredTypingLanguage: 'uzbek_latin',
         isProfileComplete: false,
       };
       return mockProfile;
@@ -139,8 +139,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         lastName: lastName,
         photoURL: meta.avatar_url || meta.picture || '',
         createdAt: new Date().toISOString(),
-        preferredSiteLanguage: 'uzbek',
-        preferredTypingLanguage: 'uzbek',
+        preferredSiteLanguage: 'uzbek_latin',
+        preferredTypingLanguage: 'uzbek_latin',
         isProfileComplete: true,
       };
 
@@ -165,8 +165,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         usernameLower: (user.email?.split('@')[0] || 'user').toLowerCase(),
         email: user.email || '',
         createdAt: new Date().toISOString(),
-        preferredSiteLanguage: 'uzbek',
-        preferredTypingLanguage: 'uzbek',
+        preferredSiteLanguage: 'uzbek_latin',
+        preferredTypingLanguage: 'uzbek_latin',
         isProfileComplete: false,
       };
     }
@@ -257,8 +257,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       usernameLower: '',
       email: currentUser?.email || '',
       createdAt: new Date().toISOString(),
-      preferredSiteLanguage: 'uzbek',
-      preferredTypingLanguage: 'uzbek',
+      preferredSiteLanguage: 'uzbek_latin',
+      preferredTypingLanguage: 'uzbek_latin',
     };
 
     return {

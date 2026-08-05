@@ -4,6 +4,10 @@ import uzEasy from './uz_easy.json';
 import uzMedium from './uz_medium.json';
 import uzHard from './uz_hard.json';
 
+import uzCyrillicEasy from './uz_cyrillic_easy.json';
+import uzCyrillicMedium from './uz_cyrillic_medium.json';
+import uzCyrillicHard from './uz_cyrillic_hard.json';
+
 import ruEasy from './ru_easy.json';
 import ruMedium from './ru_medium.json';
 import ruHard from './ru_hard.json';
@@ -22,10 +26,15 @@ export interface WordBankSource {
 }
 
 export const WORD_BANKS: Record<Language, Record<Difficulty, WordBankSource>> = {
-  uzbek: {
+  uzbek_latin: {
     easy: uzEasy,
     medium: uzMedium,
     hard: uzHard,
+  },
+  uzbek_cyrillic: {
+    easy: uzCyrillicEasy,
+    medium: uzCyrillicMedium,
+    hard: uzCyrillicHard,
   },
   russian: {
     easy: ruEasy,
@@ -66,7 +75,7 @@ export function generateTestText(
   difficulty: Difficulty,
   language: Language
 ): string {
-  const bank = WORD_BANKS[language]?.[difficulty] || WORD_BANKS.uzbek.easy;
+  const bank = WORD_BANKS[language]?.[difficulty] || WORD_BANKS.uzbek_latin.easy;
 
   if (difficulty === 'easy' && bank.words && bank.words.length > 0) {
     // In easy mode: pick random words from words array

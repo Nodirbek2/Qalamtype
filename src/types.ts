@@ -2,7 +2,7 @@ export type TestMode = 'time' | 'words';
 export type Duration = 15 | 30 | 60 | 120;
 export type WordCount = 10 | 25 | 50 | 100;
 export type Difficulty = 'easy' | 'medium' | 'hard';
-export type Language = 'uzbek' | 'russian' | 'english';
+export type Language = 'uzbek_latin' | 'uzbek_cyrillic' | 'russian' | 'english';
 export type CaretSpeed = 'off' | 'slow' | 'medium' | 'fast';
 
 export const CARET_SPEED_MS: Record<CaretSpeed, number> = {

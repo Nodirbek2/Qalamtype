@@ -42,9 +42,24 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
 }) => {
   const { smoothCaret, t } = useSettings();
   const containerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [inputValue, setInputValue] = useState(' ');
   const [caretPos, setCaretPos] = useState({ top: 0, left: 0, height: 28 });
   const [isFocused, setIsFocused] = useState(true);
   const lastMousePosRef = useRef<{ x: number; y: number } | null>(null);
+
+  const focusInput = () => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
+
+  // Keep input focused when isFocused is true
+  useEffect(() => {
+    if (isFocused) {
+      focusInput();
+    }
+  }, [isFocused]);
 
   // Pause test if mouse moves while writing
   useEffect(() => {
@@ -78,11 +93,19 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
   useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
       // If user clicks restart button or inputs into standard form elements, ignore
-      const targetTag = (e.target as HTMLElement)?.tagName?.toLowerCase();
-      if (targetTag === 'input' || targetTag === 'button' || targetTag === 'textarea') {
+      const target = e.target as HTMLElement;
+      const targetTag = target?.tagName?.toLowerCase();
+      // Allow if it is our own typing input
+      if (targetTag === 'input' && !target.hasAttribute('data-typing-input')) {
+        return;
+      }
+      if (targetTag === 'button' || targetTag === 'textarea') {
         return;
       }
       setIsFocused(true);
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
       if (isPaused && onResume) {
         onResume();
       }
@@ -92,6 +115,31 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
     window.addEventListener('keydown', handleGlobalKeyDown);
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
   }, [onKeyDown, isPaused, onResume]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    if (val.length < 1) {
+      // Backspace pressed on mobile (value became empty)
+      onKeyDown({ key: 'Backspace', preventDefault: () => {} } as KeyboardEvent);
+    } else if (val.length > 1) {
+      // One or more characters typed (including swipes / auto-completes)
+      const typedText = val.substring(1);
+      for (const char of typedText) {
+        onKeyDown({ key: char, preventDefault: () => {} } as KeyboardEvent);
+      }
+    }
+    setInputValue(' ');
+  };
+
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const key = e.key;
+    // Intercept Backspace, Tab, Escape or standard characters for desktop typing.
+    // Calling stopPropagation avoids double-firing from the global keydown listener.
+    if (key === 'Backspace' || key === 'Escape' || key === 'Tab' || key.length === 1) {
+      e.stopPropagation();
+      onKeyDown(e.nativeEvent);
+    }
+  };
 
   // Update Caret position relative to current typing index
   useLayoutEffect(() => {
@@ -226,15 +274,33 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
       {/* Typing Container */}
       <div
         ref={containerRef}
+        onClick={focusInput}
         className="relative w-full min-h-[160px] p-4 sm:p-6 bg-[#1A1917] rounded-xl border border-[rgba(232,226,216,0.08)] cursor-text overflow-hidden focus:outline-none"
-        tabIndex={0}
       >
+        {/* Invisible input to capture virtual and physical keyboard inputs */}
+        <input
+          ref={inputRef}
+          type="text"
+          value={inputValue}
+          onChange={handleInputChange}
+          onKeyDown={handleInputKeyDown}
+          onBlur={() => setIsFocused(false)}
+          onFocus={() => setIsFocused(true)}
+          className="absolute inset-0 opacity-0 w-full h-full cursor-text z-0 bg-transparent border-none outline-none focus:outline-none focus:ring-0"
+          autoCapitalize="off"
+          autoComplete="off"
+          autoCorrect="off"
+          spellCheck="false"
+          data-typing-input="true"
+        />
+
         {/* Out of focus or Paused warning overlay */}
         {(isPaused || !isFocused) && (
           <div
             className="absolute inset-0 bg-[#0F0E0D]/20 z-20 flex items-center justify-center rounded-xl transition-all cursor-pointer pointer-events-auto"
-            onClick={() => {
-              setIsFocused(true);
+            onClick={(e) => {
+              e.stopPropagation();
+              focusInput();
               if (isPaused && onResume) {
                 onResume();
               }
