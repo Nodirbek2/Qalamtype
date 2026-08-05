@@ -1,14 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Logo } from './Logo';
-import { LogIn, LogOut, ChevronDown, Trophy, Keyboard, User as UserIcon, Settings } from 'lucide-react';
+import { LogIn, LogOut, ChevronDown, Trophy, Keyboard, GraduationCap, User as UserIcon, Settings } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
 import { AuthModal } from './AuthModal';
 
 interface NavbarProps {
   onLogoClick?: () => void;
-  activeView?: 'test' | 'leaderboard' | 'account';
-  onNavigate?: (view: 'test' | 'leaderboard' | 'account') => void;
+  activeView?: 'test' | 'academy' | 'leaderboard' | 'account';
+  onNavigate?: (view: 'test' | 'academy' | 'leaderboard' | 'account') => void;
   onOpenSettings?: () => void;
   showWordmark?: boolean;
   isIntroDone?: boolean;
@@ -67,6 +67,24 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               <Keyboard className="w-3.5 h-3.5" />
               <span>{t('nav_test')}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                if (!currentUser) {
+                  setAuthModalOpen(true);
+                }
+                if (onNavigate) onNavigate('academy');
+              }}
+              className={`px-3 py-1.5 rounded-lg flex items-center space-x-1.5 transition-colors cursor-pointer ${
+                activeView === 'academy'
+                  ? 'bg-[#1A1917] text-[#E85D3D] font-medium border border-[rgba(232,226,216,0.1)]'
+                  : 'text-[#9A9488] hover:text-[#E8E2D8] hover:bg-[rgba(232,226,216,0.04)]'
+              }`}
+            >
+              <GraduationCap className="w-3.5 h-3.5" />
+              <span>{t('nav_academy')}</span>
             </button>
 
             <button

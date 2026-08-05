@@ -1,8 +1,8 @@
 import React from 'react';
 import { useSettings } from '../context/SettingsContext';
 import { TypingSound } from '../lib/soundSynthesizer';
-import { CaretSpeed, Language } from '../types';
-import { X, Volume2, MousePointer, Globe, Keyboard, Play } from 'lucide-react';
+import { CaretSpeed, Language, TypingFont, FONT_FAMILIES } from '../types';
+import { X, Volume2, MousePointer, Globe, Keyboard, Play, Type } from 'lucide-react';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -19,6 +19,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
     setSiteLanguage,
     typingLanguage,
     setTypingLanguage,
+    typingFont,
+    setTypingFont,
     t,
     testSound,
   } = useSettings();
@@ -48,6 +50,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
     { id: 'uzbek_cyrillic', labelKey: 'lang_uzbek_cyrillic', flag: 'UZ' },
     { id: 'russian', labelKey: 'lang_russian', flag: 'RU' },
     { id: 'english', labelKey: 'lang_english', flag: 'EN' },
+  ];
+
+  const fontOptions: Array<{ id: TypingFont; labelKey: string }> = [
+    { id: 'jetbrains_mono', labelKey: 'font_jetbrains_mono' },
+    { id: 'roboto_mono', labelKey: 'font_roboto_mono' },
+    { id: 'fira_code', labelKey: 'font_fira_code' },
+    { id: 'source_code_pro', labelKey: 'font_source_code_pro' },
+    { id: 'courier_prime', labelKey: 'font_courier_prime' },
   ];
 
   return (
@@ -194,6 +204,34 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                       {opt.flag}
                     </span>
                     <span>{t(opt.labelKey as any)}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 5. Typing Font Setting */}
+          <div className="space-y-2">
+            <label className="text-[#E8E2D8] font-medium flex items-center space-x-2">
+              <Type className="w-4 h-4 text-[#F4A340]" />
+              <span>{t('settings_typing_font')}</span>
+            </label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {fontOptions.map((opt) => {
+                const active = typingFont === opt.id;
+                return (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setTypingFont(opt.id)}
+                    style={{ fontFamily: FONT_FAMILIES[opt.id] }}
+                    className={`px-3 py-2 rounded-lg border text-left transition-colors cursor-pointer text-sm ${
+                      active
+                        ? 'bg-[#0F0E0D] border-[#F4A340] text-[#F4A340] font-semibold'
+                        : 'bg-[#0F0E0D]/40 border-[rgba(232,226,216,0.08)] text-[#9A9488] hover:text-[#E8E2D8] hover:bg-[#0F0E0D]/80'
+                    }`}
+                  >
+                    {t(opt.labelKey as any)}
                   </button>
                 );
               })}

@@ -11,6 +11,7 @@ import { TypingArea } from './components/TypingArea';
 import { ResultsView } from './components/ResultsView';
 import { LeaderboardView } from './components/LeaderboardView';
 import { AccountView } from './components/AccountView';
+import { AcademyView } from './components/AcademyView';
 import { SettingsModal } from './components/SettingsModal';
 import { Footer } from './components/Footer';
 import { IntroOverlay } from './components/IntroOverlay';
@@ -35,9 +36,10 @@ export default function App() {
     }
   }, []);
 
-  // Active View ('test' | 'leaderboard' | 'account') with URL path synchronization
-  const [activeView, setActiveView] = useState<'test' | 'leaderboard' | 'account'>(() => {
+  // Active View ('test' | 'academy' | 'leaderboard' | 'account') with URL path synchronization
+  const [activeView, setActiveView] = useState<'test' | 'academy' | 'leaderboard' | 'account'>(() => {
     if (typeof window !== 'undefined') {
+      if (window.location.pathname === '/academy') return 'academy';
       if (window.location.pathname === '/leaderboard') return 'leaderboard';
       if (window.location.pathname === '/account') return 'account';
     }
@@ -76,9 +78,10 @@ export default function App() {
   });
 
   // Handle URL history push and popstate
-  const navigateTo = useCallback((view: 'test' | 'leaderboard' | 'account') => {
+  const navigateTo = useCallback((view: 'test' | 'academy' | 'leaderboard' | 'account') => {
     setActiveView(view);
     let targetPath = '/';
+    if (view === 'academy') targetPath = '/academy';
     if (view === 'leaderboard') targetPath = '/leaderboard';
     if (view === 'account') targetPath = '/account';
 
@@ -90,7 +93,9 @@ export default function App() {
   useEffect(() => {
     const handlePopState = () => {
       const path = window.location.pathname;
-      if (path === '/leaderboard') {
+      if (path === '/academy') {
+        setActiveView('academy');
+      } else if (path === '/leaderboard') {
         setActiveView('leaderboard');
       } else if (path === '/account') {
         setActiveView('account');
@@ -198,6 +203,8 @@ export default function App() {
         <main className="flex-1 flex flex-col justify-center px-4 py-8 max-w-6xl w-full mx-auto">
           {activeView === 'account' ? (
             <AccountView />
+          ) : activeView === 'academy' ? (
+            <AcademyView />
           ) : activeView === 'leaderboard' ? (
             <LeaderboardView />
           ) : phase === 'completed' && result ? (

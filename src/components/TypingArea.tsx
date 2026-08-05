@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState, useLayoutEffect } from 'react';
 import { WordDisplayInfo } from '../hooks/useTypingEngine';
 import { Caret } from './Caret';
-import { TestMode, Duration, WordCount, Difficulty, Language } from '../types';
+import { TestMode, Duration, WordCount, Difficulty, Language, TypingFont, FONT_FAMILIES } from '../types';
 import { RotateCcw } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
 
@@ -40,7 +40,7 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
   onKeyDown,
   liveWpm = 0,
 }) => {
-  const { smoothCaret, t } = useSettings();
+  const { smoothCaret, typingFont, t } = useSettings();
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [inputValue, setInputValue] = useState(' ');
@@ -322,7 +322,10 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
         />
 
         {/* Text Display Box */}
-        <div className="flex flex-wrap gap-x-3 gap-y-2 font-mono text-xl sm:text-2xl leading-relaxed tracking-wide text-left break-words">
+        <div 
+          style={{ fontFamily: FONT_FAMILIES[typingFont] }}
+          className="flex flex-wrap gap-x-3 gap-y-2 text-xl sm:text-2xl leading-relaxed tracking-wide text-left break-words"
+        >
           {wordsDisplay.map((word, wIdx) => {
             return (
               <span

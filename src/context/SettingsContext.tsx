@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { Language, CaretSpeed } from '../types';
+import { Language, CaretSpeed, TypingFont } from '../types';
 import { TypingSound, playTypingSound } from '../lib/soundSynthesizer';
 import { translations, TranslationKey } from '../data/translations';
 import { useAuth } from './AuthContext';
@@ -13,6 +13,8 @@ interface SettingsContextType {
   setSiteLanguage: (lang: Language) => void;
   typingLanguage: Language;
   setTypingLanguage: (lang: Language) => void;
+  typingFont: TypingFont;
+  setTypingFont: (font: TypingFont) => void;
   t: (key: TranslationKey) => string;
   testSound: (sound: TypingSound) => void;
 }
@@ -23,6 +25,7 @@ const LS_TYPING_SOUND = 'qalampir_typing_sound';
 const LS_SMOOTH_CARET = 'qalampir_smooth_caret';
 const LS_SITE_LANG = 'qalampir_site_language';
 const LS_TYPING_LANG = 'qalampir_typing_language';
+const LS_TYPING_FONT = 'qalampir_typing_font';
 
 export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { userProfile, updateUserProfile } = useAuth();
@@ -41,6 +44,10 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const [typingLanguage, setTypingLanguageState] = useState<Language>(() => {
     return (localStorage.getItem(LS_TYPING_LANG) as Language) || 'uzbek_latin';
+  });
+
+  const [typingFont, setTypingFontState] = useState<TypingFont>(() => {
+    return (localStorage.getItem(LS_TYPING_FONT) as TypingFont) || 'jetbrains_mono';
   });
 
   // Sync settings with userProfile if logged in
@@ -93,6 +100,11 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     [userProfile, updateUserProfile]
   );
 
+  const setTypingFont = useCallback((font: TypingFont) => {
+    setTypingFontState(font);
+    localStorage.setItem(LS_TYPING_FONT, font);
+  }, []);
+
   const t = useCallback(
     (key: TranslationKey): string => {
       const langDict = translations[siteLanguage] || translations.uzbek_latin;
@@ -116,6 +128,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setSiteLanguage,
         typingLanguage,
         setTypingLanguage,
+        typingFont,
+        setTypingFont,
         t,
         testSound,
       }}

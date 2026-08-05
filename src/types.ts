@@ -4,6 +4,15 @@ export type WordCount = 10 | 25 | 50 | 100;
 export type Difficulty = 'easy' | 'medium' | 'hard';
 export type Language = 'uzbek_latin' | 'uzbek_cyrillic' | 'russian' | 'english';
 export type CaretSpeed = 'off' | 'slow' | 'medium' | 'fast';
+export type TypingFont = 'jetbrains_mono' | 'roboto_mono' | 'fira_code' | 'source_code_pro' | 'courier_prime';
+
+export const FONT_FAMILIES: Record<TypingFont, string> = {
+  jetbrains_mono: "'JetBrains Mono', monospace",
+  roboto_mono: "'Roboto Mono', monospace",
+  fira_code: "'Fira Code', monospace",
+  source_code_pro: "'Source Code Pro', monospace",
+  courier_prime: "'Courier Prime', monospace",
+};
 
 export const CARET_SPEED_MS: Record<CaretSpeed, number> = {
   off: 0,
@@ -63,3 +72,27 @@ export interface UserProfile {
   preferredTypingLanguage: Language;
   isProfileComplete?: boolean;
 }
+
+export interface AcademyLesson {
+  id: string; // e.g. 't1_l1'
+  tierNumber: number;
+  lessonNumber: number;
+  title: Record<Language, string>;
+  content: Record<Language, string>;
+}
+
+export interface AcademyTier {
+  id: string; // e.g. 'tier_1'
+  number: number;
+  name: Record<Language, string>;
+  description: Record<Language, string>;
+  lessons: AcademyLesson[];
+}
+
+export interface LessonProgress {
+  completed: boolean;
+  stars: number; // 0..3
+  bestWpm: number;
+  bestAccuracy: number;
+}
+

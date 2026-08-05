@@ -18,6 +18,7 @@ export interface UseTypingEngineOptions {
   difficulty: Difficulty;
   language: Language;
   typingSound?: TypingSound;
+  customText?: string;
 }
 
 export interface CharDisplayInfo {
@@ -40,6 +41,7 @@ export function useTypingEngine({
   difficulty,
   language,
   typingSound = 'click',
+  customText,
 }: UseTypingEngineOptions) {
   const [targetText, setTargetText] = useState<string>('');
   const [typedChars, setTypedChars] = useState<string[]>([]);
@@ -85,12 +87,14 @@ export function useTypingEngine({
 
   // Initialize test text when configuration changes
   const resetTest = useCallback(() => {
-    const text = generateTestText(
-      mode,
-      mode === 'time' ? duration : wordCount,
-      difficulty,
-      language
-    );
+    const text = customText
+      ? customText
+      : generateTestText(
+          mode,
+          mode === 'time' ? duration : wordCount,
+          difficulty,
+          language
+        );
     setTargetText(text);
     setTypedChars([]);
     setPhase('idle');
@@ -108,7 +112,7 @@ export function useTypingEngine({
       clearInterval(timerIntervalRef.current);
       timerIntervalRef.current = null;
     }
-  }, [mode, duration, wordCount, difficulty, language]);
+  }, [mode, duration, wordCount, difficulty, language, customText]);
 
   useEffect(() => {
     resetTest();

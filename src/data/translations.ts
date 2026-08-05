@@ -2,12 +2,28 @@ import { Language } from '../types';
 
 export type TranslationKey =
   | 'nav_test'
+  | 'nav_academy'
   | 'nav_leaderboard'
   | 'nav_account'
   | 'nav_settings'
   | 'nav_login'
   | 'nav_logout'
   | 'nav_account_settings'
+  // Academy
+  | 'academy_title'
+  | 'academy_subtitle'
+  | 'academy_select_language'
+  | 'academy_back_to_map'
+  | 'academy_next_lesson'
+  | 'academy_retry_lesson'
+  | 'academy_lesson_completed'
+  | 'academy_stars_earned'
+  | 'academy_locked'
+  | 'academy_unlocked'
+  | 'academy_login_required'
+  | 'academy_login_desc'
+  | 'academy_progress'
+  | 'academy_current_lesson'
   // Mode Selector
   | 'mode_time'
   | 'mode_words'
@@ -118,6 +134,12 @@ export type TranslationKey =
   | 'settings_caret_slow'
   | 'settings_caret_medium'
   | 'settings_caret_fast'
+  | 'settings_typing_font'
+  | 'font_jetbrains_mono'
+  | 'font_roboto_mono'
+  | 'font_fira_code'
+  | 'font_source_code_pro'
+  | 'font_courier_prime'
   | 'settings_close'
   // Auth
   | 'auth_title'
@@ -138,12 +160,27 @@ export type TranslationKey =
 export const translations: Record<Language, Record<TranslationKey, string>> = {
   uzbek_latin: {
     nav_test: 'test',
+    nav_academy: 'akademiya',
     nav_leaderboard: 'peshqadamlar',
     nav_account: 'hisob',
     nav_settings: 'sozlamalar',
     nav_login: 'kirish',
     nav_logout: 'chiqish',
     nav_account_settings: 'hisob sozlamalari',
+    academy_title: 'Qalampir Akademiya',
+    academy_subtitle: 'Bosqichma-bosqich yozish mahoratingizni oshiring',
+    academy_select_language: 'Darslar tilini tanlang',
+    academy_back_to_map: 'Darslar xaritasiga qaytish',
+    academy_next_lesson: 'Keyingi dars',
+    academy_retry_lesson: 'Qayta urinish',
+    academy_lesson_completed: 'Dars muvaffaqiyatli yakunlandi!',
+    academy_stars_earned: 'Yulduzlar',
+    academy_locked: 'Qulflangan',
+    academy_unlocked: 'Ochiq',
+    academy_login_required: 'Akademiya uchun tizimga kirish talab etiladi',
+    academy_login_desc: 'Darslar taraqqiyotingiz va yulduzlaringizni saqlash uchun tizimga kiring.',
+    academy_progress: 'Umumiy o\'sish',
+    academy_current_lesson: 'Joriy dars',
     footer_privacy: 'maxfiylik siyosati',
     footer_contact: 'aloqa',
     footer_join_blog: 'blogga qo\'shilish',
@@ -257,6 +294,12 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     settings_caret_slow: 'sekin',
     settings_caret_medium: "o'rtacha",
     settings_caret_fast: 'tez',
+    settings_typing_font: 'yozish shrifti',
+    font_jetbrains_mono: 'JetBrains Mono',
+    font_roboto_mono: 'Roboto Mono',
+    font_fira_code: 'Fira Code',
+    font_source_code_pro: 'Source Code Pro',
+    font_courier_prime: 'Courier Prime',
     settings_close: 'yopish',
 
     auth_title: 'qalampir tizimiga kirish',
@@ -273,12 +316,27 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
   },
   uzbek_cyrillic: {
     nav_test: 'тест',
+    nav_academy: 'академия',
     nav_leaderboard: 'пешқадамлар',
     nav_account: 'ҳисоб',
     nav_settings: 'созламалар',
     nav_login: 'кириш',
     nav_logout: 'чиқиш',
     nav_account_settings: 'ҳисоб созламалари',
+    academy_title: 'Қалампир Академия',
+    academy_subtitle: 'Босқичма-босқич ёзиш маҳоратингизни оширинг',
+    academy_select_language: 'Дарслар тилини танланг',
+    academy_back_to_map: 'Дарслар харитасига қайтиш',
+    academy_next_lesson: 'Кейинги дарс',
+    academy_retry_lesson: 'Қайта уриниш',
+    academy_lesson_completed: 'Дарс муваффақиятли якунланди!',
+    academy_stars_earned: 'Юлдузлар',
+    academy_locked: 'Қулфланган',
+    academy_unlocked: 'Очиқ',
+    academy_login_required: 'Академия учун тизимга кириш талаб этилади',
+    academy_login_desc: 'Дарслар тараққиётингиз ва юлдузларингизни сақлаш учун тизимга киринг.',
+    academy_progress: 'Умумий ўсиш',
+    academy_current_lesson: 'Жорий дарс',
     footer_privacy: 'махфийлик сиёсати',
     footer_contact: 'алоқа',
     footer_join_blog: 'блогга қўшилиш',
@@ -392,6 +450,12 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     settings_caret_slow: 'секин',
     settings_caret_medium: 'ўртача',
     settings_caret_fast: 'тез',
+    settings_typing_font: 'ёзиш шрифти',
+    font_jetbrains_mono: 'JetBrains Mono',
+    font_roboto_mono: 'Roboto Mono',
+    font_fira_code: 'Fira Code',
+    font_source_code_pro: 'Source Code Pro',
+    font_courier_prime: 'Courier Prime',
     settings_close: 'ёпиш',
 
     auth_title: 'қалампир тизимига кириш',
@@ -408,12 +472,27 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
   },
   russian: {
     nav_test: 'тест',
+    nav_academy: 'академия',
     nav_leaderboard: 'таблица лидеров',
     nav_account: 'аккаунт',
     nav_settings: 'настройки',
     nav_login: 'войти',
     nav_logout: 'выйти',
     nav_account_settings: 'настройки аккаунта',
+    academy_title: 'Qalampir Академия',
+    academy_subtitle: 'Пошаговый курс для повышения скорости и точности печати',
+    academy_select_language: 'Выберите язык уроков',
+    academy_back_to_map: 'Вернуться к карте уроков',
+    academy_next_lesson: 'Следующий урок',
+    academy_retry_lesson: 'Повторить',
+    academy_lesson_completed: 'Урок успешно завершен!',
+    academy_stars_earned: 'Звезды',
+    academy_locked: 'Заблокировано',
+    academy_unlocked: 'Разблокировано',
+    academy_login_required: 'Для Академии требуется вход в аккаунт',
+    academy_login_desc: 'Войдите, чтобы сохранять прогресс уроков и полученные звезды.',
+    academy_progress: 'Общий прогресс',
+    academy_current_lesson: 'Текущий урок',
     footer_privacy: 'политика конфиденциальности',
     footer_contact: 'контакты',
     footer_join_blog: 'присоединиться к блогу',
@@ -527,6 +606,12 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     settings_caret_slow: 'медленно',
     settings_caret_medium: 'средне',
     settings_caret_fast: 'быстро',
+    settings_typing_font: 'шрифт текста',
+    font_jetbrains_mono: 'JetBrains Mono',
+    font_roboto_mono: 'Roboto Mono',
+    font_fira_code: 'Fira Code',
+    font_source_code_pro: 'Source Code Pro',
+    font_courier_prime: 'Courier Prime',
     settings_close: 'закрыть',
 
     auth_title: 'вход в qalampir',
@@ -543,12 +628,27 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
   },
   english: {
     nav_test: 'test',
+    nav_academy: 'academy',
     nav_leaderboard: 'leaderboard',
     nav_account: 'account',
     nav_settings: 'settings',
     nav_login: 'log in',
     nav_logout: 'log out',
     nav_account_settings: 'account settings',
+    academy_title: 'Qalampir Academy',
+    academy_subtitle: 'Step-by-step masterclass to elevate your typing speed & accuracy',
+    academy_select_language: 'Select lesson language',
+    academy_back_to_map: 'Back to Skill Map',
+    academy_next_lesson: 'Next Lesson',
+    academy_retry_lesson: 'Retry Lesson',
+    academy_lesson_completed: 'Lesson Completed!',
+    academy_stars_earned: 'Stars',
+    academy_locked: 'Locked',
+    academy_unlocked: 'Unlocked',
+    academy_login_required: 'Login required for Academy',
+    academy_login_desc: 'Sign in to save your lesson progression, stars, and speed records.',
+    academy_progress: 'Overall Progress',
+    academy_current_lesson: 'Current Lesson',
     footer_privacy: 'privacy policy',
     footer_contact: 'contact',
     footer_join_blog: 'join my blog',
@@ -662,6 +762,12 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     settings_caret_slow: 'slow',
     settings_caret_medium: 'medium',
     settings_caret_fast: 'fast',
+    settings_typing_font: 'typing font',
+    font_jetbrains_mono: 'JetBrains Mono',
+    font_roboto_mono: 'Roboto Mono',
+    font_fira_code: 'Fira Code',
+    font_source_code_pro: 'Source Code Pro',
+    font_courier_prime: 'Courier Prime',
     settings_close: 'close',
 
     auth_title: 'sign in to qalampir',
