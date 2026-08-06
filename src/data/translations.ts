@@ -24,6 +24,9 @@ export type TranslationKey =
   | 'academy_login_desc'
   | 'academy_progress'
   | 'academy_current_lesson'
+  | 'academy_new_record'
+  | 'academy_retry_desc'
+  | 'academy_stars_zero'
   // Mode Selector
   | 'mode_time'
   | 'mode_words'
@@ -181,6 +184,9 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     academy_login_desc: 'Darslar taraqqiyotingiz va yulduzlaringizni saqlash uchun tizimga kiring.',
     academy_progress: 'Umumiy o\'sish',
     academy_current_lesson: 'Joriy dars',
+    academy_new_record: 'Yangi rekord!',
+    academy_retry_desc: 'Takrorlang! Aniqlik yetarli emas (kamida 75% kerak)',
+    academy_stars_zero: 'Yulduz berilmadi',
     footer_privacy: 'maxfiylik siyosati',
     footer_contact: 'aloqa',
     footer_join_blog: 'blogga qo\'shilish',
@@ -337,6 +343,9 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     academy_login_desc: 'Дарслар тараққиётингиз ва юлдузларингизни сақлаш учун тизимга киринг.',
     academy_progress: 'Умумий ўсиш',
     academy_current_lesson: 'Жорий дарс',
+    academy_new_record: 'Янги рекорд!',
+    academy_retry_desc: 'Такрорланг! Аниқлик етарли эмас (камида 75% керак)',
+    academy_stars_zero: 'Юлдуз берилмади',
     footer_privacy: 'махфийлик сиёсати',
     footer_contact: 'алоқа',
     footer_join_blog: 'блогга қўшилиш',
@@ -493,6 +502,9 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     academy_login_desc: 'Войдите, чтобы сохранять прогресс уроков и полученные звезды.',
     academy_progress: 'Общий прогресс',
     academy_current_lesson: 'Текущий урок',
+    academy_new_record: 'Новый рекорд!',
+    academy_retry_desc: 'Повторите! Точность слишком низкая (требуется не менее 75%)',
+    academy_stars_zero: 'Звезд не получено',
     footer_privacy: 'политика конфиденциальности',
     footer_contact: 'контакты',
     footer_join_blog: 'присоединиться к блогу',
@@ -649,6 +661,9 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     academy_login_desc: 'Sign in to save your lesson progression, stars, and speed records.',
     academy_progress: 'Overall Progress',
     academy_current_lesson: 'Current Lesson',
+    academy_new_record: 'New Record!',
+    academy_retry_desc: 'Retry! Accuracy is too low (minimum 75% required)',
+    academy_stars_zero: 'No stars awarded',
     footer_privacy: 'privacy policy',
     footer_contact: 'contact',
     footer_join_blog: 'join my blog',

@@ -6,6 +6,7 @@ import { ACADEMY_TIERS } from '../data/academyData';
 import { AcademyLesson, Language, LessonProgress } from '../types';
 import { TypingArea } from './TypingArea';
 import { AuthModal } from './AuthModal';
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import {
   GraduationCap,
   Lock,
@@ -17,11 +18,42 @@ import {
   ArrowRight,
   Globe,
   Trophy,
-  Zap,
-  Target,
-  Clock,
   Sparkles,
+  AlertCircle,
+  Award,
 } from 'lucide-react';
+
+/**
+ * Calculates 0-3 stars based on WPM and Accuracy thresholds tuned per tier difficulty.
+ * - Accuracy < 75%: 0 stars (Fail floor - user must retry)
+ * - 1 star: Accuracy >= 75%
+ * - 2 stars: Moderate WPM & Accuracy >= 90%
+ * - 3 stars: High WPM for that tier & Accuracy >= 95%
+ */
+export function calculateTierStars(tierNumber: number, wpm: number, accuracy: number): number {
+  if (accuracy < 75) return 0;
+
+  const tierThresholds: Record<number, { wpm2: number; wpm3: number }> = {
+    1: { wpm2: 12, wpm3: 20 }, // Harflar (Letters)
+    2: { wpm2: 18, wpm3: 28 }, // Oson so'zlar (Easy words)
+    3: { wpm2: 22, wpm3: 35 }, // O'rta jumlalar (Medium sentences)
+    4: { wpm2: 22, wpm3: 35 }, // Tinish belgilari (Punctuation)
+    5: { wpm2: 20, wpm3: 32 }, // Raqamlar (Numbers)
+    6: { wpm2: 18, wpm3: 30 }, // Maxsus belgilar (Special characters)
+    7: { wpm2: 25, wpm3: 42 }, // Qiyin matnlar (Hard texts)
+    8: { wpm2: 28, wpm3: 48 }, // Adabiyot (Literature)
+  };
+
+  const config = tierThresholds[tierNumber] || { wpm2: 20, wpm3: 35 };
+
+  if (accuracy >= 95 && wpm >= config.wpm3) {
+    return 3;
+  }
+  if (accuracy >= 90 && wpm >= config.wpm2) {
+    return 2;
+  }
+  return 1;
+}
 
 export const AcademyView: React.FC = () => {
   const { currentUser, userProfile } = useAuth();
@@ -40,7 +72,6 @@ export const AcademyView: React.FC = () => {
     return userProfile?.preferredTypingLanguage || 'uzbek_latin';
   });
 
-  // Sync academy language selection to settings typing language as well
   const handleLanguageChange = (lang: Language) => {
     setAcademyLang(lang);
     setTypingLanguage(lang);
@@ -55,53 +86,132 @@ export const AcademyView: React.FC = () => {
   // Progress State: Record<lessonId, LessonProgress>
   const [progressMap, setProgressMap] = useState<Record<string, LessonProgress>>({});
 
-  // Load progress from LocalStorage whenever user or language changes
+  // Fetch / load progress from LocalStorage + Supabase
   useEffect(() => {
     if (!currentUser) return;
-    const storageKey = `qalampir_academy_progress_${currentUser.id}_${academyLang}`;
-    try {
-      const saved = localStorage.getItem(storageKey);
-      if (saved) {
-        setProgressMap(JSON.parse(saved));
-      } else {
-        setProgressMap({});
+
+    const loadProgress = async () => {
+      const storageKey = `qalampir_academy_progress_${currentUser.id}_${academyLang}`;
+      let initialMap: Record<string, LessonProgress> = {};
+
+      // Local storage fallback
+      try {
+        const saved = localStorage.getItem(storageKey);
+        if (saved) {
+          initialMap = JSON.parse(saved);
+          setProgressMap(initialMap);
+        }
+      } catch (e) {
+        console.warn('LocalStorage load error:', e);
       }
-    } catch (e) {
-      console.error('Failed to parse academy progress:', e);
-      setProgressMap({});
-    }
+
+      // Fetch from Supabase
+      if (isSupabaseConfigured) {
+        try {
+          const { data, error } = await supabase
+            .from('academy_progress')
+            .select('*')
+            .eq('user_id', currentUser.id)
+            .eq('language', academyLang);
+
+          if (!error && data && data.length > 0) {
+            const mergedMap: Record<string, LessonProgress> = { ...initialMap };
+            data.forEach((row: any) => {
+              const existing = mergedMap[row.lesson_id];
+              const stars = row.stars || 0;
+              mergedMap[row.lesson_id] = {
+                completed: stars > 0 || (existing ? existing.completed : false),
+                stars: Math.max(stars, existing?.stars || 0),
+                bestWpm: Math.max(row.best_wpm || 0, existing?.bestWpm || 0),
+                bestAccuracy: Math.max(row.best_accuracy || 0, existing?.bestAccuracy || 0),
+              };
+            });
+            setProgressMap(mergedMap);
+            localStorage.setItem(storageKey, JSON.stringify(mergedMap));
+          }
+        } catch (err) {
+          console.warn('Supabase progress fetch warning:', err);
+        }
+      }
+    };
+
+    loadProgress();
   }, [currentUser, academyLang]);
 
-  // Function to save progress
+  // Function to save progress to LocalStorage and Supabase
   const saveLessonProgress = useCallback(
-    (lessonId: string, wpm: number, accuracy: number) => {
-      if (!currentUser) return;
+    async (lesson: AcademyLesson, wpm: number, accuracy: number): Promise<{ stars: number; isNewRecord: boolean }> => {
+      if (!currentUser) return { stars: 0, isNewRecord: false };
 
-      // Calculate stars earned
-      let stars = 0;
-      if (accuracy >= 85) stars = 1;
-      if (accuracy >= 95 && wpm >= 25) stars = 2;
-      if (accuracy >= 98 && wpm >= 40) stars = 3;
+      const stars = calculateTierStars(lesson.tierNumber, wpm, accuracy);
+
+      let isNewRecord = false;
+      let updatedStars = stars;
+      let updatedWpm = wpm;
+      let updatedAccuracy = accuracy;
 
       setProgressMap((prev) => {
-        const existing = prev[lessonId] || { completed: false, stars: 0, bestWpm: 0, bestAccuracy: 0 };
-        const updated: LessonProgress = {
-          completed: true,
-          stars: Math.max(existing.stars, stars),
-          bestWpm: Math.max(existing.bestWpm, wpm),
-          bestAccuracy: Math.max(existing.bestAccuracy, accuracy),
+        const existing = prev[lesson.id];
+        const prevBestWpm = existing?.bestWpm || 0;
+        const prevStars = existing?.stars || 0;
+
+        if (stars > 0) {
+          if (wpm > prevBestWpm || stars > prevStars) {
+            isNewRecord = true;
+          }
+        }
+
+        updatedStars = Math.max(prevStars, stars);
+        updatedWpm = Math.max(prevBestWpm, wpm);
+        updatedAccuracy = Math.max(existing?.bestAccuracy || 0, accuracy);
+
+        const nextMap = {
+          ...prev,
+          [lesson.id]: {
+            completed: updatedStars > 0 || Boolean(existing?.completed),
+            stars: updatedStars,
+            bestWpm: updatedWpm,
+            bestAccuracy: updatedAccuracy,
+          },
         };
-        const nextMap = { ...prev, [lessonId]: updated };
 
         const storageKey = `qalampir_academy_progress_${currentUser.id}_${academyLang}`;
         localStorage.setItem(storageKey, JSON.stringify(nextMap));
         return nextMap;
       });
+
+      // Upsert to Supabase table `academy_progress`
+      if (isSupabaseConfigured && currentUser && stars > 0) {
+        try {
+          const { error } = await supabase.from('academy_progress').upsert(
+            {
+              user_id: currentUser.id,
+              lesson_id: lesson.id,
+              tier: lesson.tierNumber,
+              language: academyLang,
+              stars: updatedStars,
+              best_wpm: updatedWpm,
+              best_accuracy: updatedAccuracy,
+              completed_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            },
+            { onConflict: 'user_id,lesson_id,language' }
+          );
+
+          if (error) {
+            console.warn('Supabase academy_progress upsert warning:', error.message);
+          }
+        } catch (err) {
+          console.warn('Supabase upsert error:', err);
+        }
+      }
+
+      return { stars, isNewRecord };
     },
     [currentUser, academyLang]
   );
 
-  // Helper to check if a lesson is unlocked
+  // Check if a lesson is unlocked
   const isLessonUnlocked = useCallback(
     (lesson: AcademyLesson): boolean => {
       // Tier 1, Lesson 1 is ALWAYS unlocked
@@ -112,19 +222,23 @@ export const AcademyView: React.FC = () => {
       const currentTier = ACADEMY_TIERS.find((t) => t.number === lesson.tierNumber);
       if (!currentTier) return false;
 
-      // Within the same tier: Lesson N is unlocked if Lesson N-1 is completed
+      // Within the same tier: Lesson N is unlocked if Lesson N-1 has at least 1 star / is completed
       if (lesson.lessonNumber > 1) {
         const prevLesson = currentTier.lessons.find((l) => l.lessonNumber === lesson.lessonNumber - 1);
         if (prevLesson) {
-          return Boolean(progressMap[prevLesson.id]?.completed);
+          const p = progressMap[prevLesson.id];
+          return Boolean(p && (p.stars >= 1 || p.completed));
         }
       }
 
-      // First lesson of Tier T > 1: Unlocked if ALL lessons in Tier T-1 are completed
+      // First lesson of Tier T > 1: Unlocked if ALL lessons in Tier T-1 have at least 1 star / completed
       if (lesson.lessonNumber === 1 && lesson.tierNumber > 1) {
         const prevTier = ACADEMY_TIERS.find((t) => t.number === lesson.tierNumber - 1);
         if (prevTier) {
-          return prevTier.lessons.every((l) => Boolean(progressMap[l.id]?.completed));
+          return prevTier.lessons.every((l) => {
+            const p = progressMap[l.id];
+            return Boolean(p && (p.stars >= 1 || p.completed));
+          });
         }
       }
 
@@ -164,7 +278,7 @@ export const AcademyView: React.FC = () => {
     );
   }
 
-  // Active Lesson Drill Sub-component
+  // Active Lesson Drill View
   if (activeLesson) {
     return (
       <ActiveLessonRunner
@@ -182,7 +296,7 @@ export const AcademyView: React.FC = () => {
   // Calculate Overall Progress
   const allLessons = ACADEMY_TIERS.flatMap((t) => t.lessons);
   const totalLessonsCount = allLessons.length;
-  const completedLessonsCount = allLessons.filter((l) => progressMap[l.id]?.completed).length;
+  const completedLessonsCount = allLessons.filter((l) => (progressMap[l.id]?.stars || 0) > 0).length;
   const totalStarsEarned = allLessons.reduce((sum, l) => sum + (progressMap[l.id]?.stars || 0), 0);
   const maxPossibleStars = totalLessonsCount * 3;
   const progressPercent = Math.round((completedLessonsCount / totalLessonsCount) * 100);
@@ -260,7 +374,7 @@ export const AcademyView: React.FC = () => {
       <div className="space-y-8">
         {ACADEMY_TIERS.map((tier) => {
           const tierLessons = tier.lessons;
-          const tierCompletedCount = tierLessons.filter((l) => progressMap[l.id]?.completed).length;
+          const tierCompletedCount = tierLessons.filter((l) => (progressMap[l.id]?.stars || 0) > 0).length;
           const isTierUnlocked = tierLessons.some((l) => isLessonUnlocked(l));
 
           return (
@@ -298,8 +412,8 @@ export const AcademyView: React.FC = () => {
                 {tierLessons.map((lesson) => {
                   const unlocked = isLessonUnlocked(lesson);
                   const progress = progressMap[lesson.id];
-                  const completed = Boolean(progress?.completed);
                   const stars = progress?.stars || 0;
+                  const completed = stars > 0;
 
                   return (
                     <button
@@ -376,7 +490,7 @@ interface ActiveLessonRunnerProps {
   language: Language;
   typingSound: any;
   onBack: () => void;
-  onSaveProgress: (lessonId: string, wpm: number, accuracy: number) => void;
+  onSaveProgress: (lesson: AcademyLesson, wpm: number, accuracy: number) => Promise<{ stars: number; isNewRecord: boolean }>;
   progressMap: Record<string, LessonProgress>;
   onNextLesson: (lesson: AcademyLesson) => void;
 }
@@ -415,19 +529,25 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
     customText: lessonText,
   });
 
-  // Track if current result was saved
-  const [saved, setSaved] = useState(false);
+  const [starsEarned, setStarsEarned] = useState<number>(0);
+  const [isNewRecord, setIsNewRecord] = useState<boolean>(false);
+  const [processed, setProcessed] = useState<boolean>(false);
 
   useEffect(() => {
-    setSaved(false);
+    setProcessed(false);
+    setStarsEarned(0);
+    setIsNewRecord(false);
   }, [lesson.id]);
 
   useEffect(() => {
-    if (phase === 'completed' && result && !saved) {
-      setSaved(true);
-      onSaveProgress(lesson.id, result.wpm, result.accuracy);
+    if (phase === 'completed' && result && !processed) {
+      setProcessed(true);
+      onSaveProgress(lesson, result.wpm, result.accuracy).then((res) => {
+        setStarsEarned(res.stars);
+        setIsNewRecord(res.isNewRecord);
+      });
     }
-  }, [phase, result, saved, lesson.id, onSaveProgress]);
+  }, [phase, result, processed, lesson, onSaveProgress]);
 
   // Find next lesson
   const allLessons = ACADEMY_TIERS.flatMap((t) => t.lessons);
@@ -435,14 +555,6 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
   const nextLesson = currentIdx !== -1 && currentIdx < allLessons.length - 1 ? allLessons[currentIdx + 1] : null;
 
   const liveStats = getLiveStats();
-
-  // Calculate stars earned on completion
-  let stars = 0;
-  if (result) {
-    if (result.accuracy >= 85) stars = 1;
-    if (result.accuracy >= 95 && result.wpm >= 25) stars = 2;
-    if (result.accuracy >= 98 && result.wpm >= 40) stars = 3;
-  }
 
   return (
     <div className="w-full max-w-4xl mx-auto py-6 sm:py-8 px-4 font-sans animate-fade-in space-y-6">
@@ -467,32 +579,66 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
         </div>
       </div>
 
-      {/* Lesson Complete View */}
+      {/* Lesson Complete / Results View */}
       {phase === 'completed' && result ? (
         <div className="bg-[#1A1917] rounded-2xl border border-[rgba(232,226,216,0.12)] p-6 sm:p-8 shadow-2xl text-center space-y-6 animate-fade-in max-w-xl mx-auto">
-          <div className="space-y-2">
-            <div className="w-12 h-12 rounded-full bg-[#E85D3D]/10 border border-[#E85D3D]/30 flex items-center justify-center text-[#E85D3D] mx-auto">
-              <Sparkles className="w-6 h-6 animate-pulse" />
+          {/* New Record Banner if applicable */}
+          {isNewRecord && (
+            <div className="inline-flex items-center space-x-1.5 bg-[#F4A340]/15 text-[#F4A340] border border-[#F4A340]/30 px-3 py-1 rounded-full text-xs font-mono font-bold animate-bounce-slow">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>{t('academy_new_record')}</span>
             </div>
+          )}
+
+          <div className="space-y-2">
+            <div
+              className={`w-14 h-14 rounded-full border flex items-center justify-center mx-auto ${
+                starsEarned > 0
+                  ? 'bg-[#E85D3D]/10 border-[#E85D3D]/30 text-[#E85D3D]'
+                  : 'bg-[#0F0E0D] border-red-500/30 text-red-400'
+              }`}
+            >
+              {starsEarned > 0 ? (
+                <Award className="w-7 h-7" />
+              ) : (
+                <AlertCircle className="w-7 h-7" />
+              )}
+            </div>
+
             <h3 className="text-xl font-medium text-[#E8E2D8]">
-              {t('academy_lesson_completed')}
+              {starsEarned > 0 ? t('academy_lesson_completed') : t('academy_stars_zero')}
             </h3>
+
+            {starsEarned === 0 && (
+              <p className="text-xs text-red-400 font-mono">
+                {t('academy_retry_desc')}
+              </p>
+            )}
+
             <p className="text-xs text-[#9A9488] font-mono">
               {lesson.title[language]}
             </p>
           </div>
 
-          {/* Star Rating display */}
-          <div className="flex items-center justify-center space-x-2 py-2">
-            {[1, 2, 3].map((s) => (
-              <Star
-                key={s}
-                className={`w-8 h-8 transition-transform duration-300 ${
-                  s <= stars
-                    ? 'fill-[#F4A340] text-[#F4A340] scale-110'
-                    : 'text-[#5C574C]'
+          {/* Animated Star Rating Display */}
+          <div className="flex items-center justify-center space-x-3 py-2">
+            {[1, 2, 3].map((starNum) => (
+              <div
+                key={starNum}
+                className={`transition-all duration-500 ${
+                  starNum <= starsEarned
+                    ? 'scale-125 text-[#F4A340]'
+                    : 'scale-100 text-[#323437]'
                 }`}
-              />
+              >
+                <Star
+                  className={`w-10 h-10 ${
+                    starNum <= starsEarned
+                      ? 'fill-[#F4A340] text-[#F4A340] drop-shadow-[0_0_8px_rgba(244,163,64,0.5)]'
+                      : 'text-[#5C574C]'
+                  }`}
+                />
+              </div>
             ))}
           </div>
 
@@ -507,7 +653,7 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
 
             <div className="bg-[#0F0E0D] p-3 rounded-xl border border-[rgba(232,226,216,0.08)]">
               <span className="text-[10px] font-mono text-[#9A9488] uppercase block">Aniqlik</span>
-              <span className="text-2xl font-mono font-bold text-[#6FA85C]">
+              <span className={`text-2xl font-mono font-bold ${result.accuracy >= 75 ? 'text-[#6FA85C]' : 'text-red-400'}`}>
                 {result.accuracy}%
               </span>
             </div>
@@ -531,7 +677,7 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
               <span>{t('academy_retry_lesson')}</span>
             </button>
 
-            {nextLesson && (
+            {starsEarned > 0 && nextLesson && (
               <button
                 type="button"
                 onClick={() => onNextLesson(nextLesson)}
