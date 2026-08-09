@@ -43,10 +43,11 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <>
-      <header className="w-full max-w-6xl mx-auto px-4 py-4 sm:py-6 flex flex-col md:flex-row items-center justify-between gap-4 border-b border-[rgba(232,226,216,0.06)] select-none">
-        {/* Top Left Logo & Nav Links */}
-        <div className="flex items-center space-x-6">
-          <div onClick={onLogoClick} className="cursor-pointer">
+      <header className="w-full max-w-6xl mx-auto px-3 sm:px-4 py-3 sm:py-6 flex flex-col md:flex-row items-center justify-between gap-3 md:gap-4 border-b border-[rgba(232,226,216,0.06)] select-none">
+        {/* Top Bar for Mobile (< md) OR Left Section for Desktop (>= md) */}
+        <div className="w-full md:w-auto flex items-center justify-between md:justify-start gap-3 sm:gap-6">
+          {/* Logo */}
+          <div onClick={onLogoClick} className="cursor-pointer shrink-0">
             <Logo
               size="md"
               showText={true}
@@ -55,7 +56,8 @@ export const Navbar: React.FC<NavbarProps> = ({
             />
           </div>
 
-          <nav className="flex items-center space-x-1 font-mono text-xs">
+          {/* Desktop Nav Links (>= md) */}
+          <nav className="hidden md:flex items-center space-x-1 font-mono text-xs">
             <button
               type="button"
               onClick={() => onNavigate && onNavigate('test')}
@@ -100,15 +102,172 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span>{t('nav_leaderboard')}</span>
             </button>
           </nav>
+
+          {/* Mobile Top Right Actions (< md) */}
+          <div className="flex md:hidden items-center gap-2 text-[#9A9488] shrink-0">
+            {/* Settings Gear Button */}
+            <button
+              type="button"
+              onClick={onOpenSettings}
+              className="p-1.5 rounded-lg bg-[#1A1917] hover:bg-[#1A1917]/80 border border-[rgba(232,226,216,0.1)] text-[#9A9488] hover:text-[#E85D3D] transition-colors cursor-pointer flex items-center justify-center"
+              title={t('settings_title')}
+            >
+              <Settings className="w-4 h-4" />
+            </button>
+
+            {currentUser && userProfile ? (
+              /* Logged in User Profile Dropdown for Mobile */
+              <div className="relative" ref={dropdownRef}>
+                <div className="flex items-center space-x-1">
+                  <button
+                    type="button"
+                    onClick={() => onNavigate && onNavigate('account')}
+                    className={`flex items-center space-x-1.5 bg-[#1A1917] hover:bg-[#1A1917]/80 border rounded-lg px-2.5 py-1 transition-colors cursor-pointer ${
+                      activeView === 'account'
+                        ? 'border-[#E85D3D] text-[#E8E2D8]'
+                        : 'border-[rgba(232,226,216,0.1)] text-[#9A9488]'
+                    }`}
+                  >
+                    {userProfile.photoURL ? (
+                      <img
+                        src={userProfile.photoURL}
+                        alt={userProfile.username}
+                        referrerPolicy="no-referrer"
+                        className="w-4 h-4 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-4 h-4 rounded-full bg-[#E85D3D] text-[#0F0E0D] flex items-center justify-center font-mono font-bold text-[9px]">
+                        {userProfile.username.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <span className="font-mono text-xs text-[#E8E2D8] max-w-[70px] truncate">
+                      {userProfile.username}
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setDropdownOpen(!dropdownOpen)}
+                    className="bg-[#1A1917] border border-[rgba(232,226,216,0.1)] rounded-lg p-1 text-[#9A9488] transition-colors cursor-pointer"
+                  >
+                    <ChevronDown className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                {dropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-52 bg-[#1A1917] border border-[rgba(232,226,216,0.12)] rounded-xl shadow-xl p-2 z-50 text-xs font-sans">
+                    <div
+                      onClick={() => {
+                        setDropdownOpen(false);
+                        if (onNavigate) onNavigate('account');
+                      }}
+                      className="px-3 py-2 border-b border-[rgba(232,226,216,0.08)] mb-1 cursor-pointer hover:bg-[rgba(232,226,216,0.04)] rounded-lg"
+                    >
+                      <p className="font-mono font-medium text-[#E8E2D8] truncate">
+                        @{userProfile.username}
+                      </p>
+                      {userProfile.firstName && (
+                        <p className="text-[11px] text-[#9A9488] truncate">
+                          {userProfile.firstName} {userProfile.lastName}
+                        </p>
+                      )}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDropdownOpen(false);
+                        if (onNavigate) onNavigate('account');
+                      }}
+                      className={`w-full text-left px-3 py-2 rounded-lg flex items-center space-x-2 font-mono transition-colors cursor-pointer mb-1 ${
+                        activeView === 'account'
+                          ? 'bg-[#0F0E0D] text-[#E85D3D]'
+                          : 'text-[#E8E2D8] hover:bg-[rgba(232,226,216,0.04)]'
+                      }`}
+                    >
+                      <UserIcon className="w-3.5 h-3.5 text-[#E85D3D]" />
+                      <span>{t('nav_account_settings')}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDropdownOpen(false);
+                        logout();
+                      }}
+                      className="w-full text-left px-3 py-2 text-[#D64545] hover:bg-[rgba(214,69,69,0.1)] rounded-lg flex items-center space-x-2 font-mono transition-colors cursor-pointer"
+                    >
+                      <LogOut className="w-3.5 h-3.5" />
+                      <span>{t('nav_logout')}</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setAuthModalOpen(true)}
+                className="px-2.5 py-1.5 rounded-lg bg-[#E85D3D] hover:bg-[#E85D3D]/90 text-[#0F0E0D] font-mono text-xs font-semibold transition-colors flex items-center space-x-1.5 cursor-pointer shadow-sm shrink-0"
+              >
+                <LogIn className="w-3.5 h-3.5" />
+                <span>{t('nav_login')}</span>
+              </button>
+            )}
+          </div>
         </div>
 
+        {/* Mobile Nav Links Row (< md) */}
+        <nav className="flex md:hidden items-center justify-center gap-1 font-mono text-xs w-full overflow-x-auto no-scrollbar py-0.5">
+          <button
+            type="button"
+            onClick={() => onNavigate && onNavigate('test')}
+            className={`px-2.5 py-1 rounded-lg flex items-center space-x-1 transition-colors cursor-pointer shrink-0 ${
+              activeView === 'test'
+                ? 'bg-[#1A1917] text-[#E85D3D] font-medium border border-[rgba(232,226,216,0.1)]'
+                : 'text-[#9A9488] hover:text-[#E8E2D8]'
+            }`}
+          >
+            <Keyboard className="w-3.5 h-3.5" />
+            <span>{t('nav_test')}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              if (!currentUser) setAuthModalOpen(true);
+              if (onNavigate) onNavigate('academy');
+            }}
+            className={`px-2.5 py-1 rounded-lg flex items-center space-x-1 transition-colors cursor-pointer shrink-0 ${
+              activeView === 'academy'
+                ? 'bg-[#1A1917] text-[#E85D3D] font-medium border border-[rgba(232,226,216,0.1)]'
+                : 'text-[#9A9488] hover:text-[#E8E2D8]'
+            }`}
+          >
+            <GraduationCap className="w-3.5 h-3.5" />
+            <span>{t('nav_academy')}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onNavigate && onNavigate('leaderboard')}
+            className={`px-2.5 py-1 rounded-lg flex items-center space-x-1 transition-colors cursor-pointer shrink-0 ${
+              activeView === 'leaderboard'
+                ? 'bg-[#1A1917] text-[#E85D3D] font-medium border border-[rgba(232,226,216,0.1)]'
+                : 'text-[#9A9488] hover:text-[#E8E2D8]'
+            }`}
+          >
+            <Trophy className="w-3.5 h-3.5" />
+            <span>{t('nav_leaderboard')}</span>
+          </button>
+        </nav>
+
         {/* Center Controls (ModeSelector inserted here when activeView === 'test') */}
-        <div className="flex-1 flex justify-center w-full md:w-auto">
+        <div className="flex-1 flex justify-center w-full md:w-auto max-w-full">
           {activeView === 'test' && children}
         </div>
 
-        {/* Top Right Actions */}
-        <div className="flex items-center gap-2 sm:gap-3 text-[#9A9488]">
+        {/* Desktop Top Right Actions (>= md) */}
+        <div className="hidden md:flex items-center gap-2 sm:gap-3 text-[#9A9488] shrink-0">
           {/* Settings Gear Button */}
           <button
             type="button"

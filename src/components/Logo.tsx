@@ -27,7 +27,7 @@ export const Logo: React.FC<LogoProps> = ({
   };
 
   return (
-    <div className="flex items-center gap-2.5 select-none cursor-pointer group">
+    <div className="flex items-center gap-2.5 select-none cursor-pointer group shrink-0">
       {/* Chili Pepper + Caret / I-Beam SVG Icon */}
       <motion.div
         initial={isIntroDone ? false : { opacity: 0, scale: 0.3 }}

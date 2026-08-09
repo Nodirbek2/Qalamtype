@@ -243,28 +243,28 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
       onClick={() => setIsFocused(true)}
     >
       {/* Top Info Bar directly above typing box */}
-      <div className="w-full flex items-center justify-between mb-4 px-2 font-mono text-xs">
+      <div className="w-full flex items-center justify-between mb-3 sm:mb-4 px-2 font-mono text-xs flex-wrap gap-2">
         {/* Language & Difficulty indicator (e.g., o'zbekcha / oson) */}
         <div className="flex flex-col">
           <span className="text-[10px] uppercase tracking-widest text-[#5C574C] font-semibold font-sans">
             {t('typing_language_label')}
           </span>
-          <span className="text-[#E85D3D] text-sm font-mono">
+          <span className="text-[#E85D3D] text-xs sm:text-sm font-mono truncate max-w-[150px] sm:max-w-none">
             {t(`lang_${language}` as any)} / {t(`diff_${difficulty}` as any)}
           </span>
         </div>
 
         {/* Live metric timer / progress */}
-        <div className="flex items-center space-x-6">
+        <div className="flex items-center space-x-4 sm:space-x-6">
           <div className="flex flex-col items-end">
             <span className="text-[10px] uppercase tracking-widest text-[#5C574C] font-semibold font-sans">wpm</span>
-            <span className="text-xl font-mono text-[#F4A340]">{liveWpm}</span>
+            <span className="text-lg sm:text-xl font-mono text-[#F4A340]">{liveWpm}</span>
           </div>
           <div className="flex flex-col items-end">
             <span className="text-[10px] uppercase tracking-widest text-[#5C574C] font-semibold font-sans">
               {mode === 'time' ? 'time' : 'words'}
             </span>
-            <span className="text-xl font-mono text-[#E85D3D]">
+            <span className="text-lg sm:text-xl font-mono text-[#E85D3D]">
               {mode === 'time' ? `${timeLeft}s` : `${completedWordsCount}/${wordCount}`}
             </span>
           </div>
@@ -275,7 +275,7 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
       <div
         ref={containerRef}
         onClick={focusInput}
-        className="relative w-full min-h-[160px] p-4 sm:p-6 bg-[#1A1917] rounded-xl border border-[rgba(232,226,216,0.08)] cursor-text overflow-hidden focus:outline-none"
+        className="relative w-full min-h-[140px] sm:min-h-[160px] p-3 sm:p-6 bg-[#1A1917] rounded-xl border border-[rgba(232,226,216,0.08)] cursor-text overflow-hidden focus:outline-none"
       >
         {/* Invisible input to capture virtual and physical keyboard inputs */}
         <input
@@ -297,7 +297,7 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
         {/* Out of focus or Paused warning overlay */}
         {(isPaused || !isFocused) && (
           <div
-            className="absolute inset-0 bg-[#0F0E0D]/20 z-20 flex items-center justify-center rounded-xl transition-all cursor-pointer pointer-events-auto"
+            className="absolute inset-0 bg-[#0F0E0D]/20 z-20 flex items-center justify-center rounded-xl transition-all cursor-pointer pointer-events-auto p-2"
             onClick={(e) => {
               e.stopPropagation();
               focusInput();
@@ -306,7 +306,7 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
               }
             }}
           >
-            <span className="font-sans text-xs sm:text-sm text-[#E85D3D] bg-[#1A1917]/90 px-4 py-2 rounded-lg border border-[rgba(232,93,61,0.35)] shadow-xl animate-pulse">
+            <span className="font-sans text-xs sm:text-sm text-[#E85D3D] bg-[#1A1917]/90 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg border border-[rgba(232,93,61,0.35)] shadow-xl animate-pulse text-center max-w-full">
               {isPaused ? t('typing_paused_prompt') : t('typing_focus_prompt')}
             </span>
           </div>
@@ -324,7 +324,7 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
         {/* Text Display Box */}
         <div 
           style={{ fontFamily: FONT_FAMILIES[typingFont] }}
-          className="flex flex-wrap gap-x-3 gap-y-2 text-xl sm:text-2xl leading-relaxed tracking-wide text-left break-words"
+          className="flex flex-wrap gap-x-2 sm:gap-x-3 gap-y-1.5 sm:gap-y-2 text-lg sm:text-2xl leading-relaxed tracking-wide text-left break-words max-w-full overflow-hidden"
         >
           {wordsDisplay.map((word, wIdx) => {
             return (

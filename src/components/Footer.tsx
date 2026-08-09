@@ -10,7 +10,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPrivacy }) => {
 
   return (
     <footer className="w-full max-w-6xl mx-auto px-4 py-6 mt-auto border-t border-[rgba(232,226,216,0.06)] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#5C574C] font-mono select-none">
-      <div className="flex items-center space-x-6 text-[11px]">
+      <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-2 text-[11px]">
         <span className="text-[#9A9488] font-medium">qalampir</span>
         <a 
           href="https://t.me/Nodirbek_B" 

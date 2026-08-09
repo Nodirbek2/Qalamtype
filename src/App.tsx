@@ -162,7 +162,7 @@ export default function App() {
 
   return (
     <LayoutGroup id="app-intro-group">
-      <div className="min-h-screen bg-[#0F0E0D] text-[#E8E2D8] flex flex-col font-sans selection:bg-[#E85D3D] selection:text-[#0F0E0D] relative">
+      <div className="min-h-screen bg-[#0F0E0D] text-[#E8E2D8] flex flex-col font-sans selection:bg-[#E85D3D] selection:text-[#0F0E0D] relative overflow-x-hidden w-full max-w-full">
         {/* Intro Fullscreen Overlay */}
         {introState !== 'done' && introState !== 'checking' && (
           <IntroOverlay
@@ -200,7 +200,7 @@ export default function App() {
         </Navbar>
 
         {/* Main Container */}
-        <main className="flex-1 flex flex-col justify-center px-4 py-8 max-w-6xl w-full mx-auto">
+        <main className="flex-1 flex flex-col justify-center px-3 sm:px-4 py-4 sm:py-8 max-w-6xl w-full mx-auto overflow-x-hidden">
           {activeView === 'account' ? (
             <AccountView />
           ) : activeView === 'academy' ? (
