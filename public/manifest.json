@@ -1,0 +1,16 @@
+{
+  "short_name": "Qalampir",
+  "name": "Qalampir — Minimalist Typing Test",
+  "description": "Minimalist, customizable typing test app with support for Uzbek, Russian, and English.",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192 512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#0F0E0D",
+  "theme_color": "#0F0E0D",
+  "display": "standalone"
+}

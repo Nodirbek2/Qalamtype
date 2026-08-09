@@ -49,16 +49,31 @@ export const WORD_BANKS: Record<Language, Record<Difficulty, WordBankSource>> = 
 };
 
 /**
- * Randomly select items from an array without repeating until pool is exhausted.
+ * Randomly select items from an array using Fisher-Yates shuffle without immediate repeats.
  */
 function getRandomItems<T>(arr: T[], count: number): T[] {
   if (!arr || arr.length === 0) return [];
   const result: T[] = [];
-  let pool = [...arr].sort(() => Math.random() - 0.5);
+
+  const shuffle = (array: T[]) => {
+    const copy = [...array];
+    for (let i = copy.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
+  };
+
+  let pool = shuffle(arr);
 
   for (let i = 0; i < count; i++) {
     if (pool.length === 0) {
-      pool = [...arr].sort(() => Math.random() - 0.5);
+      pool = shuffle(arr);
+      // Ensure the first item of new pool doesn't match the last item chosen
+      if (result.length > 0 && pool.length > 1 && pool[pool.length - 1] === result[result.length - 1]) {
+        const swapIdx = Math.floor(Math.random() * (pool.length - 1));
+        [pool[pool.length - 1], pool[swapIdx]] = [pool[swapIdx], pool[pool.length - 1]];
+      }
     }
     const item = pool.pop();
     if (item !== undefined) {
@@ -97,16 +112,8 @@ export function generateTestText(
         ? durationOrCount
         : Math.max(40, Math.ceil((durationOrCount / 60) * 75));
 
-    let collectedText = '';
-    let currentWords = 0;
-    let attempts = 0;
-
-    while (currentWords < targetWordCount && attempts < 50) {
-      const randomSentence = sentences[Math.floor(Math.random() * sentences.length)];
-      collectedText += (collectedText ? ' ' : '') + randomSentence;
-      currentWords = collectedText.split(/\s+/).filter(Boolean).length;
-      attempts++;
-    }
+    const selectedSentences = getRandomItems(sentences, Math.max(10, Math.ceil(targetWordCount / 5)));
+    let collectedText = selectedSentences.join(' ');
 
     if (mode === 'words') {
       const splitWords = collectedText.split(/\s+/).filter(Boolean).slice(0, durationOrCount);
