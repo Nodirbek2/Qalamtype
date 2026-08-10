@@ -16,13 +16,6 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPrivacy, onOpenAbout, onOp
         <span className="text-[#9A9488] font-medium">qalampir</span>
         <button
           type="button"
-          onClick={onOpenAbout}
-          className="hover:text-[#9A9488] transition-colors cursor-pointer"
-        >
-          {t('footer_about')}
-        </button>
-        <button
-          type="button"
           onClick={onOpenBlog}
           className="hover:text-[#9A9488] transition-colors cursor-pointer"
         >
@@ -36,6 +29,13 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPrivacy, onOpenAbout, onOp
         >
           {t('footer_contact')}
         </a>
+        <button
+          type="button"
+          onClick={onOpenAbout}
+          className="hover:text-[#9A9488] transition-colors cursor-pointer"
+        >
+          {t('footer_about')}
+        </button>
         <button
           type="button"
           onClick={onOpenPrivacy}

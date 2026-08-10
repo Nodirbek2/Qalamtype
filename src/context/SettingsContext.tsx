@@ -27,6 +27,14 @@ const LS_SITE_LANG = 'qalampir_site_language';
 const LS_TYPING_LANG = 'qalampir_typing_language';
 const LS_TYPING_FONT = 'qalampir_typing_font';
 
+export function sanitizeLanguage(lang: any): Language {
+  if (lang === 'uzbek_cyrillic' || lang === 'uzbek_cyr' || lang === 'cyrillic') return 'uzbek_cyrillic';
+  if (lang === 'uzbek_latin' || lang === 'uzbek' || lang === 'uz' || lang === 'latin') return 'uzbek_latin';
+  if (lang === 'russian' || lang === 'ru') return 'russian';
+  if (lang === 'english' || lang === 'en') return 'english';
+  return 'uzbek_latin';
+}
+
 export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { userProfile, updateUserProfile } = useAuth();
 
@@ -39,11 +47,11 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   });
 
   const [siteLanguage, setSiteLanguageState] = useState<Language>(() => {
-    return (localStorage.getItem(LS_SITE_LANG) as Language) || 'uzbek_latin';
+    return sanitizeLanguage(localStorage.getItem(LS_SITE_LANG));
   });
 
   const [typingLanguage, setTypingLanguageState] = useState<Language>(() => {
-    return (localStorage.getItem(LS_TYPING_LANG) as Language) || 'uzbek_latin';
+    return sanitizeLanguage(localStorage.getItem(LS_TYPING_LANG));
   });
 
   const [typingFont, setTypingFontState] = useState<TypingFont>(() => {
@@ -54,12 +62,14 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   useEffect(() => {
     if (userProfile) {
       if (userProfile.preferredSiteLanguage) {
-        setSiteLanguageState(userProfile.preferredSiteLanguage);
-        localStorage.setItem(LS_SITE_LANG, userProfile.preferredSiteLanguage);
+        const cleanSiteLang = sanitizeLanguage(userProfile.preferredSiteLanguage);
+        setSiteLanguageState(cleanSiteLang);
+        localStorage.setItem(LS_SITE_LANG, cleanSiteLang);
       }
       if (userProfile.preferredTypingLanguage) {
-        setTypingLanguageState(userProfile.preferredTypingLanguage);
-        localStorage.setItem(LS_TYPING_LANG, userProfile.preferredTypingLanguage);
+        const cleanTypingLang = sanitizeLanguage(userProfile.preferredTypingLanguage);
+        setTypingLanguageState(cleanTypingLang);
+        localStorage.setItem(LS_TYPING_LANG, cleanTypingLang);
       }
     }
   }, [userProfile]);
@@ -80,10 +90,11 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const setSiteLanguage = useCallback(
     (lang: Language) => {
-      setSiteLanguageState(lang);
-      localStorage.setItem(LS_SITE_LANG, lang);
+      const cleanLang = sanitizeLanguage(lang);
+      setSiteLanguageState(cleanLang);
+      localStorage.setItem(LS_SITE_LANG, cleanLang);
       if (userProfile) {
-        updateUserProfile({ preferredSiteLanguage: lang }).catch(() => {});
+        updateUserProfile({ preferredSiteLanguage: cleanLang }).catch(() => {});
       }
     },
     [userProfile, updateUserProfile]
@@ -91,10 +102,11 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const setTypingLanguage = useCallback(
     (lang: Language) => {
-      setTypingLanguageState(lang);
-      localStorage.setItem(LS_TYPING_LANG, lang);
+      const cleanLang = sanitizeLanguage(lang);
+      setTypingLanguageState(cleanLang);
+      localStorage.setItem(LS_TYPING_LANG, cleanLang);
       if (userProfile) {
-        updateUserProfile({ preferredTypingLanguage: lang }).catch(() => {});
+        updateUserProfile({ preferredTypingLanguage: cleanLang }).catch(() => {});
       }
     },
     [userProfile, updateUserProfile]
@@ -107,7 +119,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const t = useCallback(
     (key: TranslationKey): string => {
-      const langDict = translations[siteLanguage] || translations.uzbek_latin;
+      const activeLang = sanitizeLanguage(siteLanguage);
+      const langDict = translations[activeLang] || translations.uzbek_latin;
       return langDict[key] || translations.uzbek_latin[key] || key;
     },
     [siteLanguage]

@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState, useLayoutEffect } from 'react';
 import { WordDisplayInfo } from '../hooks/useTypingEngine';
 import { Caret } from './Caret';
-import { TestMode, Duration, WordCount, Difficulty, Language, TypingFont, FONT_FAMILIES } from '../types';
+import { TestMode, Duration, WordCount, Difficulty, Language, FONT_FAMILIES } from '../types';
 import { RotateCcw } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
 
@@ -42,11 +42,16 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
 }) => {
   const { smoothCaret, typingFont, t } = useSettings();
   const containerRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const activeCharRef = useRef<HTMLSpanElement>(null);
+
   const [inputValue, setInputValue] = useState(' ');
-  const [caretPos, setCaretPos] = useState({ top: 0, left: 0, height: 28 });
   const [isFocused, setIsFocused] = useState(true);
   const lastMousePosRef = useRef<{ x: number; y: number } | null>(null);
+  const handledKeyDownRef = useRef<boolean>(false);
+
+  const [caretPos, setCaretPos] = useState({ x: 0, y: 0, height: 28, visible: true });
 
   const focusInput = () => {
     if (inputRef.current) {
@@ -54,14 +59,13 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
     }
   };
 
-  // Keep input focused when isFocused is true
   useEffect(() => {
     if (isFocused) {
       focusInput();
     }
   }, [isFocused]);
 
-  // Pause test if mouse moves while writing
+  // Pause test if mouse moves significantly (threshold 100px)
   useEffect(() => {
     if (phase !== 'running' || isPaused) {
       lastMousePosRef.current = null;
@@ -77,7 +81,7 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
         e.clientX - lastMousePosRef.current.x,
         e.clientY - lastMousePosRef.current.y
       );
-      if (dist > 8) {
+      if (dist > 100) {
         lastMousePosRef.current = { x: e.clientX, y: e.clientY };
         if (onPause) {
           onPause();
@@ -89,26 +93,31 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, [phase, isPaused, onPause]);
 
-  // Global keydown handler when focused
+  // Global keydown listener
   useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
-      // If user clicks restart button or inputs into standard form elements, ignore
+      // If event originated directly from typing input, ignore to avoid double execution
+      if (e.target === inputRef.current) {
+        return;
+      }
+
       const target = e.target as HTMLElement;
       const targetTag = target?.tagName?.toLowerCase();
-      // Allow if it is our own typing input
-      if (targetTag === 'input' && !target.hasAttribute('data-typing-input')) {
+      if (targetTag === 'input' || targetTag === 'button' || targetTag === 'textarea') {
         return;
       }
-      if (targetTag === 'button' || targetTag === 'textarea') {
-        return;
-      }
+
       setIsFocused(true);
-      if (inputRef.current) {
-        inputRef.current.focus();
-      }
+      focusInput();
+
       if (isPaused && onResume) {
         onResume();
       }
+
+      if (e.key === ' ' || e.key === 'Backspace' || e.key.length === 1) {
+        e.preventDefault();
+      }
+
       onKeyDown(e);
     };
 
@@ -117,12 +126,16 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
   }, [onKeyDown, isPaused, onResume]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (handledKeyDownRef.current) {
+      handledKeyDownRef.current = false;
+      setInputValue(' ');
+      return;
+    }
+
     const val = e.target.value;
     if (val.length < 1) {
-      // Backspace pressed on mobile (value became empty)
       onKeyDown({ key: 'Backspace', preventDefault: () => {} } as KeyboardEvent);
     } else if (val.length > 1) {
-      // One or more characters typed (including swipes / auto-completes)
       const typedText = val.substring(1);
       for (const char of typedText) {
         onKeyDown({ key: char, preventDefault: () => {} } as KeyboardEvent);
@@ -133,147 +146,120 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
 
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     const key = e.key;
-    // Intercept Backspace, Tab, Escape or standard characters for desktop typing.
-    // Calling stopPropagation avoids double-firing from the global keydown listener.
-    if (key === 'Backspace' || key === 'Escape' || key === 'Tab' || key.length === 1) {
+    if (key === ' ' || key === 'Backspace' || key === 'Escape' || key === 'Tab' || key.length === 1) {
+      handledKeyDownRef.current = true;
+      e.preventDefault();
       e.stopPropagation();
       onKeyDown(e.nativeEvent);
     }
   };
 
-  // Update Caret position relative to current typing index
+  // Compute caret position based on DOM elements relative to text container
   useLayoutEffect(() => {
-    if (!containerRef.current) return;
+    if (!containerRef.current || !textRef.current) return;
 
     const container = containerRef.current;
+    const textContainer = textRef.current;
     const containerRect = container.getBoundingClientRect();
-    const scrollTop = container.scrollTop || 0;
-    const scrollLeft = container.scrollLeft || 0;
+    const textRect = textContainer.getBoundingClientRect();
 
-    // Look for exact character element matching currentIndex
-    const targetEl = container.querySelector<HTMLElement>(
-      `[data-char-idx="${currentIndex}"]`
-    );
+    // 1. Find active target element matching current index or query DOM
+    let targetEl = activeCharRef.current;
+    if (!targetEl || targetEl.getAttribute('data-char-idx') !== String(currentIndex)) {
+      targetEl = container.querySelector<HTMLSpanElement>(`[data-char-idx="${currentIndex}"]`);
+    }
 
     if (targetEl) {
       const targetRect = targetEl.getBoundingClientRect();
+      const isRight = targetEl.getAttribute('data-caret-pos') === 'right';
+      const x = (isRight ? targetRect.right : targetRect.left) - textRect.left;
+      const y = targetRect.top - textRect.top;
+      const height = targetRect.height || 28;
+
       setCaretPos({
-        top: targetRect.top - containerRect.top + scrollTop,
-        left: targetRect.left - containerRect.left + scrollLeft,
-        height: targetRect.height || 28,
+        x,
+        y,
+        height,
+        visible: true,
       });
+
+      // Handle container scrolling
+      const relTop = targetRect.top - containerRect.top;
+      if (relTop + height > container.clientHeight - 20) {
+        container.scrollTop += (relTop + height) - (container.clientHeight - 20);
+      } else if (relTop < 10) {
+        container.scrollTop = Math.max(0, container.scrollTop + relTop - 10);
+      }
       return;
     }
 
-    // If target element doesn't exist (e.g. space between words or end of test),
-    // position caret immediately after the previous character element (currentIndex - 1)
+    // 2. Fallback to previous element (currentIndex - 1) right edge
     if (currentIndex > 0) {
-      const prevEl = container.querySelector<HTMLElement>(
-        `[data-char-idx="${currentIndex - 1}"]`
-      );
+      const prevEl = container.querySelector<HTMLSpanElement>(`[data-char-idx="${currentIndex - 1}"]`);
       if (prevEl) {
         const prevRect = prevEl.getBoundingClientRect();
+        const x = prevRect.right - textRect.left;
+        const y = prevRect.top - textRect.top;
+        const height = prevRect.height || 28;
+
         setCaretPos({
-          top: prevRect.top - containerRect.top + scrollTop,
-          left: prevRect.right - containerRect.left + scrollLeft,
-          height: prevRect.height || 28,
+          x,
+          y,
+          height,
+          visible: true,
         });
+
+        const relTop = prevRect.top - containerRect.top;
+        if (relTop + height > container.clientHeight - 20) {
+          container.scrollTop += (relTop + height) - (container.clientHeight - 20);
+        } else if (relTop < 10) {
+          container.scrollTop = Math.max(0, container.scrollTop + relTop - 10);
+        }
         return;
       }
     }
 
-    // Fallback if no elements found yet (e.g. initial render before text populates)
-    const firstEl = container.querySelector<HTMLElement>(
-      `[data-char-idx="0"]`
-    );
-    if (firstEl) {
-      const firstRect = firstEl.getBoundingClientRect();
-      setCaretPos({
-        top: firstRect.top - containerRect.top + scrollTop,
-        left: firstRect.left - containerRect.left + scrollLeft,
-        height: firstRect.height || 28,
-      });
-      return;
-    }
+    // 3. Fallback: Maintain previous valid caret position
+    setCaretPos((prev) => ({ ...prev, visible: true }));
+  }, [currentIndex, wordsDisplay, typingFont]);
 
-    // Defensive fallback if no DOM nodes match currentIndex
-    setCaretPos({
-      top: 0,
-      left: 0,
-      height: 28,
-    });
-  }, [currentIndex, wordsDisplay]);
-
-  // Handle window resize and scroll events to adjust caret position
+  // Window resize handler to recalculate caret position
   useEffect(() => {
     const handleResize = () => {
-      if (!containerRef.current) return;
+      if (!containerRef.current || !textRef.current) return;
       const container = containerRef.current;
-      const containerRect = container.getBoundingClientRect();
-      const scrollTop = container.scrollTop || 0;
-      const scrollLeft = container.scrollLeft || 0;
+      const textContainer = textRef.current;
+      const textRect = textContainer.getBoundingClientRect();
 
-      const targetEl = container.querySelector<HTMLElement>(
-        `[data-char-idx="${currentIndex}"]`
-      );
-
-      if (targetEl) {
-        const targetRect = targetEl.getBoundingClientRect();
+      let el = container.querySelector<HTMLSpanElement>(`[data-char-idx="${currentIndex}"]`);
+      if (el) {
+        const targetRect = el.getBoundingClientRect();
+        const isRight = el.getAttribute('data-caret-pos') === 'right';
         setCaretPos({
-          top: targetRect.top - containerRect.top + scrollTop,
-          left: targetRect.left - containerRect.left + scrollLeft,
+          x: (isRight ? targetRect.right : targetRect.left) - textRect.left,
+          y: targetRect.top - textRect.top,
           height: targetRect.height || 28,
+          visible: true,
         });
-        return;
-      }
-
-      if (currentIndex > 0) {
-        const prevEl = container.querySelector<HTMLElement>(
-          `[data-char-idx="${currentIndex - 1}"]`
-        );
+      } else if (currentIndex > 0) {
+        const prevEl = container.querySelector<HTMLSpanElement>(`[data-char-idx="${currentIndex - 1}"]`);
         if (prevEl) {
           const prevRect = prevEl.getBoundingClientRect();
           setCaretPos({
-            top: prevRect.top - containerRect.top + scrollTop,
-            left: prevRect.right - containerRect.left + scrollLeft,
+            x: prevRect.right - textRect.left,
+            y: prevRect.top - textRect.top,
             height: prevRect.height || 28,
+            visible: true,
           });
-          return;
         }
       }
-
-      const firstEl = container.querySelector<HTMLElement>(
-        `[data-char-idx="0"]`
-      );
-      if (firstEl) {
-        const firstRect = firstEl.getBoundingClientRect();
-        setCaretPos({
-          top: firstRect.top - containerRect.top + scrollTop,
-          left: firstRect.left - containerRect.left + scrollLeft,
-          height: firstRect.height || 28,
-        });
-        return;
-      }
-
-      // Defensive fallback if no DOM nodes match
-      setCaretPos({
-        top: 0,
-        left: 0,
-        height: 28,
-      });
     };
-
     window.addEventListener('resize', handleResize);
-    window.addEventListener('scroll', handleResize, true);
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      window.removeEventListener('scroll', handleResize, true);
-    };
+    return () => window.removeEventListener('resize', handleResize);
   }, [currentIndex]);
 
-  // Compute total typed word progress for words mode
   const completedWordsCount = wordsDisplay.filter(
-    (w) => w.chars.every((c) => c.status !== 'untouched') && w.chars.length > 0
+    (w) => !w.isCurrentWord && w.chars.every((c) => c.status !== 'untouched') && w.chars.length > 0
   ).length;
 
   return (
@@ -283,7 +269,6 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
     >
       {/* Top Info Bar directly above typing box */}
       <div className="w-full flex items-center justify-between mb-3 sm:mb-4 px-2 font-mono text-xs flex-wrap gap-2">
-        {/* Language & Difficulty indicator (e.g., o'zbekcha / oson) */}
         <div className="flex flex-col">
           <span className="text-[10px] uppercase tracking-widest text-[#5C574C] font-semibold font-sans">
             {t('typing_language_label')}
@@ -293,7 +278,6 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
           </span>
         </div>
 
-        {/* Live metric timer / progress */}
         <div className="flex items-center space-x-4 sm:space-x-6">
           <div className="flex flex-col items-end">
             <span className="text-[10px] uppercase tracking-widest text-[#5C574C] font-semibold font-sans">wpm</span>
@@ -314,9 +298,8 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
       <div
         ref={containerRef}
         onClick={focusInput}
-        className="relative w-full min-h-[140px] sm:min-h-[160px] p-3 sm:p-6 bg-[#1A1917] rounded-xl border border-[rgba(232,226,216,0.08)] cursor-text overflow-hidden focus:outline-none"
+        className="relative w-full min-h-[140px] sm:min-h-[160px] max-h-[220px] p-3 sm:p-6 bg-[#1A1917] rounded-xl border border-[rgba(232,226,216,0.08)] cursor-text overflow-y-auto focus:outline-none scrollbar-none"
       >
-        {/* Invisible input to capture virtual and physical keyboard inputs */}
         <input
           ref={inputRef}
           type="text"
@@ -333,7 +316,6 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
           data-typing-input="true"
         />
 
-        {/* Out of focus or Paused warning overlay */}
         {(isPaused || !isFocused) && (
           <div
             className="absolute inset-0 bg-[#0F0E0D]/20 z-20 flex items-center justify-center rounded-xl transition-all cursor-pointer pointer-events-auto p-2"
@@ -351,48 +333,52 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
           </div>
         )}
 
-        {/* Caret */}
-        <Caret
-          top={caretPos.top}
-          left={caretPos.left}
-          height={caretPos.height}
-          speed={smoothCaret}
-          isIdle={phase === 'idle'}
-        />
-
         {/* Text Display Box */}
         <div 
+          ref={textRef}
           style={{ fontFamily: FONT_FAMILIES[typingFont] }}
-          className="flex flex-wrap gap-x-2 sm:gap-x-3 gap-y-1.5 sm:gap-y-2 text-lg sm:text-2xl leading-relaxed tracking-wide text-left break-words max-w-full overflow-hidden"
+          className="relative flex flex-wrap gap-x-0 text-lg sm:text-2xl leading-relaxed tracking-wide text-left break-words max-w-full"
         >
+          {/* Smooth Floating Caret */}
+          <Caret
+            x={caretPos.x}
+            y={caretPos.y}
+            height={caretPos.height}
+            speed={smoothCaret}
+            isIdle={phase === 'idle'}
+            visible={caretPos.visible}
+          />
+
           {wordsDisplay.map((word, wIdx) => {
             return (
-              <span
-                key={`word-${wIdx}`}
-                className="inline-flex flex-wrap relative my-0.5"
-              >
+              <span key={`word-${wIdx}`} className="inline-flex flex-wrap relative my-0.5">
                 {word.chars.map((charObj) => {
-                  // Character color styling according to design system
-                  let colorClass = 'text-[#5C574C]'; // untouched / muted
+                  let colorClass = 'text-[#5C574C]';
                   let bgClass = '';
 
                   if (charObj.status === 'correct') {
-                    colorClass = 'text-[#E8E2D8]'; // text primary
+                    colorClass = 'text-[#E8E2D8]';
                   } else if (charObj.status === 'incorrect') {
-                    colorClass = 'text-[#D64545] underline decoration-[#D64545] decoration-2'; // error red
+                    colorClass = 'text-[#D64545] underline decoration-[#D64545] decoration-2';
                     bgClass = 'bg-[#D64545]/15 rounded-sm';
                   } else if (charObj.status === 'extra') {
-                    colorClass = 'text-[#D64545]/80 line-through'; // extra typed
+                    colorClass = 'text-[#D64545]/80 line-through';
                     bgClass = 'bg-[#D64545]/20 rounded-sm';
                   }
+
+                  const isTargetChar = charObj.isCurrent || charObj.isCurrentRight;
+                  const caretPosSide = charObj.isCurrentRight ? 'right' : 'left';
+                  const displayChar = charObj.isSpace ? '\u00A0' : charObj.char;
 
                   return (
                     <span
                       key={`char-${charObj.globalIndex}`}
+                      ref={isTargetChar ? activeCharRef : null}
                       data-char-idx={charObj.globalIndex}
+                      data-caret-pos={caretPosSide}
                       className={`relative px-[0.5px] transition-colors duration-75 ${colorClass} ${bgClass}`}
                     >
-                      {charObj.char}
+                      {displayChar}
                     </span>
                   );
                 })}
@@ -402,11 +388,16 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
         </div>
       </div>
 
-      {/* Restart action button and keyboard shortcut helper below typing area */}
       <div className="flex items-center gap-4 mt-8">
         <button
           type="button"
-          onClick={onRestart}
+          tabIndex={-1}
+          onFocus={(e) => e.target.blur()}
+          onClick={(e) => {
+            e.preventDefault();
+            onRestart();
+            focusInput();
+          }}
           className="p-2.5 rounded-lg text-[#9A9488] hover:text-[#E85D3D] hover:bg-[#1A1917] transition-all flex items-center justify-center group"
           title="restart test (tab + enter)"
         >

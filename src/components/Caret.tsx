@@ -2,21 +2,30 @@ import React from 'react';
 import { CaretSpeed, CARET_SPEED_MS } from '../types';
 
 interface CaretProps {
-  top: number;
-  left: number;
-  height: number;
+  x: number;
+  y: number;
+  height?: number;
   speed?: CaretSpeed;
   isIdle?: boolean;
+  visible?: boolean;
 }
 
 export const Caret: React.FC<CaretProps> = React.memo(({
-  top,
-  left,
-  height,
+  x,
+  y,
+  height = 28,
   speed = 'medium',
   isIdle = false,
+  visible = true,
 }) => {
-  const transitionMs = CARET_SPEED_MS[speed];
+  if (!visible) return null;
+
+  const transitionMs = CARET_SPEED_MS[speed] ?? 90;
+
+  const transitionStyle =
+    speed === 'off' || transitionMs === 0
+      ? 'none'
+      : `transform ${transitionMs}ms cubic-bezier(0.0, 0.0, 0.2, 1), height ${transitionMs}ms cubic-bezier(0.0, 0.0, 0.2, 1)`;
 
   return (
     <div
@@ -24,12 +33,9 @@ export const Caret: React.FC<CaretProps> = React.memo(({
         isIdle ? 'animate-caret-blink' : ''
       }`}
       style={{
+        transform: `translate3d(${x}px, ${y}px, 0)`,
         height: `${height}px`,
-        transform: `translate3d(${left}px, ${top}px, 0)`,
-        transition:
-          speed === 'off'
-            ? 'none'
-            : `transform ${transitionMs}ms cubic-bezier(0.2, 0, 0, 1)`,
+        transition: transitionStyle,
       }}
     />
   );

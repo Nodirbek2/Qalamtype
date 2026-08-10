@@ -19,7 +19,6 @@ const NAV_ITEMS = [
   { id: 'test', labelKey: 'nav_test', icon: Keyboard, requiresAuth: false },
   { id: 'academy', labelKey: 'nav_academy', icon: GraduationCap, requiresAuth: true },
   { id: 'leaderboard', labelKey: 'nav_leaderboard', icon: Trophy, requiresAuth: false },
-  { id: 'about', labelKey: 'nav_about', icon: Info, requiresAuth: false },
   { id: 'blog', labelKey: 'nav_blog', icon: BookOpen, requiresAuth: false },
 ] as const;
 
