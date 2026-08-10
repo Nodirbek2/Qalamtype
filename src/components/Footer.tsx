@@ -3,15 +3,31 @@ import { useSettings } from '../context/SettingsContext';
 
 interface FooterProps {
   onOpenPrivacy?: () => void;
+  onOpenAbout?: () => void;
+  onOpenBlog?: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onOpenPrivacy }) => {
+export const Footer: React.FC<FooterProps> = ({ onOpenPrivacy, onOpenAbout, onOpenBlog }) => {
   const { t } = useSettings();
 
   return (
     <footer className="w-full max-w-6xl mx-auto px-4 py-6 mt-auto border-t border-[rgba(232,226,216,0.06)] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#5C574C] font-mono select-none">
       <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-2 text-[11px]">
         <span className="text-[#9A9488] font-medium">qalampir</span>
+        <button
+          type="button"
+          onClick={onOpenAbout}
+          className="hover:text-[#9A9488] transition-colors cursor-pointer"
+        >
+          {t('footer_about')}
+        </button>
+        <button
+          type="button"
+          onClick={onOpenBlog}
+          className="hover:text-[#9A9488] transition-colors cursor-pointer"
+        >
+          {t('nav_blog')}
+        </button>
         <a 
           href="https://t.me/Nodirbek_B" 
           target="_blank"

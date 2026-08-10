@@ -28,7 +28,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Check if username is available in Supabase users table
+  // Check if username is available in Supabase profiles table
   const checkUsernameAvailability = async (username: string): Promise<boolean> => {
     const cleanUsername = username.trim().toLowerCase();
     if (!cleanUsername || cleanUsername.length < 3) return false;
@@ -37,17 +37,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     try {
       const { data, error } = await supabase
-        .from('users')
-        .select('uid')
-        .eq('usernameLower', cleanUsername);
+        .from('profiles')
+        .select('id')
+        .ilike('username', cleanUsername);
 
       if (error) {
-        console.warn('Username check Supabase table fallback:', error.message);
+        console.warn('Username check Supabase table error:', error.message);
         return true;
       }
 
       if (!data || data.length === 0) return true;
-      if (currentUser && data.length === 1 && data[0].uid === currentUser.id) {
+      if (currentUser && data.length === 1 && data[0].id === currentUser.id) {
         return true;
       }
       return false;
@@ -75,34 +75,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
-      // Check 'profiles' table first, fallback to 'users' table
-      let { data, error } = await supabase
+      // Query 'profiles' table
+      const { data } = await supabase
         .from('profiles')
-        .select('*')
+        .select('id, username, first_name, last_name, avatar_url, updated_at')
         .eq('id', user.id)
         .maybeSingle();
 
-      if (!data) {
-        const { data: usersData } = await supabase
-          .from('users')
-          .select('*')
-          .eq('uid', user.id)
-          .maybeSingle();
-        data = usersData;
-      }
-
       if (data) {
         return {
-          uid: data.id || data.uid || user.id,
+          uid: data.id,
           username: data.username || user.email?.split('@')[0] || 'user',
-          usernameLower: (data.username_lower || data.usernameLower || data.username || '').toLowerCase(),
-          email: data.email || user.email || '',
-          firstName: data.first_name || data.firstName || '',
-          lastName: data.last_name || data.lastName || '',
-          photoURL: data.avatar_url || data.photo_url || data.photoURL || '',
-          createdAt: data.created_at || data.createdAt || new Date().toISOString(),
-          preferredSiteLanguage: data.preferred_site_language || data.preferredSiteLanguage || 'uzbek',
-          preferredTypingLanguage: data.preferred_typing_language || data.preferredTypingLanguage || 'uzbek',
+          usernameLower: (data.username || user.email?.split('@')[0] || 'user').toLowerCase(),
+          email: user.email || '',
+          firstName: data.first_name || '',
+          lastName: data.last_name || '',
+          photoURL: data.avatar_url || '',
+          createdAt: data.updated_at || new Date().toISOString(),
+          preferredSiteLanguage: 'uzbek_latin',
+          preferredTypingLanguage: 'uzbek_latin',
           isProfileComplete: true,
         };
       }
@@ -144,7 +135,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isProfileComplete: true,
       };
 
-      // Upsert into both 'profiles' and 'users' for maximum compatibility
+      // Upsert into 'profiles' table
       await supabase.from('profiles').upsert({
         id: user.id,
         username: candidateUsername,
@@ -153,8 +144,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         avatar_url: newProfile.photoURL,
         updated_at: new Date().toISOString(),
       });
-
-      await supabase.from('users').upsert(newProfile);
 
       return newProfile;
     } catch (err) {
@@ -285,6 +274,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const profileUpdates: Record<string, any> = {
         updated_at: new Date().toISOString(),
       };
+      if (data.username !== undefined) profileUpdates.username = data.username;
       if (data.firstName !== undefined) profileUpdates.first_name = data.firstName;
       if (data.lastName !== undefined) profileUpdates.last_name = data.lastName;
       if (data.photoURL !== undefined) profileUpdates.avatar_url = data.photoURL;
@@ -296,16 +286,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (profileErr) {
         console.warn('Supabase profiles update warning:', profileErr.message);
-      }
-
-      // Also update users table for backward compatibility
-      const { error } = await supabase
-        .from('users')
-        .update(data)
-        .eq('uid', currentUser.id);
-
-      if (error) {
-        console.warn('Supabase users update warning:', error.message);
       }
     }
 

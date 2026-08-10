@@ -158,7 +158,11 @@ export type TranslationKey =
   | 'auth_err_username_taken'
   | 'footer_privacy'
   | 'footer_contact'
-  | 'footer_join_blog';
+  | 'footer_join_blog'
+  | 'footer_about'
+  | 'nav_about'
+  | 'nav_blog'
+  | 'footer_blog';
 
 export const translations: Record<Language, Record<TranslationKey, string>> = {
   uzbek_latin: {
@@ -190,6 +194,10 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     footer_privacy: 'maxfiylik siyosati',
     footer_contact: 'aloqa',
     footer_join_blog: 'blogga qo\'shilish',
+    footer_about: 'haqida',
+    nav_about: 'haqida',
+    nav_blog: 'blog',
+    footer_blog: 'blog',
 
     mode_time: 'vaqt',
     mode_words: "so'zlar",
@@ -349,6 +357,10 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     footer_privacy: 'махфийлик сиёсати',
     footer_contact: 'алоқа',
     footer_join_blog: 'блогга қўшилиш',
+    footer_about: 'ҳақида',
+    nav_about: 'ҳақида',
+    nav_blog: 'блог',
+    footer_blog: 'блог',
 
     mode_time: 'вақт',
     mode_words: 'сўзлар',
@@ -508,6 +520,10 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     footer_privacy: 'политика конфиденциальности',
     footer_contact: 'контакты',
     footer_join_blog: 'присоединиться к блогу',
+    footer_about: 'о проекте',
+    nav_about: 'о проекте',
+    nav_blog: 'блог',
+    footer_blog: 'блог',
 
     mode_time: 'время',
     mode_words: 'слова',
@@ -667,6 +683,10 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     footer_privacy: 'privacy policy',
     footer_contact: 'contact',
     footer_join_blog: 'join my blog',
+    footer_about: 'about',
+    nav_about: 'about',
+    nav_blog: 'blog',
+    footer_blog: 'blog',
 
     mode_time: 'time',
     mode_words: 'words',

@@ -44,115 +44,117 @@ export const ModeSelector: React.FC<ModeSelectorProps> = ({
   ];
 
   return (
-    <div
-      className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 bg-[#1A1917] px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-[rgba(232,226,216,0.08)] text-xs font-sans transition-opacity select-none opacity-100 max-w-full"
-    >
-      {/* Test Mode Toggle */}
-      <div className="flex items-center flex-wrap justify-center gap-1 sm:gap-1.5">
-        <button
-          type="button"
-          onClick={() => onModeChange('time')}
-          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#E85D3D] active:scale-95 ${
-            mode === 'time'
-              ? 'text-[#E85D3D] font-medium bg-[rgba(232,93,61,0.12)] border border-[rgba(232,93,61,0.2)]'
-              : 'text-[#9A9488] hover:text-[#E8E2D8] hover:bg-[#0F0E0D]'
-          }`}
-        >
-          <Clock className="w-3.5 h-3.5" />
-          <span>{t('mode_time')}</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => onModeChange('words')}
-          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#E85D3D] active:scale-95 ${
-            mode === 'words'
-              ? 'text-[#E85D3D] font-medium bg-[rgba(232,93,61,0.12)] border border-[rgba(232,93,61,0.2)]'
-              : 'text-[#9A9488] hover:text-[#E8E2D8] hover:bg-[#0F0E0D]'
-          }`}
-        >
-          <AlignLeft className="w-3.5 h-3.5" />
-          <span>{t('mode_words')}</span>
-        </button>
-      </div>
-
-      <div className="w-[1px] h-4 bg-[rgba(232,226,216,0.12)] hidden sm:block" />
-
-      {/* Mode Sub-options (Time durations or Word counts) */}
-      <div className="flex items-center flex-wrap justify-center gap-1">
-        {mode === 'time'
-          ? durations.map((d) => (
-              <button
-                key={d}
-                type="button"
-                onClick={() => onDurationChange(d)}
-                className={`px-2 py-1 rounded-md font-mono transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#E85D3D] active:scale-95 ${
-                  duration === d
-                    ? 'text-[#E85D3D] font-medium bg-[rgba(232,93,61,0.12)] border border-[rgba(232,93,61,0.2)]'
-                    : 'text-[#9A9488] hover:text-[#E8E2D8] hover:bg-[#0F0E0D]'
-                }`}
-              >
-                <span>{d}s</span>
-              </button>
-            ))
-          : wordCounts.map((w) => (
-              <button
-                key={w}
-                type="button"
-                onClick={() => onWordCountChange(w)}
-                className={`px-2 py-1 rounded-md font-mono transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#E85D3D] active:scale-95 ${
-                  wordCount === w
-                    ? 'text-[#E85D3D] font-medium bg-[rgba(232,93,61,0.12)] border border-[rgba(232,93,61,0.2)]'
-                    : 'text-[#9A9488] hover:text-[#E8E2D8] hover:bg-[#0F0E0D]'
-                }`}
-              >
-                <span>{w}</span>
-              </button>
-            ))}
-      </div>
-
-      <div className="w-[1px] h-4 bg-[rgba(232,226,216,0.12)] hidden sm:block" />
-
-      {/* Difficulty selection */}
-      <div className="flex items-center flex-wrap justify-center gap-1">
-        <Zap className="w-3.5 h-3.5 text-[#5C574C] ml-1 mr-0.5 shrink-0" />
-        {difficulties.map((diff) => {
-          const diffKey = diff === 'easy' ? 'diff_easy' : diff === 'medium' ? 'diff_medium' : 'diff_hard';
-          return (
-            <button
-              key={diff}
-              type="button"
-              onClick={() => onDifficultyChange(diff)}
-              className={`px-2 py-1 rounded-md transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#E85D3D] active:scale-95 ${
-                difficulty === diff
-                  ? 'text-[#E85D3D] font-medium bg-[rgba(232,93,61,0.12)] border border-[rgba(232,93,61,0.2)]'
-                  : 'text-[#9A9488] hover:text-[#E8E2D8] hover:bg-[#0F0E0D]'
-              }`}
-            >
-              <span>{t(diffKey as any)}</span>
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="w-[1px] h-4 bg-[rgba(232,226,216,0.12)] hidden sm:block" />
-
-      {/* Language Selector (Uzbek listed first and selected by default) */}
-      <div className="flex items-center flex-wrap justify-center gap-1 max-w-full">
-        <Globe className="w-3.5 h-3.5 text-[#5C574C] ml-1 mr-0.5 shrink-0" />
-        {languages.map((lang) => (
+    <div className="flex flex-col items-center justify-center gap-1.5 sm:gap-2 bg-[#1A1917] px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-[rgba(232,226,216,0.08)] text-xs font-sans transition-opacity select-none opacity-100 max-w-full">
+      {/* Row 1: Test Mode Toggle + Mode Sub-options (durations / word counts) */}
+      <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap">
+        {/* Test Mode Toggle */}
+        <div className="flex items-center gap-1">
           <button
-            key={lang.id}
             type="button"
-            onClick={() => onLanguageChange(lang.id)}
-            className={`px-2 py-1 rounded-md transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#E85D3D] active:scale-95 whitespace-nowrap ${
-              language === lang.id
+            onClick={() => onModeChange('time')}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#E85D3D] active:scale-95 ${
+              mode === 'time'
                 ? 'text-[#E85D3D] font-medium bg-[rgba(232,93,61,0.12)] border border-[rgba(232,93,61,0.2)]'
                 : 'text-[#9A9488] hover:text-[#E8E2D8] hover:bg-[#0F0E0D]'
             }`}
           >
-            <span>{t(lang.labelKey as any)}</span>
+            <Clock className="w-3.5 h-3.5" />
+            <span>{t('mode_time')}</span>
           </button>
-        ))}
+          <button
+            type="button"
+            onClick={() => onModeChange('words')}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#E85D3D] active:scale-95 ${
+              mode === 'words'
+                ? 'text-[#E85D3D] font-medium bg-[rgba(232,93,61,0.12)] border border-[rgba(232,93,61,0.2)]'
+                : 'text-[#9A9488] hover:text-[#E8E2D8] hover:bg-[#0F0E0D]'
+            }`}
+          >
+            <AlignLeft className="w-3.5 h-3.5" />
+            <span>{t('mode_words')}</span>
+          </button>
+        </div>
+
+        <div className="w-[1px] h-4 bg-[rgba(232,226,216,0.12)]" />
+
+        {/* Mode Sub-options (Time durations or Word counts) */}
+        <div className="flex items-center gap-1 font-mono">
+          {mode === 'time'
+            ? durations.map((d) => (
+                <button
+                  key={d}
+                  type="button"
+                  onClick={() => onDurationChange(d)}
+                  className={`px-2 py-1 rounded-md transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#E85D3D] active:scale-95 ${
+                    duration === d
+                      ? 'text-[#E85D3D] font-medium bg-[rgba(232,93,61,0.12)] border border-[rgba(232,93,61,0.2)]'
+                      : 'text-[#9A9488] hover:text-[#E8E2D8] hover:bg-[#0F0E0D]'
+                  }`}
+                >
+                  <span>{d}s</span>
+                </button>
+              ))
+            : wordCounts.map((w) => (
+                <button
+                  key={w}
+                  type="button"
+                  onClick={() => onWordCountChange(w)}
+                  className={`px-2 py-1 rounded-md transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#E85D3D] active:scale-95 ${
+                    wordCount === w
+                      ? 'text-[#E85D3D] font-medium bg-[rgba(232,93,61,0.12)] border border-[rgba(232,93,61,0.2)]'
+                      : 'text-[#9A9488] hover:text-[#E8E2D8] hover:bg-[#0F0E0D]'
+                  }`}
+                >
+                  <span>{w}</span>
+                </button>
+              ))}
+        </div>
+      </div>
+
+      {/* Row 2: Difficulty Selection + Language Selector */}
+      <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap">
+        {/* Difficulty Selection */}
+        <div className="flex items-center gap-1">
+          <Zap className="w-3.5 h-3.5 text-[#5C574C] mr-0.5 shrink-0" />
+          {difficulties.map((diff) => {
+            const diffKey = diff === 'easy' ? 'diff_easy' : diff === 'medium' ? 'diff_medium' : 'diff_hard';
+            return (
+              <button
+                key={diff}
+                type="button"
+                onClick={() => onDifficultyChange(diff)}
+                className={`px-2 py-1 rounded-md transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#E85D3D] active:scale-95 ${
+                  difficulty === diff
+                    ? 'text-[#E85D3D] font-medium bg-[rgba(232,93,61,0.12)] border border-[rgba(232,93,61,0.2)]'
+                    : 'text-[#9A9488] hover:text-[#E8E2D8] hover:bg-[#0F0E0D]'
+                }`}
+              >
+                <span>{t(diffKey as any)}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="w-[1px] h-4 bg-[rgba(232,226,216,0.12)]" />
+
+        {/* Language Selector */}
+        <div className="flex items-center gap-1">
+          <Globe className="w-3.5 h-3.5 text-[#5C574C] mr-0.5 shrink-0" />
+          {languages.map((lang) => (
+            <button
+              key={lang.id}
+              type="button"
+              onClick={() => onLanguageChange(lang.id)}
+              className={`px-2 py-1 rounded-md transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#E85D3D] active:scale-95 whitespace-nowrap ${
+                language === lang.id
+                  ? 'text-[#E85D3D] font-medium bg-[rgba(232,93,61,0.12)] border border-[rgba(232,93,61,0.2)]'
+                  : 'text-[#9A9488] hover:text-[#E8E2D8] hover:bg-[#0F0E0D]'
+              }`}
+            >
+              <span>{t(lang.labelKey as any)}</span>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );

@@ -12,6 +12,8 @@ import { ResultsView } from './components/ResultsView';
 import { LeaderboardView } from './components/LeaderboardView';
 import { AccountView } from './components/AccountView';
 import { AcademyView } from './components/AcademyView';
+import { AboutView } from './components/AboutView';
+import { BlogView } from './components/BlogView';
 import { SettingsModal } from './components/SettingsModal';
 import { Footer } from './components/Footer';
 import { IntroOverlay } from './components/IntroOverlay';
@@ -36,14 +38,27 @@ export default function App() {
     }
   }, []);
 
-  // Active View ('test' | 'academy' | 'leaderboard' | 'account') with URL path synchronization
-  const [activeView, setActiveView] = useState<'test' | 'academy' | 'leaderboard' | 'account'>(() => {
+  // Active View ('test' | 'academy' | 'leaderboard' | 'account' | 'about' | 'blog') with URL path synchronization
+  const [activeView, setActiveView] = useState<'test' | 'academy' | 'leaderboard' | 'account' | 'about' | 'blog'>(() => {
     if (typeof window !== 'undefined') {
-      if (window.location.pathname === '/academy') return 'academy';
-      if (window.location.pathname === '/leaderboard') return 'leaderboard';
-      if (window.location.pathname === '/account') return 'account';
+      const path = window.location.pathname;
+      if (path === '/academy') return 'academy';
+      if (path === '/leaderboard') return 'leaderboard';
+      if (path === '/account') return 'account';
+      if (path === '/about') return 'about';
+      if (path.startsWith('/blog')) return 'blog';
     }
     return 'test';
+  });
+
+  const [blogSlug, setBlogSlug] = useState<string | null>(() => {
+    if (typeof window !== 'undefined') {
+      const path = window.location.pathname;
+      if (path.startsWith('/blog/')) {
+        return path.replace('/blog/', '');
+      }
+    }
+    return null;
   });
 
   const [mode, setMode] = useState<TestMode>('time');
@@ -78,12 +93,22 @@ export default function App() {
   });
 
   // Handle URL history push and popstate
-  const navigateTo = useCallback((view: 'test' | 'academy' | 'leaderboard' | 'account') => {
+  const navigateTo = useCallback((view: 'test' | 'academy' | 'leaderboard' | 'account' | 'about' | 'blog', slug?: string) => {
     setActiveView(view);
+    if (view === 'blog') {
+      setBlogSlug(slug || null);
+    } else {
+      setBlogSlug(null);
+    }
+
     let targetPath = '/';
     if (view === 'academy') targetPath = '/academy';
     if (view === 'leaderboard') targetPath = '/leaderboard';
     if (view === 'account') targetPath = '/account';
+    if (view === 'about') targetPath = '/about';
+    if (view === 'blog') {
+      targetPath = slug ? `/blog/${slug}` : '/blog';
+    }
 
     if (window.location.pathname !== targetPath) {
       window.history.pushState({}, '', targetPath);
@@ -95,12 +120,23 @@ export default function App() {
       const path = window.location.pathname;
       if (path === '/academy') {
         setActiveView('academy');
+        setBlogSlug(null);
       } else if (path === '/leaderboard') {
         setActiveView('leaderboard');
+        setBlogSlug(null);
       } else if (path === '/account') {
         setActiveView('account');
+        setBlogSlug(null);
+      } else if (path === '/about') {
+        setActiveView('about');
+        setBlogSlug(null);
+      } else if (path.startsWith('/blog')) {
+        setActiveView('blog');
+        const slug = path.startsWith('/blog/') ? path.replace('/blog/', '') : null;
+        setBlogSlug(slug);
       } else {
         setActiveView('test');
+        setBlogSlug(null);
       }
     };
     window.addEventListener('popstate', handlePopState);
@@ -207,6 +243,18 @@ export default function App() {
             <AcademyView />
           ) : activeView === 'leaderboard' ? (
             <LeaderboardView />
+          ) : activeView === 'about' ? (
+            <AboutView
+              onStartTest={() => navigateTo('test')}
+              onGoAcademy={() => navigateTo('academy')}
+              onGoLeaderboard={() => navigateTo('leaderboard')}
+            />
+          ) : activeView === 'blog' ? (
+            <BlogView
+              currentSlug={blogSlug}
+              onNavigateBlog={(slug) => navigateTo('blog', slug)}
+              onNavigateHome={() => navigateTo('test')}
+            />
           ) : phase === 'completed' && result ? (
             <ResultsView
               result={result}
@@ -250,7 +298,11 @@ export default function App() {
         />
 
         {/* Footer */}
-        <Footer onOpenPrivacy={() => setIsPrivacyOpen(true)} />
+        <Footer
+          onOpenPrivacy={() => setIsPrivacyOpen(true)}
+          onOpenAbout={() => navigateTo('about')}
+          onOpenBlog={() => navigateTo('blog')}
+        />
       </div>
     </LayoutGroup>
   );

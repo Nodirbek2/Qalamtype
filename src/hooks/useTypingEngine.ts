@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import {
   TestMode,
   Duration,
@@ -85,6 +85,39 @@ export function useTypingEngine({
     }
   }, [isPaused]);
 
+  // Helper to cleanly capture a WPM timeline snapshot for a given timestamp
+  const recordSnapshot = useCallback((now: number) => {
+    if (!startTimeRef.current) return;
+    const elapsedMs = Math.max(
+      0,
+      now - startTimeRef.current - pausedTotalRef.current
+    );
+    const elapsedSec = Math.floor(elapsedMs / 1000);
+
+    if (elapsedSec > 0) {
+      const minutes = elapsedMs / 60000;
+      let currentCorrect = 0;
+      const target = targetTextRef.current;
+      const typed = typedCharsRef.current;
+      const minLen = Math.min(target.length, typed.length);
+      for (let i = 0; i < minLen; i++) {
+        if (typed[i] === target[i]) currentCorrect++;
+      }
+      const currentWpm = minutes > 0 ? Math.round((currentCorrect / 5) / minutes) : 0;
+      const currentRawWpm = minutes > 0 ? Math.round((totalTypedCountRef.current / 5) / minutes) : 0;
+
+      // Ensure no duplicate second snapshot is recorded
+      if (!snapshotsRef.current.some((s) => s.second === elapsedSec)) {
+        snapshotsRef.current.push({
+          second: elapsedSec,
+          wpm: currentWpm,
+          rawWpm: currentRawWpm,
+          errors: errorCountRef.current,
+        });
+      }
+    }
+  }, []);
+
   // Initialize test text when configuration changes
   const resetTest = useCallback(() => {
     const text = customText
@@ -118,9 +151,11 @@ export function useTypingEngine({
     resetTest();
   }, [resetTest]);
 
-  // Calculate stats helper
+  // Calculate stats helper using up-to-date refs
   const calculateFinalStats = useCallback(
     (endTime: number): TestResult => {
+      recordSnapshot(endTime);
+
       const startTime = startTimeRef.current || endTime;
       const currentPaused =
         pausedTotalRef.current +
@@ -128,26 +163,28 @@ export function useTypingEngine({
       const timeSec = Math.max(0.1, (endTime - startTime - currentPaused) / 1000);
       const minutes = timeSec / 60;
 
+      const target = targetTextRef.current;
+      const typed = typedCharsRef.current;
+
       let correctChars = 0;
       let incorrectChars = 0;
       let extraChars = 0;
 
-      // Calculate correct and incorrect characters
-      const minLen = Math.min(targetText.length, typedChars.length);
+      const minLen = Math.min(target.length, typed.length);
       for (let i = 0; i < minLen; i++) {
-        if (typedChars[i] === targetText[i]) {
+        if (typed[i] === target[i]) {
           correctChars++;
         } else {
           incorrectChars++;
         }
       }
 
-      if (typedChars.length > targetText.length) {
-        extraChars = typedChars.length - targetText.length;
+      if (typed.length > target.length) {
+        extraChars = typed.length - target.length;
       }
 
-      const missedChars = Math.max(0, targetText.length - typedChars.length);
-      const totalTyped = totalTypedCountRef.current || typedChars.length;
+      const missedChars = Math.max(0, target.length - typed.length);
+      const totalTyped = totalTypedCountRef.current || typed.length;
 
       const wpm = Math.round((correctChars / 5) / minutes);
       const rawWpm = Math.round((totalTyped / 5) / minutes);
@@ -155,7 +192,7 @@ export function useTypingEngine({
 
       // Consistency calculation based on WPM variance in snapshots
       let consistency = 100;
-      const history = snapshotsRef.current;
+      const history = [...snapshotsRef.current];
       if (history.length > 1) {
         const wpms = history.map((s) => s.wpm);
         const mean = wpms.reduce((a, b) => a + b, 0) / wpms.length;
@@ -188,7 +225,7 @@ export function useTypingEngine({
         history,
       };
     },
-    [targetText, typedChars, mode, duration, wordCount, difficulty, language]
+    [mode, duration, wordCount, difficulty, language, recordSnapshot]
   );
 
   const finishTest = useCallback(() => {
@@ -211,37 +248,14 @@ export function useTypingEngine({
           return; // Skip tick while paused
         }
         const now = Date.now();
-        const elapsedMs = Math.max(
-          0,
-          now - (startTimeRef.current || now) - pausedTotalRef.current
-        );
-        const elapsedSec = Math.floor(elapsedMs / 1000);
-
-        // Collect snapshot for chart
-        if (elapsedSec > 0) {
-          const minutes = elapsedMs / 60000;
-          let currentCorrect = 0;
-          const target = targetTextRef.current;
-          const typed = typedCharsRef.current;
-          const minLen = Math.min(target.length, typed.length);
-          for (let i = 0; i < minLen; i++) {
-            if (typed[i] === target[i]) currentCorrect++;
-          }
-          const currentWpm = minutes > 0 ? Math.round((currentCorrect / 5) / minutes) : 0;
-          const currentRawWpm = minutes > 0 ? Math.round((totalTypedCountRef.current / 5) / minutes) : 0;
-
-          // Push snapshot if not already recorded for this second
-          if (!snapshotsRef.current.some((s) => s.second === elapsedSec)) {
-            snapshotsRef.current.push({
-              second: elapsedSec,
-              wpm: currentWpm,
-              rawWpm: currentRawWpm,
-              errors: errorCountRef.current,
-            });
-          }
-        }
+        recordSnapshot(now);
 
         if (mode === 'time') {
+          const elapsedMs = Math.max(
+            0,
+            now - (startTimeRef.current || now) - pausedTotalRef.current
+          );
+          const elapsedSec = Math.floor(elapsedMs / 1000);
           const remaining = Math.max(0, duration - elapsedSec);
           setTimeLeft(remaining);
           if (remaining <= 0) {
@@ -253,7 +267,7 @@ export function useTypingEngine({
       timerIntervalRef.current = interval;
       return () => clearInterval(interval);
     }
-  }, [phase, mode, duration, finishTest]);
+  }, [phase, mode, duration, finishTest, recordSnapshot]);
 
   // Key press handler
   const handleKeyDown = useCallback(
@@ -287,7 +301,7 @@ export function useTypingEngine({
 
       if (phase === 'completed') return;
 
-      // Automatically resume if test was paused by mouse movement
+      // Automatically resume if test was paused
       if (isPaused) {
         if (pauseStartRef.current) {
           pausedTotalRef.current += Date.now() - pauseStartRef.current;
@@ -307,8 +321,9 @@ export function useTypingEngine({
         // Character key pressed
         e.preventDefault();
 
-        const currentTypedLen = typedChars.length;
-        const expectedChar = targetText[currentTypedLen];
+        const currentTypedLen = typedCharsRef.current.length;
+        const target = targetTextRef.current;
+        const expectedChar = target[currentTypedLen];
         const isSpace = e.key === ' ';
         const isError = expectedChar !== undefined && e.key !== expectedChar;
 
@@ -330,7 +345,7 @@ export function useTypingEngine({
           const updated = [...prev, inputChar];
 
           // Check if test reached the end in words or character mode
-          if (updated.length >= targetText.length) {
+          if (updated.length >= target.length) {
             setTimeout(() => finishTest(), 10);
           }
 
@@ -338,11 +353,11 @@ export function useTypingEngine({
         });
       }
     },
-    [phase, isPaused, targetText, typedChars.length, typingSound, finishTest]
+    [phase, isPaused, typingSound, finishTest]
   );
 
-  // Group characters into word structures for structured UI rendering
-  const wordsDisplay: WordDisplayInfo[] = useCallback(() => {
+  // Group characters into word structures cleanly using useMemo to optimize fast typing
+  const wordsDisplay = useMemo((): WordDisplayInfo[] => {
     if (!targetText) return [];
 
     const rawWords = targetText.split(' ');
@@ -386,7 +401,6 @@ export function useTypingEngine({
         typedChars[extraTypedIdx] !== ' ' &&
         (wIdx === rawWords.length - 1 || extraTypedIdx < wordEndOffset + 10)
       ) {
-        // If extra characters typed
         if (extraTypedIdx >= targetText.length || targetText[extraTypedIdx] === ' ') {
           charsInfo.push({
             char: typedChars[extraTypedIdx],
@@ -412,7 +426,7 @@ export function useTypingEngine({
     }
 
     return resultWords;
-  }, [targetText, typedChars])();
+  }, [targetText, typedChars]);
 
   // Current live WPM stats
   const getLiveStats = useCallback(() => {
@@ -428,9 +442,11 @@ export function useTypingEngine({
     if (elapsedMinutes <= 0) return { wpm: 0, rawWpm: 0, accuracy: 100, progress: 0 };
 
     let correct = 0;
-    const minLen = Math.min(targetText.length, typedChars.length);
+    const target = targetTextRef.current;
+    const typed = typedCharsRef.current;
+    const minLen = Math.min(target.length, typed.length);
     for (let i = 0; i < minLen; i++) {
-      if (typedChars[i] === targetText[i]) correct++;
+      if (typed[i] === target[i]) correct++;
     }
 
     const wpm = Math.round((correct / 5) / elapsedMinutes);
@@ -445,11 +461,11 @@ export function useTypingEngine({
       const elapsedSec = Math.floor(elapsedMs / 1000);
       progress = Math.min(100, Math.round((elapsedSec / duration) * 100));
     } else {
-      progress = Math.min(100, Math.round((typedChars.length / targetText.length) * 100));
+      progress = Math.min(100, Math.round((typed.length / target.length) * 100));
     }
 
     return { wpm, rawWpm, accuracy, progress };
-  }, [phase, targetText, typedChars, mode, duration]);
+  }, [phase, mode, duration]);
 
   return {
     targetText,
@@ -468,3 +484,4 @@ export function useTypingEngine({
     finishTest,
   };
 }
+

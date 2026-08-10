@@ -256,24 +256,11 @@ export function subscribeToUserResults(
 
   const fetchUserResults = async () => {
     try {
-      let { data, error } = await supabase
+      const { data, error } = await supabase
         .from('results')
-        .select('*')
+        .select('id, user_id, username, photo_url, wpm, raw_wpm, accuracy, mode, mode_value, difficulty, typing_language, created_at')
         .eq('user_id', uid)
         .order('created_at', { ascending: true });
-
-      if (error) {
-        const fallback = await supabase
-          .from('results')
-          .select('*')
-          .eq('uid', uid)
-          .order('created_at', { ascending: true });
-
-        if (!fallback.error) {
-          data = fallback.data;
-          error = null;
-        }
-      }
 
       if (error || !data) {
         loadLocalUserResults();
@@ -281,18 +268,18 @@ export function subscribeToUserResults(
       }
 
       const parsedDocs: LeaderboardResult[] = data.map((row: any) => ({
-        id: String(row.id || row.user_id || row.uid),
-        uid: row.user_id || row.uid || '',
-        username: row.username || '',
-        photoURL: row.photo_url || row.photoURL || '',
+        id: String(row.id),
+        uid: String(row.user_id),
+        username: row.username || 'mehmon',
+        photoURL: row.photo_url || '',
         wpm: Number(row.wpm || 0),
-        rawWpm: Number(row.raw_wpm ?? row.rawWpm ?? 0),
+        rawWpm: Number(row.raw_wpm || 0),
         accuracy: Number(row.accuracy || 0),
         mode: (row.mode as TestMode) || 'time',
-        modeValue: Number(row.mode_value ?? row.modeValue ?? 30),
+        modeValue: Number(row.mode_value || 30),
         difficulty: (row.difficulty as Difficulty) || 'easy',
-        typingLanguage: (row.typing_language || row.typingLanguage as Language) || 'uzbek',
-        date: new Date(row.created_at || row.timestamp || Date.now()),
+        typingLanguage: (row.typing_language as Language) || 'uzbek_latin',
+        date: new Date(row.created_at || Date.now()),
       }));
 
       // Combine with local user results if any are unsynced
@@ -424,7 +411,7 @@ export function subscribeToLeaderboard(
     try {
       let query = supabase
         .from('results')
-        .select('*')
+        .select('id, user_id, username, photo_url, wpm, raw_wpm, accuracy, mode, mode_value, difficulty, typing_language, created_at')
         .order('wpm', { ascending: false })
         .limit(100);
 
@@ -485,18 +472,18 @@ export function subscribeToLeaderboard(
 
       // Map Supabase rows to LeaderboardResult
       const parsedDocs: LeaderboardResult[] = (data || []).map((row: any) => ({
-        id: String(row.id || row.user_id || row.uid),
-        uid: row.user_id || row.uid || '',
-        username: row.username || 'anonymous',
-        photoURL: row.photo_url || row.photoURL || '',
+        id: String(row.id),
+        uid: String(row.user_id),
+        username: row.username || 'mehmon',
+        photoURL: row.photo_url || '',
         wpm: Number(row.wpm || 0),
-        rawWpm: Number(row.raw_wpm ?? row.rawWpm ?? 0),
+        rawWpm: Number(row.raw_wpm || 0),
         accuracy: Number(row.accuracy || 0),
         mode: (row.mode as TestMode) || 'time',
-        modeValue: Number(row.mode_value ?? row.modeValue ?? 30),
+        modeValue: Number(row.mode_value || 30),
         difficulty: (row.difficulty as Difficulty) || 'easy',
-        typingLanguage: (row.typing_language || row.typingLanguage as Language) || 'uzbek',
-        date: new Date(row.created_at || row.timestamp || Date.now()),
+        typingLanguage: (row.typing_language as Language) || 'uzbek_latin',
+        date: new Date(row.created_at || Date.now()),
       }));
 
       // Combine with local user results to make sure user's freshly completed local test appears

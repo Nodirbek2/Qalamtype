@@ -145,18 +145,21 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
   useLayoutEffect(() => {
     if (!containerRef.current) return;
 
-    const containerRect = containerRef.current.getBoundingClientRect();
+    const container = containerRef.current;
+    const containerRect = container.getBoundingClientRect();
+    const scrollTop = container.scrollTop || 0;
+    const scrollLeft = container.scrollLeft || 0;
 
     // Look for exact character element matching currentIndex
-    const targetEl = containerRef.current.querySelector<HTMLElement>(
+    const targetEl = container.querySelector<HTMLElement>(
       `[data-char-idx="${currentIndex}"]`
     );
 
     if (targetEl) {
       const targetRect = targetEl.getBoundingClientRect();
       setCaretPos({
-        top: targetRect.top - containerRect.top,
-        left: targetRect.left - containerRect.left,
+        top: targetRect.top - containerRect.top + scrollTop,
+        left: targetRect.left - containerRect.left + scrollLeft,
         height: targetRect.height || 28,
       });
       return;
@@ -165,14 +168,14 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
     // If target element doesn't exist (e.g. space between words or end of test),
     // position caret immediately after the previous character element (currentIndex - 1)
     if (currentIndex > 0) {
-      const prevEl = containerRef.current.querySelector<HTMLElement>(
+      const prevEl = container.querySelector<HTMLElement>(
         `[data-char-idx="${currentIndex - 1}"]`
       );
       if (prevEl) {
         const prevRect = prevEl.getBoundingClientRect();
         setCaretPos({
-          top: prevRect.top - containerRect.top,
-          left: prevRect.right - containerRect.left,
+          top: prevRect.top - containerRect.top + scrollTop,
+          left: prevRect.right - containerRect.left + scrollLeft,
           height: prevRect.height || 28,
         });
         return;
@@ -180,56 +183,92 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
     }
 
     // Fallback if no elements found yet (e.g. initial render before text populates)
-    const firstEl = containerRef.current.querySelector<HTMLElement>(
+    const firstEl = container.querySelector<HTMLElement>(
       `[data-char-idx="0"]`
     );
     if (firstEl) {
       const firstRect = firstEl.getBoundingClientRect();
       setCaretPos({
-        top: firstRect.top - containerRect.top,
-        left: firstRect.left - containerRect.left,
+        top: firstRect.top - containerRect.top + scrollTop,
+        left: firstRect.left - containerRect.left + scrollLeft,
         height: firstRect.height || 28,
       });
+      return;
     }
+
+    // Defensive fallback if no DOM nodes match currentIndex
+    setCaretPos({
+      top: 0,
+      left: 0,
+      height: 28,
+    });
   }, [currentIndex, wordsDisplay]);
 
-  // Handle window resize to adjust caret position
+  // Handle window resize and scroll events to adjust caret position
   useEffect(() => {
     const handleResize = () => {
       if (!containerRef.current) return;
-      const containerRect = containerRef.current.getBoundingClientRect();
+      const container = containerRef.current;
+      const containerRect = container.getBoundingClientRect();
+      const scrollTop = container.scrollTop || 0;
+      const scrollLeft = container.scrollLeft || 0;
 
-      const targetEl = containerRef.current.querySelector<HTMLElement>(
+      const targetEl = container.querySelector<HTMLElement>(
         `[data-char-idx="${currentIndex}"]`
       );
 
       if (targetEl) {
         const targetRect = targetEl.getBoundingClientRect();
         setCaretPos({
-          top: targetRect.top - containerRect.top,
-          left: targetRect.left - containerRect.left,
+          top: targetRect.top - containerRect.top + scrollTop,
+          left: targetRect.left - containerRect.left + scrollLeft,
           height: targetRect.height || 28,
         });
         return;
       }
 
       if (currentIndex > 0) {
-        const prevEl = containerRef.current.querySelector<HTMLElement>(
+        const prevEl = container.querySelector<HTMLElement>(
           `[data-char-idx="${currentIndex - 1}"]`
         );
         if (prevEl) {
           const prevRect = prevEl.getBoundingClientRect();
           setCaretPos({
-            top: prevRect.top - containerRect.top,
-            left: prevRect.right - containerRect.left,
+            top: prevRect.top - containerRect.top + scrollTop,
+            left: prevRect.right - containerRect.left + scrollLeft,
             height: prevRect.height || 28,
           });
+          return;
         }
       }
+
+      const firstEl = container.querySelector<HTMLElement>(
+        `[data-char-idx="0"]`
+      );
+      if (firstEl) {
+        const firstRect = firstEl.getBoundingClientRect();
+        setCaretPos({
+          top: firstRect.top - containerRect.top + scrollTop,
+          left: firstRect.left - containerRect.left + scrollLeft,
+          height: firstRect.height || 28,
+        });
+        return;
+      }
+
+      // Defensive fallback if no DOM nodes match
+      setCaretPos({
+        top: 0,
+        left: 0,
+        height: 28,
+      });
     };
 
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener('scroll', handleResize, true);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('scroll', handleResize, true);
+    };
   }, [currentIndex]);
 
   // Compute total typed word progress for words mode
