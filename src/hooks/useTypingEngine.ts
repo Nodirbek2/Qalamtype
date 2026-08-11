@@ -450,6 +450,12 @@ export function useTypingEngine({
           // Spacebar pressed: complete current word and move to next
           const rawWords = targetTextRef.current.split(' ');
           const currIdx = currentWordIndexRef.current;
+          const currentTyped = typedWordsRef.current[currIdx] || '';
+
+          // Do not advance if user hasn't typed anything in the current word yet
+          if (currentTyped.length === 0) {
+            return;
+          }
 
           playTypingSound(typingSound, true, false);
 
@@ -542,10 +548,17 @@ export function useTypingEngine({
     return { wpm, rawWpm, accuracy, progress };
   }, [phase, mode, duration, wordCount, currentWordIndex, wordsDisplay, computeStatsFromWords]);
 
-  // Derived overall typed character count
+  // Derived current character index for exact caret positioning
   const currentIndex = useMemo(() => {
-    return typedWords.reduce((acc, w) => acc + w.length, 0) + currentWordIndex;
-  }, [typedWords, currentWordIndex]);
+    for (const word of wordsDisplay) {
+      for (const charObj of word.chars) {
+        if (charObj.isCurrent || charObj.isCurrentRight) {
+          return charObj.globalIndex;
+        }
+      }
+    }
+    return 0;
+  }, [wordsDisplay]);
 
   return {
     targetText,
