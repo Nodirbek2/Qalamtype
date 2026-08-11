@@ -264,7 +264,7 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
 
   return (
     <div
-      className="w-full max-w-4xl mx-auto flex flex-col items-center justify-center py-6 sm:py-12 select-none"
+      className="w-full max-w-6xl mx-auto flex flex-col items-center justify-center py-6 sm:py-12 select-none"
       onClick={() => setIsFocused(true)}
     >
       {/* Top Info Bar directly above typing box */}
@@ -277,28 +277,13 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
             {t(`lang_${language}` as any)} / {t(`diff_${difficulty}` as any)}
           </span>
         </div>
-
-        <div className="flex items-center space-x-4 sm:space-x-6">
-          <div className="flex flex-col items-end">
-            <span className="text-[10px] uppercase tracking-widest text-[#5C574C] font-semibold font-sans">wpm</span>
-            <span className="text-lg sm:text-xl font-mono text-[#F4A340]">{liveWpm}</span>
-          </div>
-          <div className="flex flex-col items-end">
-            <span className="text-[10px] uppercase tracking-widest text-[#5C574C] font-semibold font-sans">
-              {mode === 'time' ? 'time' : 'words'}
-            </span>
-            <span className="text-lg sm:text-xl font-mono text-[#E85D3D]">
-              {mode === 'time' ? `${timeLeft}s` : `${completedWordsCount}/${wordCount}`}
-            </span>
-          </div>
-        </div>
       </div>
 
       {/* Typing Container */}
       <div
         ref={containerRef}
         onClick={focusInput}
-        className="relative w-full min-h-[140px] sm:min-h-[160px] max-h-[220px] p-3 sm:p-6 bg-[#1A1917] rounded-xl border border-[rgba(232,226,216,0.08)] cursor-text overflow-y-auto focus:outline-none scrollbar-none"
+        className="relative w-full min-h-[150px] sm:min-h-[170px] max-h-[230px] sm:max-h-[260px] p-4 sm:p-6 md:p-8 bg-[#1A1917] rounded-xl border border-[rgba(232,226,216,0.08)] cursor-text overflow-y-auto focus:outline-none scrollbar-none"
       >
         <input
           ref={inputRef}

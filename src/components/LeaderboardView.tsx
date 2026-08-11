@@ -145,12 +145,6 @@ CREATE POLICY "Users insert own result" ON public.results FOR INSERT WITH CHECK 
             {t('lb_subtitle')}
           </p>
         </div>
-
-        {/* Live Indicator */}
-        <div className="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-[#1A1917] border border-[rgba(232,226,216,0.1)] text-[11px] font-mono text-[#6FA85C]">
-          <span className="w-2 h-2 rounded-full bg-[#6FA85C] animate-pulse" />
-          <span>{t('lb_live')}</span>
-        </div>
       </div>
 
       {/* Primary Filters Control Bar */}

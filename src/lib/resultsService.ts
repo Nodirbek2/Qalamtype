@@ -334,7 +334,8 @@ export function subscribeToUserResults(
 }
 
 /**
- * Helper to filter & sort any array of LeaderboardResult objects
+ * Helper to filter, deduplicate by user, and sort LeaderboardResult objects.
+ * Ensures each user profile appears at most ONCE with their single best record.
  */
 function filterAndSortResults(
   rawData: LeaderboardResult[],
@@ -382,10 +383,46 @@ function filterAndSortResults(
     return true;
   });
 
-  return filtered.sort((a, b) => {
-    if (b.wpm !== a.wpm) return b.wpm - a.wpm;
-    return b.accuracy - a.accuracy;
-  }).slice(0, 20);
+  // Group by user profile to keep only ONE single highest record per user account
+  const userBestMap = new Map<string, LeaderboardResult>();
+
+  for (const row of filtered) {
+    let userKey = '';
+    if (row.uid && row.uid.trim() && !row.uid.startsWith('guest_')) {
+      userKey = `uid_${row.uid.trim()}`;
+    } else if (row.username && row.username.trim()) {
+      userKey = `user_${row.username.toLowerCase().trim()}`;
+    } else {
+      userKey = `raw_${row.id}`;
+    }
+
+    const existing = userBestMap.get(userKey);
+    if (!existing) {
+      userBestMap.set(userKey, row);
+    } else {
+      // Pick higher WPM, then higher accuracy, then higher rawWpm, then newest date
+      const isBetter =
+        row.wpm > existing.wpm ||
+        (row.wpm === existing.wpm && row.accuracy > existing.accuracy) ||
+        (row.wpm === existing.wpm && row.accuracy === existing.accuracy && (row.rawWpm || 0) > (existing.rawWpm || 0)) ||
+        (row.wpm === existing.wpm && row.accuracy === existing.accuracy && (row.rawWpm || 0) === (existing.rawWpm || 0) && new Date(row.date) > new Date(existing.date));
+
+      if (isBetter) {
+        userBestMap.set(userKey, row);
+      }
+    }
+  }
+
+  const uniqueBestResults = Array.from(userBestMap.values());
+
+  return uniqueBestResults
+    .sort((a, b) => {
+      if (b.wpm !== a.wpm) return b.wpm - a.wpm;
+      if (b.accuracy !== a.accuracy) return b.accuracy - a.accuracy;
+      if ((b.rawWpm || 0) !== (a.rawWpm || 0)) return (b.rawWpm || 0) - (a.rawWpm || 0);
+      return new Date(b.date).getTime() - new Date(a.date).getTime();
+    })
+    .slice(0, 50);
 }
 
 /**
@@ -413,7 +450,7 @@ export function subscribeToLeaderboard(
         .from('results')
         .select('id, user_id, username, photo_url, wpm, raw_wpm, accuracy, mode, mode_value, difficulty, typing_language, created_at')
         .order('wpm', { ascending: false })
-        .limit(100);
+        .limit(1000);
 
       const now = new Date();
       if (filters.timeRange === 'today') {
