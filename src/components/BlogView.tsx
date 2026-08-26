@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { BLOG_ARTICLES, BlogArticle } from '../data/blogArticles';
-import { ArrowLeft, BookOpen, Calendar, Clock, ChevronRight, Share2, Sparkles } from 'lucide-react';
+import { ArrowLeft, BookOpen, Calendar, Clock, ChevronRight, Keyboard, ArrowRight } from 'lucide-react';
 
 interface BlogViewProps {
   currentSlug?: string | null;
@@ -113,7 +113,7 @@ export const BlogView: React.FC<BlogViewProps> = ({
         </div>
 
         {/* Article Header */}
-        <header className="mb-10">
+        <header className="mb-6">
           <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[#E85D3D]/10 border border-[#E85D3D]/20 text-[#E85D3D] text-xs font-mono mb-4">
             <BookOpen className="w-3.5 h-3.5" />
             <span>Qalampir Blog</span>
@@ -125,6 +125,31 @@ export const BlogView: React.FC<BlogViewProps> = ({
             {activeArticle.description}
           </p>
         </header>
+
+        {/* Mid-article CTA Card (Before section 1) */}
+        <div className="my-8 p-5 sm:p-6 rounded-2xl bg-[#1E1C1A] border border-[#E85D3D]/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center space-x-3.5 text-left w-full sm:w-auto">
+            <div className="w-10 h-10 rounded-xl bg-[#E85D3D]/15 border border-[#E85D3D]/30 flex items-center justify-center text-[#E85D3D] shrink-0">
+              <Keyboard className="w-5 h-5" />
+            </div>
+            <div className="space-y-0.5">
+              <p className="text-sm sm:text-base font-semibold text-[#E8E2D8] font-sans">
+                Nazariyani bilib oldingizmi? Hoziroq tezligingizni amalda sinab ko'ring!
+              </p>
+              <p className="text-xs text-[#9A9488] font-sans">
+                O'zbek, rus va ingliz tillarida bepul test va aniq statistika.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onNavigateHome}
+            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#E85D3D] hover:bg-[#E85D3D]/90 active:scale-95 text-[#0F0E0D] font-mono text-xs font-bold transition-all flex items-center justify-center space-x-1.5 shrink-0 cursor-pointer touch-manipulation"
+          >
+            <span>Klaviaturada yozishni boshlash</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
 
         {/* Article Body */}
         <article className="space-y-8 text-[#C4BEB4] text-base leading-relaxed">
@@ -155,22 +180,28 @@ export const BlogView: React.FC<BlogViewProps> = ({
           ))}
         </article>
 
-        {/* Call to action at bottom of article */}
-        <div className="mt-12 p-6 sm:p-8 rounded-2xl bg-[#1A1917] border border-[rgba(232,226,216,0.08)] flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="space-y-1 text-center sm:text-left">
-            <h3 className="text-lg font-bold text-[#E8E2D8] font-mono">
-              O'z bilimingizni amalda sinab ko'ring!
-            </h3>
-            <p className="text-xs sm:text-sm text-[#9A9488]">
-              Qalampir bilan o'zbek, rus va ingliz tillarida bepul tez yozish mashqini boshlang.
-            </p>
+        {/* Call to action banner at bottom of article */}
+        <div className="mt-12 p-6 sm:p-8 rounded-2xl bg-[#1E1C1A] border border-[#E85D3D]/30 flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="flex items-start sm:items-center space-x-4 text-left w-full sm:w-auto">
+            <div className="w-12 h-12 rounded-xl bg-[#E85D3D]/15 border border-[#E85D3D]/30 flex items-center justify-center text-[#E85D3D] shrink-0 mt-0.5 sm:mt-0">
+              <Keyboard className="w-6 h-6" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-base sm:text-lg font-bold text-[#E8E2D8] font-mono">
+                Tez yozish trenajyoriga o'tish
+              </h3>
+              <p className="text-xs sm:text-sm text-[#9A9488] font-sans">
+                Qalampir bilan o'zbek, rus va ingliz tillarida bepul tez yozish mashqini boshlang.
+              </p>
+            </div>
           </div>
           <button
             type="button"
             onClick={onNavigateHome}
-            className="px-6 py-3 rounded-xl bg-[#E85D3D] hover:bg-[#E85D3D]/90 text-[#0F0E0D] font-mono text-xs font-bold transition-all shrink-0 cursor-pointer shadow-lg shadow-[#E85D3D]/10"
+            className="w-full sm:w-auto px-6 py-3 rounded-xl bg-[#E85D3D] hover:bg-[#E85D3D]/90 active:scale-95 text-[#0F0E0D] font-mono text-xs font-bold transition-all flex items-center justify-center space-x-2 shrink-0 cursor-pointer touch-manipulation shadow-sm"
           >
-            Testni boshlash &rarr;
+            <span>Klaviaturada yozishni boshlash</span>
+            <ArrowRight className="w-4 h-4" />
           </button>
         </div>
       </div>

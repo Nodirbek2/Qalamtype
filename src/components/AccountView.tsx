@@ -33,12 +33,16 @@ import {
 } from 'recharts';
 
 export const AccountView: React.FC = () => {
-  const { currentUser, userProfile, updateUserProfile } = useAuth();
+  const { currentUser, userProfile, updateUserProfile, checkUsernameAvailability } = useAuth();
   const { t } = useSettings();
 
   // Profile Form States
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [username, setUsername] = useState('');
+  const [usernameChecking, setUsernameChecking] = useState(false);
+  const [usernameStatus, setUsernameStatus] = useState<'available' | 'taken' | 'invalid' | null>(null);
+
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileSuccess, setProfileSuccess] = useState(false);
   const [profileError, setProfileError] = useState<string | null>(null);
@@ -57,52 +61,82 @@ export const AccountView: React.FC = () => {
     if (userProfile) {
       setFirstName(userProfile.firstName || '');
       setLastName(userProfile.lastName || '');
+      setUsername(userProfile.username || '');
     }
   }, [userProfile]);
 
-  // Subscribe to user's results in Firestore
+  // Debounced username availability checker
   useEffect(() => {
-    if (!currentUser) {
-      setLoadingResults(false);
+    if (!userProfile || !username.trim()) {
+      setUsernameStatus(null);
       return;
     }
 
-    setLoadingResults(true);
-    const unsubscribe = subscribeToUserResults(
-      currentUser.id,
-      (data) => {
-        setUserResults(data);
-        setLoadingResults(false);
-      },
-      (err) => {
-        console.error('Failed to load user stats:', err);
-        setLoadingResults(false);
+    const clean = username.trim();
+    if (clean.toLowerCase() === userProfile.username.toLowerCase()) {
+      setUsernameStatus(null);
+      return;
+    }
+
+    if (clean.length < 3 || !/^[a-zA-Z0-9_]+$/.test(clean)) {
+      setUsernameStatus('invalid');
+      return;
+    }
+
+    setUsernameChecking(true);
+    const timer = setTimeout(async () => {
+      try {
+        const available = await checkUsernameAvailability(clean);
+        setUsernameStatus(available ? 'available' : 'taken');
+      } catch (err) {
+        console.error('Error checking username:', err);
+      } finally {
+        setUsernameChecking(false);
       }
-    );
+    }, 400);
 
-    return () => unsubscribe();
-  }, [currentUser]);
+    return () => clearTimeout(timer);
+  }, [username, userProfile, checkUsernameAvailability]);
 
-  // Save profile changes (first name, last name)
+  // Save profile changes (first name, last name, username)
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setProfileError(null);
     setProfileSuccess(false);
 
-    if (!firstName.trim()) {
+    const cleanFirst = firstName.trim();
+    const cleanLast = lastName.trim();
+    const cleanUsername = username.trim();
+
+    if (!cleanFirst) {
       setProfileError('first name cannot be empty');
       return;
     }
-    if (!lastName.trim()) {
+    if (!cleanLast) {
       setProfileError('last name cannot be empty');
+      return;
+    }
+    if (!cleanUsername || cleanUsername.length < 3) {
+      setProfileError('username must be at least 3 characters');
+      return;
+    }
+    if (usernameStatus === 'taken') {
+      setProfileError('username is already taken. please choose another.');
+      return;
+    }
+    if (usernameStatus === 'invalid') {
+      setProfileError('username can only contain letters, numbers, and underscores');
       return;
     }
 
     setSavingProfile(true);
     try {
       await updateUserProfile({
-        firstName: firstName.trim(),
-        lastName: lastName.trim(),
+        firstName: cleanFirst,
+        lastName: cleanLast,
+        username: cleanUsername,
+        usernameLower: cleanUsername.toLowerCase(),
+        isProfileComplete: true,
       });
       setProfileSuccess(true);
       setTimeout(() => setProfileSuccess(false), 3000);
@@ -375,19 +409,32 @@ export const AccountView: React.FC = () => {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Username (Read-only) */}
+                {/* Username (Editable) */}
                 <div>
-                  <label className="block text-xs text-[#9A9488] mb-1 font-mono flex items-center justify-between">
-                    <span>{t('acc_username')}</span>
-                    <span className="text-[10px] text-[#5C574C] flex items-center gap-1">
-                      <Lock className="w-3 h-3" /> read-only
-                    </span>
-                  </label>
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="text-xs text-[#9A9488] font-mono">{t('acc_username')}</label>
+                    {usernameChecking && (
+                      <span className="text-[10px] text-[#5C574C] flex items-center gap-1 font-mono">
+                        <Loader2 className="w-3 h-3 animate-spin" /> checking...
+                      </span>
+                    )}
+                    {!usernameChecking && usernameStatus === 'available' && (
+                      <span className="text-[10px] text-[#6FA85C] flex items-center gap-1 font-mono">
+                        <CheckCircle2 className="w-3 h-3" /> available
+                      </span>
+                    )}
+                    {!usernameChecking && usernameStatus === 'taken' && (
+                      <span className="text-[10px] text-[#D64545] flex items-center gap-1 font-mono">
+                        <AlertCircle className="w-3 h-3" /> taken
+                      </span>
+                    )}
+                  </div>
                   <input
                     type="text"
-                    disabled
-                    value={`@${userProfile.username}`}
-                    className="w-full bg-[#0F0E0D]/60 border border-[rgba(232,226,216,0.06)] rounded-lg px-3.5 py-2 text-sm text-[#9A9488] font-mono cursor-not-allowed select-none"
+                    required
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="w-full bg-[#0F0E0D] border border-[rgba(232,226,216,0.12)] rounded-lg px-3.5 py-2 text-sm text-[#E8E2D8] font-mono focus:outline-none focus:border-[#E85D3D] transition-colors"
                   />
                 </div>
 

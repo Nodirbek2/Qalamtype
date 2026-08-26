@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSettings } from '../context/SettingsContext';
+import { useAuth } from '../context/AuthContext';
 import { TypingSound } from '../lib/soundSynthesizer';
 import { CaretSpeed, Language, TypingFont, FONT_FAMILIES } from '../types';
-import { X, Volume2, MousePointer, Globe, Keyboard, Play, Type } from 'lucide-react';
+import { X, Volume2, MousePointer, Globe, Keyboard, Play, Type, User, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -24,6 +25,89 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
     t,
     testSound,
   } = useSettings();
+
+  const { currentUser, userProfile, updateUserProfile, checkUsernameAvailability } = useAuth();
+
+  // Settings Username state
+  const [usernameInput, setUsernameInput] = useState('');
+  const [usernameChecking, setUsernameChecking] = useState(false);
+  const [usernameStatus, setUsernameStatus] = useState<'available' | 'taken' | 'invalid' | null>(null);
+  const [usernameSaving, setUsernameSaving] = useState(false);
+  const [usernameSuccess, setUsernameSuccess] = useState(false);
+  const [usernameError, setUsernameError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (userProfile) {
+      setUsernameInput(userProfile.username || '');
+    }
+  }, [userProfile]);
+
+  useEffect(() => {
+    if (!userProfile || !usernameInput.trim()) {
+      setUsernameStatus(null);
+      return;
+    }
+
+    const clean = usernameInput.trim();
+    if (clean.toLowerCase() === userProfile.username.toLowerCase()) {
+      setUsernameStatus(null);
+      return;
+    }
+
+    if (clean.length < 3 || !/^[a-zA-Z0-9_]+$/.test(clean)) {
+      setUsernameStatus('invalid');
+      return;
+    }
+
+    setUsernameChecking(true);
+    const timer = setTimeout(async () => {
+      try {
+        const available = await checkUsernameAvailability(clean);
+        setUsernameStatus(available ? 'available' : 'taken');
+      } catch (err) {
+        console.error('Error checking username in settings:', err);
+      } finally {
+        setUsernameChecking(false);
+      }
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [usernameInput, userProfile, checkUsernameAvailability]);
+
+  const handleSaveUsername = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setUsernameError(null);
+    setUsernameSuccess(false);
+
+    const clean = usernameInput.trim();
+    if (!clean || clean.length < 3) {
+      setUsernameError('username must be at least 3 characters');
+      return;
+    }
+    if (usernameStatus === 'taken') {
+      setUsernameError('username is already taken');
+      return;
+    }
+    if (usernameStatus === 'invalid') {
+      setUsernameError('letters, numbers, and underscores only');
+      return;
+    }
+
+    setUsernameSaving(true);
+    try {
+      await updateUserProfile({
+        username: clean,
+        usernameLower: clean.toLowerCase(),
+        isProfileComplete: true,
+      });
+      setUsernameSuccess(true);
+      setTimeout(() => setUsernameSuccess(false), 3000);
+    } catch (err: any) {
+      setUsernameError(err.message || 'failed to update username');
+    } finally {
+      setUsernameSaving(false);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -237,6 +321,71 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
               })}
             </div>
           </div>
+
+          {/* 6. Account & Username Setting */}
+          {currentUser && userProfile && (
+            <div className="pt-2 border-t border-[rgba(232,226,216,0.08)] space-y-2">
+              <label className="text-[#E8E2D8] font-medium flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <User className="w-4 h-4 text-[#E85D3D]" />
+                  <span>{t('acc_username')}</span>
+                </div>
+                {usernameChecking && (
+                  <span className="text-[10px] text-[#5C574C] flex items-center gap-1 font-mono">
+                    <Loader2 className="w-3 h-3 animate-spin" /> checking...
+                  </span>
+                )}
+                {!usernameChecking && usernameStatus === 'available' && (
+                  <span className="text-[10px] text-[#6FA85C] flex items-center gap-1 font-mono">
+                    <CheckCircle2 className="w-3 h-3" /> available
+                  </span>
+                )}
+                {!usernameChecking && usernameStatus === 'taken' && (
+                  <span className="text-[10px] text-[#D64545] flex items-center gap-1 font-mono">
+                    <AlertCircle className="w-3 h-3" /> taken
+                  </span>
+                )}
+              </label>
+
+              <form onSubmit={handleSaveUsername} className="flex gap-2 items-center">
+                <div className="relative flex-1">
+                  <input
+                    type="text"
+                    required
+                    value={usernameInput}
+                    onChange={(e) => setUsernameInput(e.target.value)}
+                    placeholder="taxallus"
+                    className="w-full bg-[#0F0E0D] border border-[rgba(232,226,216,0.12)] rounded-lg px-3 py-2 text-xs text-[#E8E2D8] font-mono focus:outline-none focus:border-[#E85D3D] transition-colors"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={usernameSaving || usernameChecking || usernameStatus === 'taken'}
+                  className="bg-[#E85D3D] hover:bg-[#E85D3D]/90 text-[#0F0E0D] font-mono text-xs font-semibold px-4 py-2 rounded-lg transition-colors cursor-pointer disabled:opacity-50 shrink-0 flex items-center gap-1"
+                >
+                  {usernameSaving ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-[#0F0E0D]" />
+                  ) : (
+                    <span>{t('acc_save_changes')}</span>
+                  )}
+                </button>
+              </form>
+
+              {usernameSuccess && (
+                <p className="text-[11px] text-[#6FA85C] flex items-center gap-1 font-mono">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>{t('acc_saved')}</span>
+                </p>
+              )}
+
+              {usernameError && (
+                <p className="text-[11px] text-[#D64545] flex items-center gap-1 font-mono">
+                  <AlertCircle className="w-3.5 h-3.5" />
+                  <span>{usernameError}</span>
+                </p>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Footer */}

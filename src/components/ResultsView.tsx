@@ -458,11 +458,11 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
       </div>
 
       {/* Action Buttons Row */}
-      <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-1">
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-3 pt-2 touch-manipulation">
         <button
           type="button"
           onClick={handleShare}
-          className="w-full sm:w-auto px-5 py-2 bg-[#1A1917] text-[#9A9488] hover:text-[#E8E2D8] font-mono text-xs font-semibold rounded-lg border border-[rgba(232,226,216,0.08)] hover:border-[rgba(232,226,216,0.2)] transition-all flex items-center justify-center space-x-2 cursor-pointer"
+          className="w-full sm:w-auto min-h-[44px] px-5 py-2.5 bg-[#1A1917] text-[#9A9488] hover:text-[#E8E2D8] font-mono text-xs font-semibold rounded-xl border border-[rgba(232,226,216,0.08)] hover:border-[rgba(232,226,216,0.2)] transition-all flex items-center justify-center space-x-2 cursor-pointer touch-manipulation active:scale-95"
         >
           {copied ? <Check className="w-3.5 h-3.5 text-[#6FA85C]" /> : <Share2 className="w-3.5 h-3.5" />}
           <span>{copied ? 'Nusxalandi!' : 'Ulashish'}</span>
@@ -471,7 +471,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
         <button
           type="button"
           onClick={onNextTest}
-          className="w-full sm:w-auto px-6 py-2 bg-[#E85D3D] text-[#0F0E0D] font-mono text-xs font-semibold rounded-lg hover:bg-[#E85D3D]/90 transition-all flex items-center justify-center space-x-2 cursor-pointer shadow-sm group"
+          className="w-full sm:w-auto min-h-[44px] px-6 py-2.5 bg-[#E85D3D] text-[#0F0E0D] font-mono text-xs font-semibold rounded-xl hover:bg-[#E85D3D]/90 transition-all flex items-center justify-center space-x-2 cursor-pointer shadow-sm group touch-manipulation active:scale-95"
         >
           <span>{t('results_next_test') || 'Keyingi test'}</span>
           <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
@@ -480,7 +480,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
         <button
           type="button"
           onClick={onRestart}
-          className="w-full sm:w-auto px-5 py-2 bg-[#1A1917] text-[#9A9488] hover:text-[#E8E2D8] font-mono text-xs font-medium rounded-lg border border-[rgba(232,226,216,0.08)] hover:border-[rgba(232,226,216,0.2)] transition-all flex items-center justify-center space-x-2 cursor-pointer"
+          className="w-full sm:w-auto min-h-[44px] px-5 py-2.5 bg-[#1A1917] text-[#9A9488] hover:text-[#E8E2D8] font-mono text-xs font-medium rounded-xl border border-[rgba(232,226,216,0.08)] hover:border-[rgba(232,226,216,0.2)] transition-all flex items-center justify-center space-x-2 cursor-pointer touch-manipulation active:scale-95"
         >
           <RotateCcw className="w-3.5 h-3.5" />
           <span>{t('results_restart') || 'Qaytadan'}</span>

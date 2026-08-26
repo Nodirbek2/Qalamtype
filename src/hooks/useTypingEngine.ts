@@ -39,6 +39,12 @@ export interface WordDisplayInfo {
   isCurrentWord: boolean;
 }
 
+const normalizeChar = (c?: string) => {
+  if (!c) return '';
+  if (c === '’' || c === 'ʻ' || c === 'ʼ' || c === '`' || c === '‘') return "'";
+  return c;
+};
+
 export function useTypingEngine({
   mode,
   duration,
@@ -123,7 +129,7 @@ export function useTypingEngine({
 
         if (cIdx < origWord.length) {
           if (typedChar !== undefined) {
-            if (typedChar === targetChar) {
+            if (normalizeChar(typedChar) === normalizeChar(targetChar)) {
               status = 'correct';
             } else {
               status = 'incorrect';
@@ -493,7 +499,7 @@ export function useTypingEngine({
         const targetWord = rawWords[currIdx] || '';
         const currentTyped = typedWordsRef.current[currIdx] || '';
         const expectedChar = targetWord[currentTyped.length];
-        const isError = expectedChar !== undefined && inputChar !== expectedChar;
+        const isError = expectedChar !== undefined && normalizeChar(inputChar) !== normalizeChar(expectedChar);
 
         playTypingSound(typingSound, false, isError);
         if (isError) errorCountRef.current += 1;

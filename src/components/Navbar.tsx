@@ -37,6 +37,13 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  // Auto-open auth modal if user is logged in but profile is not completed (e.g. first-time Google sign up)
+  useEffect(() => {
+    if (currentUser && userProfile && !userProfile.isProfileComplete) {
+      setAuthModalOpen(true);
+    }
+  }, [currentUser, userProfile]);
+
   // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -63,11 +70,35 @@ export const Navbar: React.FC<NavbarProps> = ({
             />
           </div>
 
-          {/* Desktop Nav Links (>= md) - Always renders all 5 links */}
-          <nav className="hidden md:flex items-center gap-1 font-mono text-[11px] lg:text-xs min-w-0">
+          {/* Desktop Nav Links (>= md) - Always renders all 4 links */}
+          <nav className="hidden md:flex items-center gap-1.5 font-mono text-[11px] lg:text-xs min-w-0">
             {NAV_ITEMS.map((item) => {
               const Icon = item.icon;
               const isActive = activeView === item.id;
+              const isTestButton = item.id === 'test';
+
+              if (isTestButton) {
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => {
+                      if (onNavigate) {
+                        onNavigate('test');
+                      }
+                    }}
+                    className={`px-3 lg:px-3.5 py-1.5 rounded-lg flex items-center space-x-1.5 font-mono font-bold transition-all cursor-pointer shrink-0 shadow-sm ${
+                      isActive
+                        ? 'bg-[#E85D3D] text-[#0F0E0D] border border-[#E85D3D]'
+                        : 'bg-[#E85D3D] text-[#0F0E0D] hover:bg-[#E85D3D]/90 active:scale-95'
+                    }`}
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                    <span>{t(item.labelKey as any)}</span>
+                  </button>
+                );
+              }
+
               return (
                 <button
                   key={item.id}
@@ -210,11 +241,35 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
         </div>
 
-        {/* Mobile Nav Links Row (< md) - Always renders all 5 links */}
-        <nav className="flex md:hidden items-center justify-center gap-1 font-mono text-xs w-full overflow-x-auto no-scrollbar py-0.5">
+        {/* Mobile Nav Links Row (< md) - Always renders all 4 links */}
+        <nav className="flex md:hidden items-center justify-center gap-1.5 font-mono text-xs w-full overflow-x-auto no-scrollbar py-1 touch-manipulation">
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
             const isActive = activeView === item.id;
+            const isTestButton = item.id === 'test';
+
+            if (isTestButton) {
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => {
+                    if (onNavigate) {
+                      onNavigate('test');
+                    }
+                  }}
+                  className={`px-3 py-1.5 rounded-lg flex items-center space-x-1.5 transition-all cursor-pointer shrink-0 touch-manipulation min-h-[36px] font-bold ${
+                    isActive
+                      ? 'bg-[#E85D3D] text-[#0F0E0D] border border-[#E85D3D]'
+                      : 'bg-[#E85D3D] text-[#0F0E0D] hover:bg-[#E85D3D]/90 active:scale-95'
+                  }`}
+                >
+                  <Icon className="w-3.5 h-3.5" />
+                  <span>{t(item.labelKey as any)}</span>
+                </button>
+              );
+            }
+
             return (
               <button
                 key={item.id}
@@ -227,10 +282,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                     onNavigate(item.id as any);
                   }
                 }}
-                className={`px-2.5 py-1 rounded-lg flex items-center space-x-1 transition-colors cursor-pointer shrink-0 ${
+                className={`px-2.5 py-1.5 rounded-lg flex items-center space-x-1.5 transition-colors cursor-pointer shrink-0 touch-manipulation min-h-[36px] ${
                   isActive
                     ? 'bg-[#1A1917] text-[#E85D3D] font-medium border border-[rgba(232,226,216,0.1)]'
-                    : 'text-[#9A9488] hover:text-[#E8E2D8]'
+                    : 'text-[#9A9488] hover:text-[#E8E2D8] active:bg-[#1A1917]'
                 }`}
               >
                 <Icon className="w-3.5 h-3.5" />

@@ -22,11 +22,6 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     readTime: '4 min o\'qish',
     sections: [
       {
-        paragraphs: [
-          "Klaviaturada tez yozish — bu tug'ma qobiliyat emas, balki mashq orqali rivojlanadigan oddiy ko'nikma. To'g'ri usulda mashq qilsangiz, bir necha hafta ichida sezilarli farqni ko'rasiz. Mana bosqichma-bosqich yo'l."
-        ]
-      },
-      {
         heading: "1. Barmoqlarni to'g'ri joylashtiring",
         paragraphs: [
           "Har bir barmoq klaviaturada o'z \"uyi\"ga ega bo'lishi kerak — bu asosiy qator (home row) deb ataladi: chap qo'l uchun A-S-D-F, o'ng qo'l uchun J-K-L-;. Har safar yozishni boshlashdan oldin barmoqlaringizni shu qatorga qo'ying. Boshida bu noqulay tuyulishi mumkin, lekin bu — tez yozishning poydevori."
@@ -78,11 +73,6 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     date: '2026-08-09',
     readTime: '3 min o\'qish',
     sections: [
-      {
-        paragraphs: [
-          "Tez yozishni yaxshilash uchun barcha mashqlar bir xil samarali emas. Mana haqiqatan natija beradigan mashq turlari, eng foydalisidan boshlab."
-        ]
-      },
       {
         heading: "1. Asosiy qator mashqlari",
         paragraphs: [
@@ -140,11 +130,6 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     date: '2026-08-09',
     readTime: '3 min o\'qish',
     sections: [
-      {
-        paragraphs: [
-          "Tez yozishni o'rganish shart emas zerikarli bo'lishi kerak. So'nggi yillarda \"tez yozish o'yini\" tushunchasi mashhur bo'lib bormoqda — bu oddiy testlarni raqobat, mukofot va o'yin elementlari bilan boyitilgan formatga aylantiradi."
-        ]
-      },
       {
         heading: "Nima uchun o'yin formati ishlaydi",
         paragraphs: [

@@ -78,7 +78,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Query 'profiles' table
       const { data } = await supabase
         .from('profiles')
-        .select('id, username, first_name, last_name, avatar_url, updated_at')
+        .select('id, username, first_name, last_name, avatar_url, updated_at, is_profile_complete')
         .eq('id', user.id)
         .maybeSingle();
 
@@ -94,11 +94,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           createdAt: data.updated_at || new Date().toISOString(),
           preferredSiteLanguage: 'uzbek_latin',
           preferredTypingLanguage: 'uzbek_latin',
-          isProfileComplete: true,
+          isProfileComplete: data.is_profile_complete ?? true,
         };
       }
 
-      // Profile doesn't exist, create it
+      // Profile doesn't exist, create it for first-time user
       const meta = user.user_metadata || {};
       const fullName = (meta.full_name || meta.name || meta.given_name || '').trim();
       const nameParts = fullName ? fullName.split(' ') : [];
@@ -106,8 +106,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         meta.first_name ||
         meta.given_name ||
         nameParts[0] ||
-        user.email?.split('@')[0] ||
-        'User';
+        '';
       const lastName =
         meta.last_name ||
         meta.family_name ||
@@ -132,16 +131,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         createdAt: new Date().toISOString(),
         preferredSiteLanguage: 'uzbek_latin',
         preferredTypingLanguage: 'uzbek_latin',
-        isProfileComplete: true,
+        isProfileComplete: false, // First time signup requires choosing/confirming username
       };
 
-      // Upsert into 'profiles' table
+      // Upsert into 'profiles' table with is_profile_complete = false
       await supabase.from('profiles').upsert({
         id: user.id,
         username: candidateUsername,
         first_name: firstName,
         last_name: lastName,
         avatar_url: newProfile.photoURL,
+        is_profile_complete: false,
         updated_at: new Date().toISOString(),
       });
 
@@ -278,6 +278,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (data.firstName !== undefined) profileUpdates.first_name = data.firstName;
       if (data.lastName !== undefined) profileUpdates.last_name = data.lastName;
       if (data.photoURL !== undefined) profileUpdates.avatar_url = data.photoURL;
+      if (data.isProfileComplete !== undefined) profileUpdates.is_profile_complete = data.isProfileComplete;
 
       const { error: profileErr } = await supabase
         .from('profiles')
@@ -286,6 +287,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (profileErr) {
         console.warn('Supabase profiles update warning:', profileErr.message);
+      }
+
+      // Sync results table with the new username if username changed
+      if (data.username) {
+        try {
+          await supabase
+            .from('results')
+            .update({ username: data.username })
+            .eq('user_id', currentUser.id);
+        } catch (resErr) {
+          console.warn('Results username sync warning:', resErr);
+        }
       }
     }
 
