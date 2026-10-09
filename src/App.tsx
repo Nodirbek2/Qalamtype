@@ -39,7 +39,7 @@ export default function App() {
     }
   }, []);
 
-  // Active View ('test' | 'academy' | 'leaderboard' | 'account' | 'about' | 'blog' | 'games' | 'games') with URL path synchronization
+  // Active View ('test' | 'academy' | 'leaderboard' | 'account' | 'about' | 'blog' | 'games') with URL path synchronization
   const [activeView, setActiveView] = useState<'test' | 'academy' | 'leaderboard' | 'account' | 'about' | 'blog' | 'games'>(() => {
     if (typeof window !== 'undefined') {
       const path = window.location.pathname;
