@@ -39,8 +39,8 @@ export default function App() {
     }
   }, []);
 
-  // Active View ('test' | 'academy' | 'leaderboard' | 'account' | 'about' | 'blog' | 'games') with URL path synchronization
-  const [activeView, setActiveView] = useState<'test' | 'academy' | 'leaderboard' | 'account' | 'about' | 'blog'>(() => {
+  // Active View ('test' | 'academy' | 'leaderboard' | 'account' | 'about' | 'blog' | 'games' | 'games') with URL path synchronization
+  const [activeView, setActiveView] = useState<'test' | 'academy' | 'leaderboard' | 'account' | 'about' | 'blog' | 'games'>(() => {
     if (typeof window !== 'undefined') {
       const path = window.location.pathname;
       if (path === '/academy') return 'academy';
@@ -95,7 +95,7 @@ export default function App() {
   });
 
   // Handle URL history push and popstate
-  const navigateTo = useCallback((view: 'test' | 'academy' | 'leaderboard' | 'account' | 'about' | 'blog', slug?: string) => {
+  const navigateTo = useCallback((view: 'test' | 'academy' | 'leaderboard' | 'account' | 'about' | 'blog' | 'games', slug?: string) => {
     setActiveView(view);
     if (view === 'blog') {
       setBlogSlug(slug || null);
