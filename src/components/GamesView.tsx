@@ -53,9 +53,80 @@ const clientId = () => {
 const CLIENT_ID = clientId();
 const clamp = (value: number, min = 0, max = 100) => Math.max(min, Math.min(max, value));
 
+type Battle = { status: 'ready' | 'playing' | 'won' | 'lost'; hits: number; health: number; combo: number; best: number; mistakes: number; strikes: number; started: number; ended: number; now: number; effect: 'hit' | 'hurt' | 'shield' | ''; serial: number };
+const initialBattle: Battle = {status:'ready',hits:0,health:100,combo:0,best:0,mistakes:0,strikes:0,started:0,ended:0,now:0,effect:'',serial:0};
+function battleReducer(s: Battle, a: {type:'start'|'hit'|'miss'|'tick'; now:number}): Battle {
+  if(a.type==='start') return {...initialBattle,status:'playing',started:a.now,now:a.now};
+  if(s.status!=='playing') return s;
+  // Resolve elapsed attacks before accepting a key, even after a background-tab delay.
+  const strikes=Math.floor((a.now-s.started)/8000);
+  const health=Math.max(0,s.health-Math.max(0,strikes-s.strikes)*15);
+  let next: Battle={...s,now:a.now,strikes,health};
+  if(strikes>s.strikes) next={...next,effect:'hurt',serial:s.serial+1};
+  if(!health) return {...next,status:'lost',ended:a.now};
+  if(a.type==='hit') {
+    const hits=s.hits+1, combo=s.combo+1, shield=combo%3===0;
+    return {...next,hits,combo,best:Math.max(s.best,combo),health:Math.min(100,health+(shield?5:0)),effect:shield?'shield':'hit',serial:s.serial+1,status:hits>=18?'won':'playing',ended:hits>=18?a.now:0};
+  }
+  if(a.type==='miss') return {...next,combo:0,mistakes:s.mistakes+1,effect:'hurt',serial:s.serial+1};
+  return next;
+}
+function WordBoss({language}: {language:keyof typeof PASSAGES}) {
+  const [battle,dispatch]=React.useReducer(battleReducer,initialBattle);
+  const [words,setWords]=useState<string[]>([]);
+  const [input,setInput]=useState('');
+  const entry=useRef<HTMLInputElement>(null);
+  const wave=Math.min(2,Math.floor(battle.hits/6));
+  const names=['SIYOH SOYASI','TEMIR QALAM','SO‘ZLAR AJDARI'];
+  const hp=battle.status==='won'?0:100-(battle.hits%6)/6*100;
+  const remaining=Math.max(0,8-((battle.now-battle.started)/1000)%8);
+  const active=battle.status==='playing';
+  useEffect(()=>{if(!active)return; const id=window.setInterval(()=>dispatch({type:'tick',now:Date.now()}),100);return()=>window.clearInterval(id)},[active]);
+  useEffect(()=>{if(active)entry.current?.focus()},[active]);
+  const start=()=>{
+    const bank=PASSAGES[language]||PASSAGES.uzbek_latin;
+    const pool=bank[Math.floor(Math.random()*bank.length)].replace(/[.,!?]/g,'').split(/\s+/).filter(Boolean);
+    const offset=Math.floor(Math.random()*pool.length);
+    setWords(Array.from({length:18},(_,i)=>pool[(offset+i)%pool.length]));setInput('');dispatch({type:'start',now:Date.now()});
+  };
+  const attack=(value:string)=>{
+    if(!active || !value.trim())return;
+    if(normalize(value.trim()).toLocaleLowerCase()===normalize(words[battle.hits]).toLocaleLowerCase()) {dispatch({type:'hit',now:Date.now()});setInput('')}
+    else dispatch({type:'miss',now:Date.now()});
+  };
+  const seconds=Math.round(((battle.ended||battle.now)-battle.started)/1000);
+  return <div className="wb-shell">
+    <style>{`
+      .wb-shell{background:#101021;border:1px solid #52416d;border-radius:22px;padding:22px;color:#eee8ff}.wb-top{display:flex;justify-content:space-between;gap:12px;font:12px monospace;color:#c6b7e3}.wb-top b{color:#bfa0ff}.wb-meter{height:9px;background:#ffffff12;border-radius:8px;overflow:hidden;margin:8px 0 16px}.wb-meter i{display:block;height:100%;background:linear-gradient(90deg,#e95588,#b079ef);transition:width .35s}.wb-arena{height:270px;border-radius:16px;position:relative;overflow:hidden;background:radial-gradient(ellipse at 70% 25%,#493365,transparent 60%),linear-gradient(#141327,#252035);border-bottom:7px solid #554661}
+      .wb-moon{position:absolute;top:22px;right:22%;width:65px;height:65px;border-radius:50%;background:#dccbfa;box-shadow:0 0 70px #bc82fa77}.wb-floor{position:absolute;bottom:0;width:100%;height:50px;background:repeating-linear-gradient(100deg,#342f43 0 40px,#494050 41px 44px);transform:perspective(90px) rotateX(25deg)}
+      .wb-hero{position:absolute;left:8%;bottom:25px;width:85px;filter:drop-shadow(0 0 18px #64dddc88)}.wb-monster{position:absolute;right:7%;bottom:20px;width:155px;filter:drop-shadow(0 0 20px #b964d466);animation:wb-float 2s ease-in-out infinite alternate}.wb-monster.wb-defeated{transform:rotate(18deg) scale(.7);opacity:.25;animation:none;transition:all .7s}
+      .wb-bolt{position:absolute;left:20%;bottom:85px;width:60px;height:12px;background:#caffff;box-shadow:0 0 30px #67f9ff;border-radius:50%;animation:wb-bolt .5s ease-out forwards}.wb-bolt.wb-enemy{left:auto;right:20%;background:#ff8aa6;box-shadow:0 0 30px #ff4266;animation:wb-enemy .5s ease-out forwards}.wb-damage{position:absolute;right:16%;top:60px;font:bold 23px monospace;color:#ffdeb0;animation:wb-number .7s forwards}.wb-shield{position:absolute;left:5%;bottom:18px;width:115px;height:130px;border:3px solid #76f3d6;border-radius:50%;animation:wb-number .7s forwards}.wb-instructions{font-size:13px;color:#bcb2ca;line-height:1.7;margin:16px 0}.wb-entry{width:100%;background:#090b16;border:1px solid #72618f;border-radius:12px;padding:14px;color:white;outline:none}.wb-entry:focus{border-color:#a994ff;box-shadow:0 0 0 3px #a994ff22}.wb-word{text-align:center;font:bold 30px monospace;letter-spacing:1px;margin:16px 0 8px;color:#e5daff;overflow-wrap:anywhere}.wb-button{border:0;border-radius:12px;background:#b59aff;color:#18102c;padding:12px 24px;font-weight:bold;cursor:pointer}.wb-stats{display:flex;flex-wrap:wrap;gap:18px;font:12px monospace;color:#cfc1e8;margin-top:16px}.wb-result{text-align:center;padding:22px 8px}.wb-result h2{font-size:25px;font-weight:bold;margin-bottom:8px}
+      @keyframes wb-float{to{transform:translateY(-7px)}}@keyframes wb-bolt{to{left:78%;opacity:0;transform:scale(1.8)}}@keyframes wb-enemy{to{right:78%;opacity:0;transform:scale(1.8)}}@keyframes wb-number{to{transform:translateY(-32px);opacity:0}}
+      @media(max-width:500px){.wb-shell{padding:14px}.wb-arena{height:235px}.wb-monster{width:125px;right:4%}.wb-hero{left:4%;width:70px}.wb-top{font-size:10px}.wb-word{font-size:25px}}
+      @media(prefers-reduced-motion:reduce){.wb-monster,.wb-bolt,.wb-damage,.wb-shield{animation:none}.wb-meter i{transition:none}}
+    `}</style>
+    <div className="wb-top"><span>WORD BOSS · {wave+1}/3 BOSQICH</span><b>{names[wave]}</b></div>
+    <div className="wb-meter" role="progressbar" aria-label="Boss joni" aria-valuenow={Math.round(hp)} aria-valuemin={0} aria-valuemax={100}><i style={{width:hp+'%'}}/></div>
+    <div className="wb-arena" aria-label="Sehrgar va boss jang maydoni">
+      <div className="wb-moon"/><div className="wb-floor"/>
+      <svg className="wb-hero" viewBox="0 0 100 155" aria-label="Sehrgar" role="img"><path d="M15 145L36 67H65L88 145Z" fill="#3aa9ad"/><path d="M36 70L50 140L65 70" fill="#123c68"/><circle cx="51" cy="49" r="19" fill="#f3c6a0"/><path d="M15 40L55 0L75 40Z" fill="#56cfcc"/><path d="M12 41H88" stroke="#b6fff0" strokeWidth="6"/><path d="M67 85L86 75" stroke="#f3c6a0" strokeWidth="10"/><path d="M88 130V33" stroke="#b49d67" strokeWidth="5"/><circle cx="88" cy="25" r="10" fill="#9fffff"/></svg>
+      <svg className={'wb-monster '+(battle.status==='won'?'wb-defeated':'')} viewBox="0 0 180 190" aria-label={names[wave]} role="img"><path d="M35 65L9 8L65 40M115 40L170 8L147 70" fill="#dcc4a4"/><path d="M25 80Q15 35 90 30Q165 35 158 83L172 165L126 151L110 185L80 159L44 181L36 145L8 157Z" fill={['#7855a7','#547d9f','#ae4678'][wave]}/><path d="M38 81L72 91L60 105L34 93M140 81L104 91L118 105L146 93" fill="#ffdf7a"/><path d="M57 128L90 146L126 126" fill="none" stroke="#29122e" strokeWidth="10"/><path d="M68 128L73 145L85 135M102 134L114 144L118 125" fill="#fff0cf"/></svg>
+      {battle.serial>0 && <React.Fragment key={battle.serial}><div className={'wb-bolt '+(battle.effect==='hurt'?'wb-enemy':'')}/>{battle.effect!=='hurt' && <div className="wb-damage">−17 HP</div>}{battle.effect==='shield' && <div className="wb-shield"/>}</React.Fragment>}
+    </div>
+    <div className="wb-top" style={{marginTop:16}}><span>SIZNING JONINGIZ · {battle.health}/100</span><span>{active?'Boss hujumi: '+remaining.toFixed(1)+' s':'18 so‘z · 3 boss'}</span></div>
+    <div className="wb-meter" role="progressbar" aria-label="Sizning joningiz" aria-valuenow={battle.health} aria-valuemin={0} aria-valuemax={100}><i style={{width:battle.health+'%',background:'#52cbb3'}}/></div>
+    {battle.status==='ready' ? <div className="wb-result"><h2>So‘z bilan jang qiling</h2><p className="wb-instructions">So‘zni yozing va Space yoki Enter bosing — sehrli zarba uchadi. Har 6 ta so‘zdan keyin yangi boss keladi. Boss har 8 soniyada 15 jon oladi. Ketma-ket 3 ta to‘g‘ri zarba sizga 5 jon qaytaradi. Xato javob komboni uzadi.</p><button className="wb-button" onClick={start}>Jangni boshlash</button></div> : active ? <>
+      <div className="wb-word">{words[battle.hits]}</div><p style={{textAlign:'center',fontSize:12,color:'#b3a5c7',marginBottom:12}}>So‘zni yozing · Space / Enter = hujum</p>
+      <form onSubmit={e=>{e.preventDefault();attack(input)}}><input ref={entry} className="wb-entry" value={input} aria-label="Hujum so‘zini yozing" onChange={e=>{const value=e.target.value;if(/\s$/.test(value))attack(value);else setInput(value)}} onPaste={e=>e.preventDefault()} autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false}/><button className="wb-button" type="submit" style={{marginTop:12}}>Hujum qilish</button></form>
+      <div className="wb-stats"><span>Zarba {battle.hits}/18</span><span>Kombo ×{battle.combo}</span><span>Vaqt {seconds}s</span></div>
+    </> : <div className="wb-result" role="status"><h2>{battle.status==='won'?'G‘alaba! Barcha bosslar yengildi.':'Jang tugadi. Yana urinib ko‘ring!'}</h2><p className="wb-instructions">{battle.hits}/18 zarba · eng yaxshi kombo ×{battle.best} · {battle.mistakes} xato · {seconds} soniya</p><button className="wb-button" onClick={start}>Qayta o‘ynash</button></div>}
+  </div>;
+}
+
 export const GamesView: React.FC = () => {
   const { userProfile } = useAuth();
   const { typingLanguage } = useSettings();
+  const [bossSession, setBossSession] = useState(0);
   const [gameMode, setGameMode] = useState<GameMode>('race');
   const [phase, setPhase] = useState<RacePhase>('ready');
   const [online, setOnline] = useState(false);
@@ -64,7 +135,6 @@ export const GamesView: React.FC = () => {
   const [countdown, setCountdown] = useState(0);
   const [players, setPlayers] = useState<Player[]>([]);
   const [message, setMessage] = useState('');
-  const [bossHealth, setBossHealth] = useState(100);
   const lobbyRef = useRef<any>(null);
   const raceRef = useRef<any>(null);
   const startedAtRef = useRef(0);
@@ -74,12 +144,6 @@ export const GamesView: React.FC = () => {
   const playerName = userProfile?.username || 'Mehmon';
   const wordCount = useMemo(() => raceText.trim() ? raceText.trim().split(/\s+/).length : 0, [raceText]);
   const typedWords = useMemo(() => typed.trim().split(/\s+/).filter(Boolean).length, [typed]);
-  const correctWords = useMemo(() => {
-    if (!raceText) return 0;
-    const target = raceText.split(/\s+/);
-    const entered = typed.trim().split(/\s+/).filter(Boolean);
-    return entered.reduce((sum, word, i) => sum + (word === target[i] ? 1 : 0), 0);
-  }, [raceText, typed]);
   const validChars = correctPrefix(typed, raceText);
   const progress = raceText ? clamp(validChars / raceText.length * 100) : 0;
   const wpm = startedAtRef.current && typed.length
@@ -122,7 +186,6 @@ export const GamesView: React.FC = () => {
     startedAtRef.current = 0;
     setRaceText(text);
     setTyped('');
-    setBossHealth(100);
     setPlayers(participants);
     setPhase('countdown');
     setMessage('');
@@ -269,21 +332,9 @@ export const GamesView: React.FC = () => {
     };
   }, [phase, online, playerName, raceText.length]);
 
-  useEffect(() => {
-    if (gameMode !== 'boss' || phase !== 'racing' || !wordCount) return;
-    setBossHealth(clamp(100 - (correctWords / wordCount) * 100));
-
-  }, [bossHealth, correctWords, finishRound, gameMode, phase, wordCount]);
-
   const onType = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value.slice(0, raceText.length);
     setTyped(value);
-    if (gameMode === 'boss' && wordCount) {
-      const target = raceText.split(/\s+/);
-      const entered = value.trim().split(/\s+/).filter(Boolean);
-      const hits = entered.reduce((sum, word, i) => sum + (word === target[i] ? 1 : 0), 0);
-      setBossHealth(clamp(100 - hits / wordCount * 100));
-    }
     const valid = correctPrefix(value, raceText);
     const speed = Math.round((valid / 5) / (Math.max(1000, Date.now() - startedAtRef.current) / 60000));
     setPlayers(current => current.map(player => player.id === CLIENT_ID ? { ...player, progress: valid / raceText.length * 100, wpm: speed } : player));
@@ -292,13 +343,13 @@ export const GamesView: React.FC = () => {
 
   const reset = useCallback(() => {
     void cleanupChannels();
+    setBossSession(n=>n+1);
     setPhase('ready');
     setOnline(false);
     setTyped('');
     setRaceText('');
     setPlayers([]);
     setMessage('');
-    setBossHealth(100);
     setCountdown(0);
   }, [cleanupChannels]);
 
@@ -328,22 +379,22 @@ export const GamesView: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-7">
         <div>
           <div className="flex items-center gap-2 text-[#E85D3D] font-mono text-xs uppercase tracking-[0.2em] mb-2"><Zap className="w-4 h-4" /> Qalamtype Arcade</div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-[#E8E2D8]">Type. Race. Win.</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold text-[#E8E2D8]">{gameMode === 'boss' ? 'Word Boss · So‘zlar jangi' : 'Type. Race. Win.'}</h1>
           <p className="text-sm text-[#9A9488] mt-2">Practice your speed in a race or defeat the word boss.</p>
         </div>
         <button onClick={reset} className="self-start sm:self-auto inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-white/10 text-sm text-[#9A9488] hover:text-white"><RotateCcw className="w-4 h-4" /> Reset</button>
       </div>
 
       <div className="grid sm:grid-cols-2 gap-3 mb-5">
-        <button disabled={phase !== 'ready' && phase !== 'finished'} onClick={() => { setGameMode('race'); if (phase === 'ready' || phase === 'finished') setMessage('Race mode selected'); }} className={`rounded-2xl p-4 text-left border transition-colors ${gameMode === 'race' ? 'border-[#E85D3D]/60 bg-[#E85D3D]/10' : 'border-white/10 bg-[#1A1917]'}`}>
+        <button disabled={phase !== 'ready' && phase !== 'finished'} onClick={() => { reset(); setGameMode('race'); }} className={`rounded-2xl p-4 text-left border transition-colors ${gameMode === 'race' ? 'border-[#E85D3D]/60 bg-[#E85D3D]/10' : 'border-white/10 bg-[#1A1917]'}`}>
           <div className="flex items-center gap-2 font-bold"><Flag className="w-4 h-4 text-[#E85D3D]" /> Sprint race</div><p className="text-xs text-[#9A9488] mt-1">Race through three sentences. Accuracy is your accelerator.</p>
         </button>
-        <button disabled={phase !== 'ready' && phase !== 'finished'} onClick={() => { setGameMode('boss'); if (phase === 'ready' || phase === 'finished') setMessage('Word boss selected'); }} className={`rounded-2xl p-4 text-left border transition-colors ${gameMode === 'boss' ? 'border-[#E85D3D]/60 bg-[#E85D3D]/10' : 'border-white/10 bg-[#1A1917]'}`}>
-          <div className="flex items-center gap-2 font-bold"><Swords className="w-4 h-4 text-[#E85D3D]" /> Word boss</div><p className="text-xs text-[#9A9488] mt-1">Every correctly typed word damages the boss.</p>
+        <button disabled={phase !== 'ready' && phase !== 'finished'} onClick={() => { reset(); setGameMode('boss'); }} className={`rounded-2xl p-4 text-left border transition-colors ${gameMode === 'boss' ? 'border-[#E85D3D]/60 bg-[#E85D3D]/10' : 'border-white/10 bg-[#1A1917]'}`}>
+          <div className="flex items-center gap-2 font-bold"><Swords className="w-4 h-4 text-[#E85D3D]" /> Word boss</div><p className="text-xs text-[#9A9488] mt-1">3 boss · sehrli zarbalar · kombo va himoya</p>
         </button>
       </div>
 
-      {phase === 'ready' || phase === 'matching' ? (
+      {gameMode === 'boss' ? <WordBoss key={bossSession + typingLanguage} language={typingLanguage}/> : phase === 'ready' || phase === 'matching' ? (
         <div className="rounded-3xl border border-white/10 bg-[#1A1917] p-6 sm:p-10 text-center">
           <div className="mx-auto mb-4 w-14 h-14 rounded-2xl bg-[#E85D3D]/10 flex items-center justify-center text-[#E85D3D]">{gameMode === 'race' ? <Flag /> : <Swords />}</div>
           <h2 className="text-xl font-bold">{phase === 'matching' ? 'Finding racers…' : gameMode === 'race' ? 'Ready for a typing race?' : 'Challenge the word boss?'}</h2>
@@ -357,9 +408,8 @@ export const GamesView: React.FC = () => {
         </div>
       ) : (
         <>
-          {phase === 'finished' && <div className="mb-4 rounded-2xl border border-[#E85D3D]/30 bg-[#E85D3D]/10 p-4 flex items-center gap-3"><Trophy className="text-[#E85D3D]" /><div><b>{rank === 1 ? 'You won the race!' : gameMode === 'boss' ? 'Boss defeated!' : `You finished #${rank}`}</b><p className="text-xs text-[#9A9488]">{players.find(p=>p.id===CLIENT_ID)?.wpm || 0} WPM · {typedWords} words typed</p></div></div>}
+          {phase === 'finished' && <div className="mb-4 rounded-2xl border border-[#E85D3D]/30 bg-[#E85D3D]/10 p-4 flex items-center gap-3"><Trophy className="text-[#E85D3D]" /><div><b>{rank === 1 ? 'You won the race!' : `You finished #${rank}`}</b><p className="text-xs text-[#9A9488]">{players.find(p=>p.id===CLIENT_ID)?.wpm || 0} WPM · {typedWords} words typed</p></div></div>}
           <div className="rounded-3xl border border-white/10 bg-[#1A1917] p-4 sm:p-7">
-            {gameMode === 'boss' && <div className="mb-5"><div className="flex justify-between text-xs mb-2"><span className="text-[#9A9488]">WORD BOSS HP</span><span>{Math.round(bossHealth)}%</span></div><div className="h-3 bg-black/40 rounded-full overflow-hidden"><div className="h-full bg-[#E85D3D] transition-all" style={{ width: bossHealth + '%' }} /></div></div>}
             {phase === 'countdown' && <div className="mb-5 text-center text-5xl font-black text-[#E85D3D] animate-pulse">{countdown || 'GO'}</div>}
             <div className="race-world" data-running={phase === 'racing'}>
               <div className="race-sky"><span>QALAM GRAND PRIX</span><b>{phase === 'finished' ? 'CHEQUERED FLAG' : phase === 'countdown' ? 'ENGINES READY' : 'CITY CIRCUIT'}</b><div className="race-sun" /></div>
@@ -382,8 +432,9 @@ export const GamesView: React.FC = () => {
           </div>
         </>
       )}
-      <p className="mt-4 flex items-center justify-center gap-2 text-[11px] text-[#5C574C]"><WifiOff className="w-3 h-3" /> Type accurately to accelerate. Correct red letters to keep moving. Bots fill empty lanes.</p>
+      {gameMode === 'race' && <p className="mt-4 flex items-center justify-center gap-2 text-[11px] text-[#5C574C]"><WifiOff className="w-3 h-3" /> Type accurately to accelerate. Correct red letters to keep moving. Bots fill empty lanes.</p>}
     </section>
   );
 };
+
 
