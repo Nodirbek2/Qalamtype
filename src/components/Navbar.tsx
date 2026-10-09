@@ -7,8 +7,8 @@ import { AuthModal } from './AuthModal';
 
 interface NavbarProps {
   onLogoClick?: () => void;
-  activeView?: 'test' | 'academy' | 'leaderboard' | 'account' | 'about' | 'blog' | 'games';
-  onNavigate?: (view: 'test' | 'academy' | 'leaderboard' | 'account' | 'about' | 'blog') => void;
+  activeView?: 'test' | 'academy' | 'leaderboard' | 'account' | 'about' | 'blog' | 'games' | 'games';
+  onNavigate?: (view: 'test' | 'academy' | 'leaderboard' | 'account' | 'about' | 'blog' | 'games') => void;
   onOpenSettings?: () => void;
   showWordmark?: boolean;
   isIntroDone?: boolean;
