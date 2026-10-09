@@ -176,14 +176,14 @@ export default function App() {
   // Global keydown handler for restart shortcuts (Tab or Esc)
   useEffect(() => {
     const handleGlobalShortcuts = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (activeView === 'test' && e.key === 'Escape') {
         e.preventDefault();
         handleNextTest();
       }
     };
     window.addEventListener('keydown', handleGlobalShortcuts);
     return () => window.removeEventListener('keydown', handleGlobalShortcuts);
-  }, [handleNextTest]);
+  }, [activeView, handleNextTest]);
 
   const handleStartAnimation = useCallback(() => {
     setIntroState('animating');
