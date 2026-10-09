@@ -59,6 +59,9 @@ export const GamesView: React.FC = () => {
     ? Math.round((typed.length / 5) / (Math.max(1, Date.now() - startedAtRef.current) / 60000))
     : 0;
 
+  const liveStatsRef = useRef({ progress, wpm });
+  liveStatsRef.current = { progress, wpm };
+
   const clearTimers = useCallback(() => {
     [botTimerRef, startTimerRef, matchTimerRef].forEach((ref) => {
       if (ref.current !== null) window.clearInterval(ref.current);
@@ -218,14 +221,16 @@ export const GamesView: React.FC = () => {
     if (phase !== 'racing') return;
     const progressTimer = window.setInterval(() => {
       if (raceRef.current && online) {
-        raceRef.current.send({ type: 'broadcast', event: 'race-progress', payload: { id: CLIENT_ID, name: playerName, progress, wpm } });
+        const stats = liveStatsRef.current;
+        raceRef.current.send({ type: 'broadcast', event: 'race-progress', payload: { id: CLIENT_ID, name: playerName, ...stats } });
       }
     }, 300);
     const botTimer = window.setInterval(() => {
       setPlayers((current) => current.map((player) => {
         if (!player.isBot || player.progress >= 100) return player;
-        const speed = 0.55 + Math.random() * 0.6;
-        return { ...player, progress: Math.min(100, player.progress + speed), wpm: Math.round(42 + speed * 25) };
+        const botWpm = Math.round(38 + Math.random() * 35);
+        const advance = (botWpm / 60 / 60) * 0.42 * 100;
+        return { ...player, progress: Math.min(100, player.progress + advance), wpm: botWpm };
       }));
     }, 420);
     botTimerRef.current = botTimer;
@@ -234,7 +239,7 @@ export const GamesView: React.FC = () => {
       window.clearInterval(botTimer);
       botTimerRef.current = null;
     };
-  }, [phase, online, playerName, progress, wpm]);
+  }, [phase, online, playerName]);
 
   useEffect(() => {
     if (gameMode !== 'boss' || phase !== 'racing' || !wordCount) return;
