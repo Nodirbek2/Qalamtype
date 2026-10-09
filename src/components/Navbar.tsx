@@ -18,9 +18,9 @@ interface NavbarProps {
 const NAV_ITEMS = [
   { id: 'test', labelKey: 'nav_test', icon: Keyboard, requiresAuth: false },
   { id: 'academy', labelKey: 'nav_academy', icon: GraduationCap, requiresAuth: true },
+  { id: 'games', labelKey: 'games', icon: Gamepad2, requiresAuth: false },
   { id: 'leaderboard', labelKey: 'nav_leaderboard', icon: Trophy, requiresAuth: false },
   { id: 'blog', labelKey: 'nav_blog', icon: BookOpen, requiresAuth: false },
-  { id: 'games', labelKey: 'games', icon: Gamepad2, requiresAuth: false },
 ] as const;
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -95,7 +95,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     }`}
                   >
                     <Icon className="w-3.5 h-3.5" />
-                    <span>{item.id === 'games' ? 'games' : t(item.labelKey as any)}</span>
+                    <span>{item.id === 'games' ? 'Games' : t(item.labelKey as any)}</span>
                   </button>
                 );
               }
