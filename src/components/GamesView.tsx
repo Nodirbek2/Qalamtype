@@ -228,8 +228,8 @@ export const GamesView: React.FC = () => {
     const botTimer = window.setInterval(() => {
       setPlayers((current) => current.map((player) => {
         if (!player.isBot || player.progress >= 100) return player;
-        const botWpm = Math.round(38 + Math.random() * 35);
-        const advance = (botWpm / 60 / 60) * 0.42 * 100;
+        const botWpm = player.wpm || Math.round(38 + Math.random() * 35);
+        const advance = wordCount ? (botWpm * 0.42 / 60 / wordCount) * 100 : 0;
         return { ...player, progress: Math.min(100, player.progress + advance), wpm: botWpm };
       }));
     }, 420);
@@ -239,7 +239,7 @@ export const GamesView: React.FC = () => {
       window.clearInterval(botTimer);
       botTimerRef.current = null;
     };
-  }, [phase, online, playerName]);
+  }, [phase, online, playerName, wordCount]);
 
   useEffect(() => {
     if (gameMode !== 'boss' || phase !== 'racing' || !wordCount) return;
