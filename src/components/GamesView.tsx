@@ -15,10 +15,10 @@ const BOT_NAMES = ['Azizbek', 'Madina', 'Jasur', 'Shahnoza', 'Bekzod', 'Malika',
 const clientId = () => {
   try {
     const key = 'qalamtype_game_client';
-    const existing = localStorage.getItem(key);
+    const existing = sessionStorage.getItem(key);
     if (existing) return existing;
     const value = crypto.randomUUID();
-    localStorage.setItem(key, value);
+    sessionStorage.setItem(key, value);
     return value;
   } catch {
     return Math.random().toString(36).slice(2);
@@ -114,7 +114,8 @@ export const GamesView: React.FC = () => {
     setOnline(false);
     setGameMode(mode);
     const text = makeText();
-    const bots = BOT_NAMES.slice(Math.floor(Math.random() * 6), Math.floor(Math.random() * 6) + 3);
+    const botStart = Math.floor(Math.random() * (BOT_NAMES.length - 2));
+    const bots = BOT_NAMES.slice(botStart, botStart + 3);
     const opponents = bots.slice(0, 3).map((name, i) => ({
       id: 'bot-' + i, name, progress: 0, wpm: 0, isBot: true,
     }));
@@ -131,11 +132,13 @@ export const GamesView: React.FC = () => {
       config: { presence: { key: CLIENT_ID }, broadcast: { self: false } },
     });
     lobbyRef.current = lobby;
+    const joinedAt = Date.now();
     const settlePresence = () => {
+      if (raceRef.current) return;
       const state = lobby.presenceState<PresencePlayer>();
       const everyone = Object.values(state).flat().filter((entry) => entry && entry.id && entry.id !== CLIENT_ID) as PresencePlayer[];
       const unique = new Map(everyone.map((entry) => [entry.id, entry]));
-      const queue = [{ id: CLIENT_ID, name: playerName, joinedAt: Date.now() }, ...unique.values()]
+      const queue = [{ id: CLIENT_ID, name: playerName, joinedAt }, ...unique.values()]
         .sort((a, b) => a.joinedAt - b.joinedAt || a.id.localeCompare(b.id));
       const myIndex = queue.findIndex((entry) => entry.id === CLIENT_ID);
       const pairStart = Math.floor(myIndex / 2) * 2;
@@ -189,7 +192,7 @@ export const GamesView: React.FC = () => {
     lobby.on('presence', { event: 'sync' }, settlePresence);
     lobby.subscribe((status: string) => {
       if (status === 'SUBSCRIBED') {
-        void lobby.track({ id: CLIENT_ID, name: playerName, joinedAt: Date.now() });
+        void lobby.track({ id: CLIENT_ID, name: playerName, joinedAt });
       }
     });
     matchTimerRef.current = window.setInterval(() => {
@@ -249,7 +252,6 @@ export const GamesView: React.FC = () => {
       setBossHealth(clamp(100 - hits / wordCount * 100));
     }
     if (value.length >= raceText.length) finishRound();
-    else if (value.length === raceText.length) finishRound();
   };
 
   const reset = useCallback(() => {
@@ -291,7 +293,7 @@ export const GamesView: React.FC = () => {
         <div className="rounded-3xl border border-white/10 bg-[#1A1917] p-6 sm:p-10 text-center">
           <div className="mx-auto mb-4 w-14 h-14 rounded-2xl bg-[#E85D3D]/10 flex items-center justify-center text-[#E85D3D]">{gameMode === 'race' ? <Flag /> : <Swords />}</div>
           <h2 className="text-xl font-bold">{phase === 'matching' ? 'Finding racers…' : gameMode === 'race' ? 'Ready for a typing race?' : 'Challenge the word boss?'}</h2>
-          <p className="text-sm text-[#9A9488] mt-2">{phase === 'matching' ? message : '40 words · Uzbek Latin · bots fill empty lanes'}</p>
+          <p className="text-sm text-[#9A9488] mt-2">{phase === 'matching' ? message : '40 words · selected typing language · bots fill empty lanes'}</p>
           <div className="mt-6 flex flex-col sm:flex-row justify-center gap-3">
             <button disabled={phase === 'matching'} onClick={() => startSolo(gameMode)} className="inline-flex justify-center items-center gap-2 rounded-xl bg-[#E85D3D] px-5 py-3 font-bold text-[#0F0E0D] disabled:opacity-50"><Bot className="w-4 h-4" /> Solo vs bots</button>
             {gameMode === 'race' && <button disabled={phase === 'matching'} onClick={() => void startOnline()} className="inline-flex justify-center items-center gap-2 rounded-xl border border-white/15 px-5 py-3 font-bold hover:border-[#E85D3D] disabled:opacity-50"><Users className="w-4 h-4" /> Quick online race</button>}
