@@ -8,6 +8,7 @@ import { saveTestResult } from './lib/resultsService';
 import { Navbar } from './components/Navbar';
 import { ModeSelector } from './components/ModeSelector';
 import { TypingArea } from './components/TypingArea';
+import { GamesView } from './components/GamesView';
 import { ResultsView } from './components/ResultsView';
 import { LeaderboardView } from './components/LeaderboardView';
 import { AccountView } from './components/AccountView';
@@ -38,8 +39,8 @@ export default function App() {
     }
   }, []);
 
-  // Active View ('test' | 'academy' | 'leaderboard' | 'account' | 'about' | 'blog') with URL path synchronization
-  const [activeView, setActiveView] = useState<'test' | 'academy' | 'leaderboard' | 'account' | 'about' | 'blog'>(() => {
+  // Active View ('test' | 'academy' | 'leaderboard' | 'account' | 'about' | 'blog' | 'games') with URL path synchronization
+  const [activeView, setActiveView] = useState<'test' | 'academy' | 'leaderboard' | 'account' | 'about' | 'blog' | 'games'>(() => {
     if (typeof window !== 'undefined') {
       const path = window.location.pathname;
       if (path === '/academy') return 'academy';
@@ -47,6 +48,7 @@ export default function App() {
       if (path === '/account') return 'account';
       if (path === '/about') return 'about';
       if (path.startsWith('/blog')) return 'blog';
+      if (path === '/games') return 'games';
     }
     return 'test';
   });
@@ -93,7 +95,7 @@ export default function App() {
   });
 
   // Handle URL history push and popstate
-  const navigateTo = useCallback((view: 'test' | 'academy' | 'leaderboard' | 'account' | 'about' | 'blog', slug?: string) => {
+  const navigateTo = useCallback((view: 'test' | 'academy' | 'leaderboard' | 'account' | 'about' | 'blog' | 'games', slug?: string) => {
     setActiveView(view);
     if (view === 'blog') {
       setBlogSlug(slug || null);
@@ -109,6 +111,7 @@ export default function App() {
     if (view === 'blog') {
       targetPath = slug ? `/blog/${slug}` : '/blog';
     }
+    if (view === 'games') targetPath = '/games';
 
     if (window.location.pathname !== targetPath) {
       window.history.pushState({}, '', targetPath);
@@ -134,6 +137,9 @@ export default function App() {
         setActiveView('blog');
         const slug = path.startsWith('/blog/') ? path.replace('/blog/', '') : null;
         setBlogSlug(slug);
+      } else if (path === '/games') {
+        setActiveView('games');
+        setBlogSlug(null);
       } else {
         setActiveView('test');
         setBlogSlug(null);
@@ -170,14 +176,14 @@ export default function App() {
   // Global keydown handler for restart shortcuts (Tab or Esc)
   useEffect(() => {
     const handleGlobalShortcuts = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (activeView === 'test' && e.key === 'Escape') {
         e.preventDefault();
         handleNextTest();
       }
     };
     window.addEventListener('keydown', handleGlobalShortcuts);
     return () => window.removeEventListener('keydown', handleGlobalShortcuts);
-  }, [handleNextTest]);
+  }, [activeView, handleNextTest]);
 
   const handleStartAnimation = useCallback(() => {
     setIntroState('animating');
@@ -249,12 +255,14 @@ export default function App() {
               onGoAcademy={() => navigateTo('academy')}
               onGoLeaderboard={() => navigateTo('leaderboard')}
             />
-          ) : activeView === 'blog' ? (
+           ) : activeView === 'blog' ? (
             <BlogView
               currentSlug={blogSlug}
               onNavigateBlog={(slug) => navigateTo('blog', slug)}
               onNavigateHome={() => navigateTo('test')}
             />
+          ) : activeView === 'games' ? (
+            <GamesView />
           ) : phase === 'completed' && result ? (
             <ResultsView
               result={result}

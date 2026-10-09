@@ -1,14 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Logo } from './Logo';
-import { LogIn, LogOut, ChevronDown, Trophy, Keyboard, GraduationCap, User as UserIcon, Settings, Info, BookOpen } from 'lucide-react';
+import { LogIn, LogOut, ChevronDown, Trophy, Keyboard, GraduationCap, User as UserIcon, Settings, Info, BookOpen, Gamepad2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
 import { AuthModal } from './AuthModal';
 
 interface NavbarProps {
   onLogoClick?: () => void;
-  activeView?: 'test' | 'academy' | 'leaderboard' | 'account' | 'about' | 'blog';
-  onNavigate?: (view: 'test' | 'academy' | 'leaderboard' | 'account' | 'about' | 'blog') => void;
+  activeView?: 'test' | 'academy' | 'leaderboard' | 'account' | 'about' | 'blog' | 'games';
+  onNavigate?: (view: 'test' | 'academy' | 'leaderboard' | 'account' | 'about' | 'blog' | 'games') => void;
   onOpenSettings?: () => void;
   showWordmark?: boolean;
   isIntroDone?: boolean;
@@ -18,6 +18,7 @@ interface NavbarProps {
 const NAV_ITEMS = [
   { id: 'test', labelKey: 'nav_test', icon: Keyboard, requiresAuth: false },
   { id: 'academy', labelKey: 'nav_academy', icon: GraduationCap, requiresAuth: true },
+  { id: 'games', labelKey: 'games', icon: Gamepad2, requiresAuth: false },
   { id: 'leaderboard', labelKey: 'nav_leaderboard', icon: Trophy, requiresAuth: false },
   { id: 'blog', labelKey: 'nav_blog', icon: BookOpen, requiresAuth: false },
 ] as const;
@@ -94,7 +95,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     }`}
                   >
                     <Icon className="w-3.5 h-3.5" />
-                    <span>{t(item.labelKey as any)}</span>
+                    <span>{item.id === 'games' ? 'Games' : t(item.labelKey as any)}</span>
                   </button>
                 );
               }
