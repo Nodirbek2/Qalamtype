@@ -1,13 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Logo } from './Logo';
-import { LogIn, LogOut, ChevronDown, Trophy, Keyboard, GraduationCap, User as UserIcon, Settings, Info, BookOpen } from 'lucide-react';
+import { LogIn, LogOut, ChevronDown, Trophy, Keyboard, GraduationCap, User as UserIcon, Settings, Info, BookOpen, Gamepad2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
 import { AuthModal } from './AuthModal';
 
 interface NavbarProps {
   onLogoClick?: () => void;
-  activeView?: 'test' | 'academy' | 'leaderboard' | 'account' | 'about' | 'blog';
+  activeView?: 'test' | 'academy' | 'leaderboard' | 'account' | 'about' | 'blog' | 'games';
   onNavigate?: (view: 'test' | 'academy' | 'leaderboard' | 'account' | 'about' | 'blog') => void;
   onOpenSettings?: () => void;
   showWordmark?: boolean;
@@ -20,6 +20,7 @@ const NAV_ITEMS = [
   { id: 'academy', labelKey: 'nav_academy', icon: GraduationCap, requiresAuth: true },
   { id: 'leaderboard', labelKey: 'nav_leaderboard', icon: Trophy, requiresAuth: false },
   { id: 'blog', labelKey: 'nav_blog', icon: BookOpen, requiresAuth: false },
+  { id: 'games', labelKey: 'games', icon: Gamepad2, requiresAuth: false },
 ] as const;
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -94,7 +95,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     }`}
                   >
                     <Icon className="w-3.5 h-3.5" />
-                    <span>{t(item.labelKey as any)}</span>
+                    <span>{item.id === 'games' ? 'games' : t(item.labelKey as any)}</span>
                   </button>
                 );
               }
