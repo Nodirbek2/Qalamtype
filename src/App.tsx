@@ -201,10 +201,17 @@ export default function App() {
   }, []);
 
   const liveStats = getLiveStats();
+  const typingFocus = activeView === 'test' && phase === 'running' && !isPaused && !isSettingsOpen && !isPrivacyOpen;
 
   return (
     <LayoutGroup id="app-intro-group">
-      <div className="min-h-screen bg-[#0F0E0D] text-[#E8E2D8] flex flex-col font-sans selection:bg-[#E85D3D] selection:text-[#0F0E0D] relative overflow-x-hidden w-full max-w-full">
+      <div data-typing-focus={typingFocus ? "true" : "false"} className="min-h-screen bg-[#0F0E0D] text-[#E8E2D8] flex flex-col font-sans selection:bg-[#E85D3D] selection:text-[#0F0E0D] relative overflow-x-hidden w-full max-w-full">
+        <style>{`
+          .test-chrome { transition: opacity 180ms ease; }
+          [data-typing-focus="true"] .test-chrome { opacity: 0; visibility: hidden; pointer-events: none; }
+          [data-typing-focus="true"], [data-typing-focus="true"] * { cursor: none !important; }
+          @media (prefers-reduced-motion: reduce) { .test-chrome { transition: none; } }
+        `}</style>
         {/* Intro Fullscreen Overlay */}
         {introState !== 'done' && introState !== 'checking' && (
           <IntroOverlay
@@ -219,6 +226,7 @@ export default function App() {
         <div className="fixed inset-0 pointer-events-none border border-[#E85D3D] opacity-10 z-40"></div>
 
         {/* Top Navbar */}
+        <div className="test-chrome" aria-hidden={typingFocus}>
         <Navbar
           onLogoClick={handleNextTest}
           activeView={activeView}
@@ -240,6 +248,7 @@ export default function App() {
             onLanguageChange={setTypingLanguage}
           />
         </Navbar>
+        </div>
 
         {/* Main Container */}
         <main className="flex-1 flex flex-col justify-center px-3 sm:px-4 py-4 sm:py-8 max-w-6xl w-full mx-auto overflow-x-hidden">
@@ -306,11 +315,13 @@ export default function App() {
         />
 
         {/* Footer */}
+        <div className="test-chrome" aria-hidden={typingFocus}>
         <Footer
           onOpenPrivacy={() => setIsPrivacyOpen(true)}
           onOpenAbout={() => navigateTo('about')}
           onOpenBlog={() => navigateTo('blog')}
         />
+        </div>
       </div>
     </LayoutGroup>
   );

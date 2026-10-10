@@ -82,7 +82,7 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
     return () => vv.removeEventListener('resize', handleVvResize);
   }, [isFocused]);
 
-  // Pause test if mouse moves significantly (threshold 100px)
+  // Reveal controls and pause on intentional mouse movement; ignore tiny jitter.
   useEffect(() => {
     if (phase !== 'running' || isPaused) {
       lastMousePosRef.current = null;
@@ -92,13 +92,14 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
     const handleMouseMove = (e: MouseEvent) => {
       if (!lastMousePosRef.current) {
         lastMousePosRef.current = { x: e.clientX, y: e.clientY };
+        if (Math.hypot(e.movementX, e.movementY) > 3) onPause?.();
         return;
       }
       const dist = Math.hypot(
         e.clientX - lastMousePosRef.current.x,
         e.clientY - lastMousePosRef.current.y
       );
-      if (dist > 100) {
+      if (dist > 3) {
         lastMousePosRef.current = { x: e.clientX, y: e.clientY };
         if (onPause) {
           onPause();
@@ -374,7 +375,7 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
       onClick={() => setIsFocused(true)}
     >
       {/* Top Info Bar directly above typing box */}
-      <div className="w-full flex items-center justify-between mb-2 sm:mb-4 px-2 font-mono text-xs flex-wrap gap-2">
+      <div className="test-chrome w-full flex items-center justify-between mb-2 sm:mb-4 px-2 font-mono text-xs flex-wrap gap-2">
         <div className="flex flex-col">
           <span className="text-[10px] uppercase tracking-widest text-[#5C574C] font-semibold font-sans">
             {t('typing_language_label')}
@@ -414,7 +415,7 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
           onBeforeInput={handleBeforeInput}
           onCompositionStart={handleCompositionStart}
           onCompositionEnd={handleCompositionEnd}
-          onBlur={() => setIsFocused(false)}
+          onBlur={() => { setIsFocused(false); onPause?.(); }}
           onFocus={() => {
             setIsFocused(true);
             if (inputRef.current) {
@@ -509,7 +510,7 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
       </div>
 
       {/* Controls Bar: Responsive for Mobile touch and Desktop keyboard */}
-      <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 mt-5 sm:mt-8 w-full justify-center">
+      <div className="test-chrome flex flex-col sm:flex-row items-center gap-3 sm:gap-4 mt-5 sm:mt-8 w-full justify-center">
         {/* Mobile-Friendly Big Touch Restart Button */}
         <button
           type="button"
