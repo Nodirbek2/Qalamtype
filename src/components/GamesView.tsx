@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Swords, Flag, Users, Bot, RotateCcw, Wifi, WifiOff, Trophy, Zap } from 'lucide-react';
+import { AuthModal } from './AuthModal';
+import { authText } from '../data/authI18n';
 import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
 
@@ -106,12 +108,14 @@ function WordBoss({language, difficulty, onResult, onBusy}: {language:keyof type
 }
 
 export const GamesView: React.FC = () => {
-  const { userProfile } = useAuth();
+  const { currentUser, userProfile } = useAuth();
+  const [signupOpen,setSignupOpen]=useState(false);
+  const closeSignup=useCallback(()=>setSignupOpen(false),[]);
   const { typingLanguage, setTypingLanguage, siteLanguage } = useSettings();
   const g = (key: GameKey, vars: Record<string,string|number> = {}) => gameText(siteLanguage,key,vars);
   const [difficulty,setDifficulty]=useState<'easy'|'medium'|'hard'>('medium');
   const [bossBusy,setBossBusy]=useState(false);
-  const {records,save}=useArcadeRecords(typingLanguage+'.'+difficulty);
+  const {records,save}=useArcadeRecords(typingLanguage+'.'+difficulty, currentUser?.id);
   const [paused,setPaused]=useState(false);
   const [elapsed,setElapsed]=useState(0);
   const [timedOut,setTimedOut]=useState(false);
@@ -422,13 +426,12 @@ export const GamesView: React.FC = () => {
           <h1 className="text-3xl sm:text-4xl font-bold text-[#E8E2D8]">{gameMode === 'boss' ? g('bossTitle') : g('raceTitle')}</h1>
           <p className="text-sm text-[#9A9488] mt-2">{g('subtitle')}</p>
         </div>
-        <button onClick={reset} className="self-start sm:self-auto inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-white/10 text-sm text-[#9A9488] hover:text-white"><RotateCcw className="w-4 h-4" /> {g('reset')}</button>
       </div>
 
       <div className="flex flex-wrap gap-4 mb-5 rounded-2xl border border-white/10 bg-[#1A1917] p-4">
         <label className="flex flex-col gap-2 text-xs text-[#b7afa1]">{g('difficulty')}<select aria-label={g('difficulty')} disabled={bossBusy || (phase!=='ready' && phase!=='finished')} value={difficulty} onChange={e=>{reset();setDifficulty(e.target.value as typeof difficulty)}} className="bg-[#25231f] rounded-lg px-3 py-2 text-[#E8E2D8]">{(['easy','medium','hard'] as const).map(v=><option key={v} value={v}>{g(v)}</option>)}</select></label>
         <label className="flex flex-col gap-2 text-xs text-[#b7afa1]">{g('language')}<select aria-label={g('language')} disabled={bossBusy || (phase!=='ready' && phase!=='finished')} value={typingLanguage} onChange={e=>{reset();setTypingLanguage(e.target.value as typeof typingLanguage)}} className="bg-[#25231f] rounded-lg px-3 py-2 text-[#E8E2D8]">{(['uzbek_latin','uzbek_cyrillic','russian','english'] as const).map(v=><option key={v} value={v}>{g(v)}</option>)}</select></label>
-        <div className="flex-1 text-xs min-w-48"><b>{g('record')}</b><div className="flex flex-wrap gap-4 mt-2 text-[#e8c186]"><span>{g('bestRace')}: {records.bestWpm} WPM</span><span>{g('wins')}: {records.wins+records.bossWins}</span><span>{g('bestCombo')}: ×{records.bestCombo}</span></div><p className="text-[#9A9488] mt-2">{g('localRecord')}</p></div>
+        {currentUser ? (<div className="flex-1 text-xs min-w-48"><b>{g('record')}</b><div className="flex flex-wrap gap-4 mt-2 text-[#e8c186]"><span>{g('bestRace')}: {records.bestWpm} WPM</span><span>{g('wins')}: {records.wins+records.bossWins}</span><span>{g('bestCombo')}: ×{records.bestCombo}</span></div><p className="text-[#9A9488] mt-2">{g('localRecord')}</p></div>) : <div className="flex-1 text-sm"><p className="text-[#9A9488] mb-2">{authText(siteLanguage,"guestResults")}</p><button onClick={()=>setSignupOpen(true)} className="rounded-xl bg-[#E85D3D] px-4 py-3 font-semibold text-[#0F0E0D]">{authText(siteLanguage,"saveResults")}</button></div>}
       </div>
       <div className="grid sm:grid-cols-2 gap-3 mb-5">
         <button disabled={phase !== 'ready' && phase !== 'finished'} onClick={() => { reset(); setGameMode('race'); }} className={`rounded-2xl p-4 text-left border transition-colors ${gameMode === 'race' ? 'border-[#E85D3D]/60 bg-[#E85D3D]/10' : 'border-white/10 bg-[#1A1917]'}`}>
@@ -481,9 +484,11 @@ export const GamesView: React.FC = () => {
         </>
       )}
       {gameMode === 'race' && <p className="mt-4 flex items-center justify-center gap-2 text-[11px] text-[#5C574C]"><WifiOff className="w-3 h-3" /> {g('rules')}</p>}
+      <AuthModal isOpen={signupOpen} initialMode="signup" onClose={closeSignup} />
     </section>
   );
 };
+
 
 
 

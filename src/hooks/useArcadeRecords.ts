@@ -7,11 +7,12 @@ function read(key: string): ArcadeRecords {
     return Object.fromEntries(Object.keys(empty).map(k=>[k, typeof raw?.[k]==='number' && Number.isFinite(raw[k]) && raw[k]>=0 ? raw[k] : 0])) as ArcadeRecords;
   } catch { return {...empty}; }
 }
-export function useArcadeRecords(scope: string) {
-  const key='qalamtype.arcade.v1.'+scope;
-  const [records,setRecords]=useState<ArcadeRecords>(()=>read(key));
-  useEffect(()=>{setRecords(read(key))},[key]);
+export function useArcadeRecords(scope: string, userId?: string) {
+  const key=userId ? 'qalamtype.arcade.v2.'+userId+'.'+scope : null;
+  const [records,setRecords]=useState<ArcadeRecords>(()=>key ? read(key) : {...empty});
+  useEffect(()=>{setRecords(key ? read(key) : {...empty})},[key]);
   const save=useCallback((result: {kind:'race'|'boss'; won:boolean; wpm?:number; combo?:number})=>{
+    if (!key) return;
     const previous=read(key);
     const next={...previous,
       races:previous.races+(result.kind==='race'?1:0),
@@ -23,5 +24,6 @@ export function useArcadeRecords(scope: string) {
     try{localStorage.setItem(key,JSON.stringify(next))}catch{/* Gameplay also works with storage disabled. */}
     setRecords(next);
   },[key]);
-  return {records,save};
+  return {records: key ? records : {...empty},save};
 }
+
