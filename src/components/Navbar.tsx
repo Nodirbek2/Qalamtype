@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { gameText } from '../data/gameI18n';
 import { Logo } from './Logo';
 import { LogIn, LogOut, ChevronDown, Trophy, Keyboard, GraduationCap, User as UserIcon, Settings, Info, BookOpen, Gamepad2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -33,7 +34,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   children,
 }) => {
   const { currentUser, userProfile, logout } = useAuth();
-  const { t } = useSettings();
+  const { t, siteLanguage } = useSettings();
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -75,6 +76,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <nav className="hidden md:flex items-center gap-1.5 font-mono text-[11px] lg:text-xs min-w-0">
             {NAV_ITEMS.map((item) => {
               const Icon = item.icon;
+              const label = item.id === 'games' ? gameText(siteLanguage, 'games') : t(item.labelKey as any);
               const isActive = activeView === item.id;
               const isTestButton = item.id === 'test';
 
@@ -95,7 +97,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     }`}
                   >
                     <Icon className="w-3.5 h-3.5" />
-                    <span>{item.id === 'games' ? 'Games' : t(item.labelKey as any)}</span>
+                    <span>{label}</span>
                   </button>
                 );
               }
@@ -119,7 +121,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   }`}
                 >
                   <Icon className="w-3.5 h-3.5" />
-                  <span>{t(item.labelKey as any)}</span>
+                  <span>{label}</span>
                 </button>
               );
             })}
@@ -246,6 +248,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         <nav className="flex md:hidden items-center justify-center gap-1.5 font-mono text-xs w-full overflow-x-auto no-scrollbar py-1 touch-manipulation">
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
+              const label = item.id === 'games' ? gameText(siteLanguage, 'games') : t(item.labelKey as any);
             const isActive = activeView === item.id;
             const isTestButton = item.id === 'test';
 
@@ -266,7 +269,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   }`}
                 >
                   <Icon className="w-3.5 h-3.5" />
-                  <span>{t(item.labelKey as any)}</span>
+                  <span>{label}</span>
                 </button>
               );
             }
@@ -290,7 +293,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 }`}
               >
                 <Icon className="w-3.5 h-3.5" />
-                <span>{t(item.labelKey as any)}</span>
+                <span>{label}</span>
               </button>
             );
           })}
@@ -312,5 +315,6 @@ export const Navbar: React.FC<NavbarProps> = ({
     </>
   );
 };
+
 
 
