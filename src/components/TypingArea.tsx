@@ -375,8 +375,8 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
       onClick={() => setIsFocused(true)}
     >
       {/* Top Info Bar directly above typing box */}
-      <div className="test-chrome w-full flex items-center justify-between mb-2 sm:mb-4 px-2 font-mono text-xs flex-wrap gap-2">
-        <div className="flex flex-col">
+      <div className="w-full flex items-center justify-between mb-2 sm:mb-4 px-2 font-mono text-xs flex-wrap gap-2">
+        <div className="test-chrome flex flex-col">
           <span className="text-[10px] uppercase tracking-widest text-[#5C574C] font-semibold font-sans">
             {t('typing_language_label')}
           </span>
