@@ -23,6 +23,34 @@ const PASSAGES = {
   english: ["A bright kite rises above the park. Children run along the path beside the river. The warm afternoon is full of laughter.", "The library opens early in the morning. I choose a book about distant planets. Each page reveals something new about the universe.", "The sun rises over the quiet city. We follow the winding road toward the mountains. Every turn brings us closer to a new adventure.", "The lights turn green and the engines roar. Keep your eyes on the road and find your rhythm. A steady pace will take you to the finish."],
   russian: ["Над парком взлетает яркий воздушный змей. Дети бегут по дорожке вдоль реки. Тёплый день наполнен смехом.", "Библиотека открывается рано утром. Я выбираю книгу о далёких планетах. Каждая страница открывает что-то новое.", "Солнце поднимается над тихим городом. Мы едем по извилистой дороге к горам. Каждый поворот приближает нас к новому приключению."],
 };
+
+function botPerformance(id: string, raceSeed: number, elapsed: number, difficulty: 'easy'|'medium'|'hard') {
+  // Both online players share the round seed; every new race has a new profile.
+  let seed = 2166136261;
+  for (const char of id + ':' + raceSeed) seed = Math.imul(seed ^ char.charCodeAt(0), 16777619);
+  const random = () => {
+    seed = (seed + 0x6D2B79F5) | 0;
+    let n = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    n ^= n + Math.imul(n ^ n >>> 7, 61 | n);
+    return ((n ^ n >>> 14) >>> 0) / 4294967296;
+  };
+  const [low, high] = {easy:[25,40],medium:[40,60],hard:[65,85]}[difficulty];
+  const base = low + random() * (high - low);
+  const delay = 0.2 + random() * 1.4;
+  const period = 7 + random() * 10;
+  const phase = random() * Math.PI * 2;
+  const secondPhase = random() * Math.PI * 2;
+  const time = Math.max(0, elapsed - delay);
+  const wave = 2 * Math.PI / period;
+  const secondWave = 2 * Math.PI / 4.5;
+  // Integral of the speed curve: progress does not depend on timer/frame rate.
+  const distance = base * 5 / 60 * (time
+    + 0.35 * (Math.cos(phase) - Math.cos(wave*time+phase)) / wave
+    + 0.15 * (Math.cos(secondPhase) - Math.cos(secondWave*time+secondPhase)) / secondWave);
+  const wpm = elapsed < delay ? 0 : base * (1 + 0.35*Math.sin(wave*time+phase) + 0.15*Math.sin(secondWave*time+secondPhase));
+  return {characters:Math.max(0,distance),wpm:Math.round(wpm)};
+}
+
 function RaceCar({ color, number }: { color: string; number: number }) {
   return <svg viewBox="0 0 160 66" aria-hidden="true" style={{width:'100%',filter:'drop-shadow(0 9px 5px #0009)'}}>
     <ellipse cx="79" cy="56" rx="68" ry="5" fill="#0007" />
@@ -138,6 +166,7 @@ export const GamesView: React.FC = () => {
   const lobbyRef = useRef<any>(null);
   const raceRef = useRef<any>(null);
   const startedAtRef = useRef(0);
+  const botRaceSeedRef = useRef(0);
   const botTimerRef = useRef<number | null>(null);
   const startTimerRef = useRef<number | null>(null);
   const handshakeTimerRef=useRef<number|null>(null);
@@ -191,6 +220,7 @@ export const GamesView: React.FC = () => {
 
   const beginCountdown = useCallback((text: string, participants: Player[], startAt = Date.now() + 4000) => {
     finishedRef.current=false;
+    botRaceSeedRef.current=startAt;
     pausedRef.current=false;setPaused(false);setElapsed(0);setTimedOut(false);setAccuracy(100);
     attempts.current={total:0,wrong:0};
     startedAtRef.current = 0;
@@ -356,11 +386,20 @@ export const GamesView: React.FC = () => {
       if(pausedRef.current)return;
       setPlayers((current) => current.map((player) => {
         if (!player.isBot || player.progress >= 100) return player;
-        const seed=Array.from(player.id+raceText).reduce((v,c)=>v+c.charCodeAt(0),0);
-        const range={easy:[25,40],medium:[40,60],hard:[65,85]}[difficulty];
-        const botWpm = player.wpm || range[0]+seed%(range[1]-range[0]+1);
-        const advance = raceText.length ? (botWpm * 5 * 0.42 / 60 / raceText.length) * 100 : 0;
-        return { ...player, progress: Math.min(100, player.progress + advance), wpm: botWpm, finishedAt: player.progress + advance >= 100 ? Date.now() : undefined };
+        const elapsed = Math.max(0,(Date.now()-startedAtRef.current)/1000);
+        const performance = botPerformance(player.id,botRaceSeedRef.current,elapsed,difficulty);
+        const progress = raceText.length ? Math.min(100,performance.characters/raceText.length*100) : 0;
+        let finishedAt: number | undefined;
+        if (progress >= 100) {
+          let low=0, high=elapsed;
+          for(let i=0;i<24;i++){
+            const middle=(low+high)/2;
+            if(botPerformance(player.id,botRaceSeedRef.current,middle,difficulty).characters>=raceText.length) high=middle;
+            else low=middle;
+          }
+          finishedAt=startedAtRef.current+high*1000;
+        }
+        return { ...player, progress, wpm:performance.wpm, finishedAt };
       }));
     }, 420);
     botTimerRef.current = botTimer;
