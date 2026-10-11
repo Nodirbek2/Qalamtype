@@ -63,14 +63,14 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* ROW 1: Logo + Desktop Nav Links + Right Actions (Settings & Auth) */}
         <div className="w-full flex items-center justify-between gap-2 sm:gap-4 min-w-0">
           {/* Logo */}
-          <div onClick={onLogoClick} className="cursor-pointer shrink-0">
+          <button type="button" aria-label="Qalamtype" onClick={onLogoClick} className="cursor-pointer shrink-0">
             <Logo
               size="md"
               showText={true}
               showWordmark={showWordmark}
               isIntroDone={isIntroDone}
             />
-          </div>
+          </button>
 
           {/* Desktop Nav Links (>= md) - Always renders all 4 links */}
           <nav className="hidden md:flex items-center gap-1.5 font-mono text-[11px] lg:text-xs min-w-0">
