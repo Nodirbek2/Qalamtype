@@ -18,7 +18,7 @@ interface NavbarProps {
 
 const NAV_ITEMS = [
   { id: 'test', labelKey: 'nav_test', icon: Keyboard, requiresAuth: false },
-  { id: 'academy', labelKey: 'nav_academy', icon: GraduationCap, requiresAuth: true },
+  { id: 'academy', labelKey: 'nav_academy', icon: GraduationCap, requiresAuth: false },
   { id: 'games', labelKey: 'games', icon: Gamepad2, requiresAuth: false },
   { id: 'leaderboard', labelKey: 'nav_leaderboard', icon: Trophy, requiresAuth: false },
   { id: 'blog', labelKey: 'nav_blog', icon: BookOpen, requiresAuth: false },

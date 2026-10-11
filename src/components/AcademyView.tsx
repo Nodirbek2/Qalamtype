@@ -228,7 +228,7 @@ export const AcademyView: React.FC = () => {
             </div>
             <div>
               <h1 className="text-2xl font-medium text-[#F0F3FA] tracking-tight">
-                {t('academy_title')}
+                Qalamtype · {t('nav_academy')}
               </h1>
               <p className="text-xs text-[#A6B1C5] font-mono mt-0.5">
                 {t('academy_subtitle')}
@@ -341,7 +341,7 @@ export const AcademyView: React.FC = () => {
                       {/* Top Status & Icons */}
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] font-mono text-[#A6B1C5]">
-                          {lesson.tierNumber}.{lesson.lessonNumber}-dars
+                          {tierIndex + 1}.{lesson.lessonNumber} · {c[6]}
                         </span>
 
                         {!unlocked ? (
@@ -483,7 +483,7 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
   const startPractice = () => setPracticeText(weakKeys.map(k => `${k} ${k} ${k}${k} ${k}${k}`).join(' '));
 
   return (
-    <div className="w-full max-w-4xl mx-auto py-6 sm:py-8 px-4 font-sans animate-fade-in space-y-6">
+    <div className="academy-runner w-full max-w-4xl mx-auto py-2 px-4 font-sans animate-fade-in space-y-4">
       {/* Top Header Controls */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[rgba(240,243,250,0.08)] pb-4">
         <button
@@ -519,12 +519,12 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
           <div className="space-y-2">
             <div
               className={`w-14 h-14 rounded-full border flex items-center justify-center mx-auto ${
-                starsEarned > 0
+                starsEarned > 0 || practiceText
                   ? 'bg-[#D6F36B]/10 border-[#D6F36B]/30 text-[#D6F36B]'
                   : 'bg-[#0D111A] border-red-500/30 text-red-400'
               }`}
             >
-              {starsEarned > 0 ? (
+              {starsEarned > 0 || practiceText ? (
                 <Award className="w-7 h-7" />
               ) : (
                 <AlertCircle className="w-7 h-7" />
@@ -547,7 +547,7 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
           </div>
 
           {/* Animated Star Rating Display */}
-          <div className="flex items-center justify-center space-x-3 py-2">
+          {!practiceText && <div className="flex items-center justify-center space-x-3 py-2">
             {[1, 2, 3].map((starNum) => (
               <div
                 key={starNum}
@@ -568,6 +568,7 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
             ))}
           </div>
 
+          }
           {/* Results Stats Grid */}
           <div className="grid grid-cols-3 gap-3">
             <div className="bg-[#0D111A] p-3 rounded-xl border border-[rgba(240,243,250,0.08)]">
@@ -623,12 +624,13 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
         <div className="space-y-4">
           <div className="academy-lesson-shell">
           <p className="academy-tip">{practiceText ? c[29] : c[27]}</p>
-          <div className="academy-goals">
+          {!practiceText && <div className="academy-goals">
             <span><b>★</b>{c[7]} ≥ {goals.pass}%</span>
             <span><b>★★</b>{c[7]} ≥ {goals.two}%</span>
             <span><b>★★★</b>{c[7]} ≥ {goals.three}% · {goals.beginner ? c[23] : `${goals.speed} WPM`}</span>
           </div>
-          {!goals.beginner && <p className="academy-tip">{c[24]}</p>}
+          }
+          {!practiceText && !goals.beginner && <p className="academy-tip">{c[24]}</p>}
           <div className="flex justify-between text-xs text-[#A6B1C5]"><span>{Math.round(liveStats.progress)}%</span><span>{c[7]} {Math.round(liveStats.accuracy)}% · {liveStats.wpm} WPM</span></div>
           <div className="academy-progress-track"><div style={{width: `${Math.min(100, liveStats.progress)}%`}} /></div>
           <TypingArea
@@ -639,7 +641,7 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
             timeLeft={timeLeft}
             mode="words"
             duration={60}
-            wordCount={lessonText.trim().split(/\s+/).length}
+            wordCount={(practiceText || lessonText).trim().split(/\s+/).length}
             difficulty="easy"
             language={language}
             onRestart={resetTest}
