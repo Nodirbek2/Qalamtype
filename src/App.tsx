@@ -174,7 +174,9 @@ export default function App() {
   }, [activeView, handleNextTest]);
 
   const liveStats = getLiveStats();
-  const typingFocus = activeView === 'test' && phase === 'running' && !isPaused && !isSettingsOpen && !isPrivacyOpen && !isDonationOpen;
+  const articleTestVisible = activeView === 'blog' && blogSlug === 'klaviaturada-tez-yozish';
+  const restartArticleTest = () => { savedResultRef.current = null; setSavedToLeaderboard(false); resetTest(); };
+  const typingFocus = (activeView === 'test' || articleTestVisible) && phase === 'running' && !isPaused && !isSettingsOpen && !isPrivacyOpen && !isDonationOpen;
 
   return (
     <LayoutGroup id="app-intro-group">
@@ -229,11 +231,20 @@ export default function App() {
               onGoLeaderboard={() => navigateTo('leaderboard')}
             />
            ) : activeView === 'blog' ? (
-            <BlogView
-              currentSlug={blogSlug}
-              onNavigateBlog={(slug) => navigateTo('blog', slug)}
-              onNavigateHome={() => navigateTo('test')}
-            />
+            <>
+              {articleTestVisible && <section id="article-typing-test" aria-label="Tez yozish testi" className="w-full max-w-4xl mx-auto mb-8">
+                <div className="test-chrome mb-5 text-center">
+                  <h2 className="text-2xl sm:text-3xl font-bold mb-2">Tez yozishni hoziroq sinab ko‘ring</h2>
+                  <p className="text-sm text-[#A6B1C5]">Matnni yozishni boshlang — taymer birinchi harfdan ishlaydi. Qo‘llanma test ostida.</p>
+                </div>
+                {phase !== 'completed' && <div className="test-chrome mb-5"><ModeSelector mode={mode} duration={duration} wordCount={wordCount} difficulty={difficulty} language={typingLanguage} onModeChange={setMode} onDurationChange={setDuration} onWordCountChange={setWordCount} onDifficultyChange={setDifficulty} onLanguageChange={setTypingLanguage}/></div>}
+                {phase === 'completed' && result ? <ResultsView result={result} savedToLeaderboard={savedToLeaderboard} onViewLeaderboard={()=>navigateTo('leaderboard')} onNextTest={restartArticleTest} onRestart={restartArticleTest}/> : <TypingArea wordsDisplay={wordsDisplay} currentIndex={currentIndex} phase={phase} isPaused={isPaused} timeLeft={timeLeft} mode={mode} duration={duration} wordCount={wordCount} difficulty={difficulty} language={typingLanguage} onRestart={restartArticleTest} onPause={pauseTest} onResume={resumeTest} onKeyDown={handleKeyDown} liveWpm={liveStats.wpm}/>}
+                <a href="#article-guide" className="test-chrome block text-center text-sm text-[#D6F36B] mt-5">Yozish bo‘yicha qo‘llanmani o‘qish ↓</a>
+              </section>}
+              <div id="article-guide" className={articleTestVisible ? 'test-chrome' : undefined}>
+                <BlogView currentSlug={blogSlug} onNavigateBlog={(slug)=>navigateTo('blog',slug)} onNavigateHome={()=>navigateTo('test')}/>
+              </div>
+            </>
           ) : activeView === 'games' ? (
             <GamesView />
           ) : phase === 'completed' && result ? (
