@@ -1,16 +1,9 @@
-import {StrictMode} from 'react';
-import {createRoot} from 'react-dom/client';
-import App from './App.tsx';
-import { AuthProvider } from './context/AuthContext';
-import { SettingsProvider } from './context/SettingsContext';
-import './index.css';
+import { getCanonicalNavigationTarget } from './lib/authRedirect';
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <AuthProvider>
-      <SettingsProvider>
-        <App />
-      </SettingsProvider>
-    </AuthProvider>
-  </StrictMode>,
-);
+// Redirect before importing Supabase so OAuth fragments are consumed on the public origin.
+const target = getCanonicalNavigationTarget(window.location.href);
+if (target) {
+  window.location.replace(target);
+} else {
+  void import('./bootstrap');
+}

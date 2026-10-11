@@ -1,6 +1,15 @@
 <!doctype html>
 <html lang="uz">
   <head>
+    <script>
+      // Keep authentication callbacks on the public domain before loading the app.
+      if (['qalamtype-ke6s.vercel.app', 'qalamtype-k91x.vercel.app', 'qalamtype.uz'].includes(location.hostname)) {
+        var canonical = new URL(location.href);
+        canonical.protocol = 'https:';
+        canonical.host = 'www.qalamtype.uz';
+        location.replace(canonical.href);
+      }
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Qalamtype — Tez yozish testi mashqi (UZ/RU/EN)</title>

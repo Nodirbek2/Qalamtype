@@ -7,6 +7,28 @@
   ],
   "redirects": [
     {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "qalamtype-ke6s.vercel.app"
+        }
+      ],
+      "destination": "https://www.qalamtype.uz/",
+      "permanent": true
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "qalamtype-k91x.vercel.app"
+        }
+      ],
+      "destination": "https://www.qalamtype.uz/",
+      "permanent": true
+    },
+    {
       "source": "/:path*",
       "has": [
         {
