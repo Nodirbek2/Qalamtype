@@ -29,7 +29,7 @@ export const Caret: React.FC<CaretProps> = React.memo(({
 
   return (
     <div
-      className={`absolute top-0 left-0 w-[2.5px] bg-[#E85D3D] rounded-full pointer-events-none z-10 will-change-transform ${
+      className={`absolute top-0 left-0 w-[2.5px] bg-[#D6F36B] rounded-full pointer-events-none z-10 will-change-transform ${
         isIdle ? 'animate-caret-blink' : ''
       }`}
       style={{

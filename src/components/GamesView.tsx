@@ -118,7 +118,7 @@ function WordBoss({language, difficulty, onResult, onBusy}: {language:keyof type
     <div className="wb-top"><span>{g('boss')} · {g('stage',{wave:wave+1})}</span><b>{names[wave]}</b></div>
     <div className="wb-meter" role="progressbar" aria-label={g('bossHealth')} aria-valuenow={Math.round(hp)} aria-valuemin={0} aria-valuemax={100}><i style={{width:hp+'%'}}/></div>
     <div className="wb-arena" aria-label={g('arena')}>
-      <div className="wb-moon"/><div className="wb-floor"/>
+      <img className="wb-arena-art" src="/images/word-boss.webp" alt="" /><div className="wb-moon"/><div className="wb-floor"/>
       <svg className="wb-hero" viewBox="0 0 100 155" aria-label={g('wizard')} role="img"><path d="M15 145L36 67H65L88 145Z" fill="#3aa9ad"/><path d="M36 70L50 140L65 70" fill="#123c68"/><circle cx="51" cy="49" r="19" fill="#f3c6a0"/><path d="M15 40L55 0L75 40Z" fill="#56cfcc"/><path d="M12 41H88" stroke="#b6fff0" strokeWidth="6"/><path d="M67 85L86 75" stroke="#f3c6a0" strokeWidth="10"/><path d="M88 130V33" stroke="#b49d67" strokeWidth="5"/><circle cx="88" cy="25" r="10" fill="#9fffff"/></svg>
       <svg className={'wb-monster '+(battle.status==='won'?'wb-defeated':'')} viewBox="0 0 180 190" aria-label={names[wave]} role="img"><path d="M35 65L9 8L65 40M115 40L170 8L147 70" fill="#dcc4a4"/><path d="M25 80Q15 35 90 30Q165 35 158 83L172 165L126 151L110 185L80 159L44 181L36 145L8 157Z" fill={['#7855a7','#547d9f','#ae4678'][wave]}/><path d="M38 81L72 91L60 105L34 93M140 81L104 91L118 105L146 93" fill="#ffdf7a"/><path d="M57 128L90 146L126 126" fill="none" stroke="#29122e" strokeWidth="10"/><path d="M68 128L73 145L85 135M102 134L114 144L118 125" fill="#fff0cf"/></svg>
       {battle.serial>0 && battle.effect!=='miss' && <React.Fragment key={battle.serial}><div className={'wb-bolt '+(battle.effect==='hurt'?'wb-enemy':'')}/>{battle.effect!=='hurt' && <div className="wb-damage">{battle.effect==='shield'?g('shield'):g('hit')}</div>}{battle.effect==='shield' && <div className="wb-shield"/>}</React.Fragment>}
@@ -440,7 +440,7 @@ export const GamesView: React.FC = () => {
   const rank = leaderboard.findIndex((player) => player.id === CLIENT_ID) + 1;
 
   return (
-    <section className="w-full max-w-5xl mx-auto py-5 sm:py-10">
+    <section className="arcade-page w-full max-w-5xl mx-auto py-5 sm:py-10">
       <style>{`
         .race-world{overflow:hidden;border-radius:18px;border:1px solid #405061;margin-bottom:24px;background:#152434}
         .race-sky{height:94px;position:relative;padding:20px;background:linear-gradient(135deg,#0b2540,#245979 65%,#e79570);overflow:hidden;display:flex;flex-direction:column;gap:8px;font:10px monospace;letter-spacing:3px;color:#d2ecff}
@@ -461,46 +461,46 @@ export const GamesView: React.FC = () => {
       `}</style>
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-7">
         <div>
-          <div className="flex items-center gap-2 text-[#E85D3D] font-mono text-xs uppercase tracking-[0.2em] mb-2"><Zap className="w-4 h-4" /> {g('arcade')}</div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-[#E8E2D8]">{gameMode === 'boss' ? g('bossTitle') : g('raceTitle')}</h1>
-          <p className="text-sm text-[#9A9488] mt-2">{g('subtitle')}</p>
+          <div className="flex items-center gap-2 text-[#D6F36B] font-mono text-xs uppercase tracking-[0.2em] mb-2"><Zap className="w-4 h-4" /> {g('arcade')}</div>
+          <h1 className="text-3xl sm:text-4xl font-bold text-[#F0F3FA]">{gameMode === 'boss' ? g('bossTitle') : g('raceTitle')}</h1>
+          <p className="text-sm text-[#A6B1C5] mt-2">{g('subtitle')}</p>
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-4 mb-5 rounded-2xl border border-white/10 bg-[#1A1917] p-4">
-        <label className="flex flex-col gap-2 text-xs text-[#b7afa1]">{g('difficulty')}<select aria-label={g('difficulty')} disabled={bossBusy || (phase!=='ready' && phase!=='finished')} value={difficulty} onChange={e=>{reset();setDifficulty(e.target.value as typeof difficulty)}} className="bg-[#25231f] rounded-lg px-3 py-2 text-[#E8E2D8]">{(['easy','medium','hard'] as const).map(v=><option key={v} value={v}>{g(v)}</option>)}</select></label>
-        <label className="flex flex-col gap-2 text-xs text-[#b7afa1]">{g('language')}<select aria-label={g('language')} disabled={bossBusy || (phase!=='ready' && phase!=='finished')} value={typingLanguage} onChange={e=>{reset();setTypingLanguage(e.target.value as typeof typingLanguage)}} className="bg-[#25231f] rounded-lg px-3 py-2 text-[#E8E2D8]">{(['uzbek_latin','uzbek_cyrillic','russian','english'] as const).map(v=><option key={v} value={v}>{g(v)}</option>)}</select></label>
-        {currentUser ? (<div className="flex-1 text-xs min-w-48"><b>{g('record')}</b><div className="flex flex-wrap gap-4 mt-2 text-[#e8c186]"><span>{g('bestRace')}: {records.bestWpm} WPM</span><span>{g('wins')}: {records.wins+records.bossWins}</span><span>{g('bestCombo')}: ×{records.bestCombo}</span></div><p className="text-[#9A9488] mt-2">{g('localRecord')}</p></div>) : <div className="flex-1 text-sm"><p className="text-[#9A9488] mb-2">{authText(siteLanguage,"guestResults")}</p><button onClick={()=>setSignupOpen(true)} className="rounded-xl bg-[#E85D3D] px-4 py-3 font-semibold text-[#0F0E0D]">{authText(siteLanguage,"saveResults")}</button></div>}
+      <div className="flex flex-wrap gap-4 mb-5 rounded-2xl border border-white/10 bg-[#171E2B] p-4">
+        <label className="flex flex-col gap-2 text-xs text-[#b7afa1]">{g('difficulty')}<select aria-label={g('difficulty')} disabled={bossBusy || (phase!=='ready' && phase!=='finished')} value={difficulty} onChange={e=>{reset();setDifficulty(e.target.value as typeof difficulty)}} className="bg-[#222D40] rounded-lg px-3 py-2 text-[#F0F3FA]">{(['easy','medium','hard'] as const).map(v=><option key={v} value={v}>{g(v)}</option>)}</select></label>
+        <label className="flex flex-col gap-2 text-xs text-[#b7afa1]">{g('language')}<select aria-label={g('language')} disabled={bossBusy || (phase!=='ready' && phase!=='finished')} value={typingLanguage} onChange={e=>{reset();setTypingLanguage(e.target.value as typeof typingLanguage)}} className="bg-[#222D40] rounded-lg px-3 py-2 text-[#F0F3FA]">{(['uzbek_latin','uzbek_cyrillic','russian','english'] as const).map(v=><option key={v} value={v}>{g(v)}</option>)}</select></label>
+        {currentUser ? (<div className="flex-1 text-xs min-w-48"><b>{g('record')}</b><div className="flex flex-wrap gap-4 mt-2 text-[#e8c186]"><span>{g('bestRace')}: {records.bestWpm} WPM</span><span>{g('wins')}: {records.wins+records.bossWins}</span><span>{g('bestCombo')}: ×{records.bestCombo}</span></div><p className="text-[#A6B1C5] mt-2">{g('localRecord')}</p></div>) : <div className="flex-1 text-sm"><p className="text-[#A6B1C5] mb-2">{authText(siteLanguage,"guestResults")}</p><button onClick={()=>setSignupOpen(true)} className="rounded-xl bg-[#D6F36B] px-4 py-3 font-semibold text-[#0D111A]">{authText(siteLanguage,"saveResults")}</button></div>}
       </div>
-      <div className="grid sm:grid-cols-2 gap-3 mb-5">
-        <button disabled={phase !== 'ready' && phase !== 'finished'} onClick={() => { reset(); setGameMode('race'); }} className={`rounded-2xl p-4 text-left border transition-colors ${gameMode === 'race' ? 'border-[#E85D3D]/60 bg-[#E85D3D]/10' : 'border-white/10 bg-[#1A1917]'}`}>
-          <div className="flex items-center gap-2 font-bold"><Flag className="w-4 h-4 text-[#E85D3D]" /> {g('race')}</div><p className="text-xs text-[#9A9488] mt-1">{g('raceDesc')}</p>
+      <div className="game-library grid sm:grid-cols-2 gap-5 mb-7">
+        <button disabled={bossBusy || (phase !== 'ready' && phase !== 'finished')} aria-pressed={gameMode === 'race'} onClick={() => { reset(); setGameMode('race'); }} className={`game-card rounded-2xl text-left border transition-colors ${gameMode === 'race' ? 'border-[#D6F36B]/60 bg-[#D6F36B]/10' : 'border-white/10 bg-[#171E2B]'}`}>
+          <img className="game-cover" src="/images/sprint-race.webp" alt="" width="1200" height="600" /><div className="game-card-copy"><span className="game-tag">01 · GRAND PRIX</span><div className="flex items-center gap-2 font-bold"><Flag className="w-4 h-4 text-[#D6F36B]" /> {g('race')}</div><p className="text-xs text-[#A6B1C5] mt-1">{g('raceDesc')}</p><span className="game-launch">{g('race')} <span aria-hidden="true">↗</span></span></div>
         </button>
-        <button disabled={phase !== 'ready' && phase !== 'finished'} onClick={() => { reset(); setGameMode('boss'); }} className={`rounded-2xl p-4 text-left border transition-colors ${gameMode === 'boss' ? 'border-[#E85D3D]/60 bg-[#E85D3D]/10' : 'border-white/10 bg-[#1A1917]'}`}>
-          <div className="flex items-center gap-2 font-bold"><Swords className="w-4 h-4 text-[#E85D3D]" /> {g('boss')}</div><p className="text-xs text-[#9A9488] mt-1">{g('bossDesc')}</p>
+        <button disabled={bossBusy || (phase !== 'ready' && phase !== 'finished')} aria-pressed={gameMode === 'boss'} onClick={() => { reset(); setGameMode('boss'); }} className={`game-card rounded-2xl text-left border transition-colors ${gameMode === 'boss' ? 'border-[#D6F36B]/60 bg-[#D6F36B]/10' : 'border-white/10 bg-[#171E2B]'}`}>
+          <img className="game-cover" src="/images/word-boss.webp" alt="" width="1200" height="600" /><div className="game-card-copy"><span className="game-tag">02 · SPELL ARENA</span><div className="flex items-center gap-2 font-bold"><Swords className="w-4 h-4 text-[#D6F36B]" /> {g('boss')}</div><p className="text-xs text-[#A6B1C5] mt-1">{g('bossDesc')}</p><span className="game-launch">{g('boss')} <span aria-hidden="true">↗</span></span></div>
         </button>
       </div>
 
       {gameMode === 'boss' ? <WordBoss key={bossSession + typingLanguage} language={typingLanguage} difficulty={difficulty} onResult={save} onBusy={setBossBusy}/> : phase === 'ready' || phase === 'matching' ? (
-        <div className="rounded-3xl border border-white/10 bg-[#1A1917] p-6 sm:p-10 text-center">
-          <div className="mx-auto mb-4 w-14 h-14 rounded-2xl bg-[#E85D3D]/10 flex items-center justify-center text-[#E85D3D]">{gameMode === 'race' ? <Flag /> : <Swords />}</div>
+        <div className="rounded-3xl border border-white/10 bg-[#171E2B] p-6 sm:p-10 text-center">
+          <div className="mx-auto mb-4 w-14 h-14 rounded-2xl bg-[#D6F36B]/10 flex items-center justify-center text-[#D6F36B]">{gameMode === 'race' ? <Flag /> : <Swords />}</div>
           <h2 className="text-xl font-bold">{g(phase === 'matching' ? 'searching' : 'ready')}</h2>
-          <p className="text-sm text-[#9A9488] mt-2">{phase === 'matching' ? g(message || 'searching') : g('raceInfo')+' · '+g('roundLimit')}</p>
+          <p className="text-sm text-[#A6B1C5] mt-2">{phase === 'matching' ? g(message || 'searching') : g('raceInfo')+' · '+g('roundLimit')}</p>
           <div className="mt-6 flex flex-col sm:flex-row justify-center gap-3">
-            <button disabled={phase === 'matching'} onClick={() => startSolo(gameMode)} className="inline-flex justify-center items-center gap-2 rounded-xl bg-[#E85D3D] px-5 py-3 font-bold text-[#0F0E0D] disabled:opacity-50"><Bot className="w-4 h-4" /> {g('solo')}</button>
-            {gameMode === 'race' && <button disabled={phase === 'matching'} onClick={() => void startOnline()} className="inline-flex justify-center items-center gap-2 rounded-xl border border-white/15 px-5 py-3 font-bold hover:border-[#E85D3D] disabled:opacity-50"><Users className="w-4 h-4" /> {g('quick')}</button>}
+            <button disabled={phase === 'matching'} onClick={() => startSolo(gameMode)} className="inline-flex justify-center items-center gap-2 rounded-xl bg-[#D6F36B] px-5 py-3 font-bold text-[#0D111A] disabled:opacity-50"><Bot className="w-4 h-4" /> {g('solo')}</button>
+            {gameMode === 'race' && <button disabled={phase === 'matching'} onClick={() => void startOnline()} className="inline-flex justify-center items-center gap-2 rounded-xl border border-white/15 px-5 py-3 font-bold hover:border-[#D6F36B] disabled:opacity-50"><Users className="w-4 h-4" /> {g('quick')}</button>}
           </div>
-          {phase === 'matching' && <button className="mt-4 text-xs text-[#9A9488] underline" onClick={reset}>{g('cancel')}</button>}
-          {message && phase !== 'matching' && <p className="mt-4 text-xs text-[#9A9488]">{message && g(message)}</p>}
+          {phase === 'matching' && <button className="mt-4 text-xs text-[#A6B1C5] underline" onClick={reset}>{g('cancel')}</button>}
+          {message && phase !== 'matching' && <p className="mt-4 text-xs text-[#A6B1C5]">{message && g(message)}</p>}
         </div>
       ) : (
         <>
-          {phase === 'finished' && <div className="mb-4 rounded-2xl border border-[#E85D3D]/30 bg-[#E85D3D]/10 p-4 flex items-center gap-3"><Trophy className="text-[#E85D3D]" /><div><b>{timedOut ? g('dnf') : rank === 1 ? g('winner') : g('placed',{rank})}</b><p className="text-xs text-[#9A9488]">{players.find(p=>p.id===CLIENT_ID)?.wpm || 0} {g('wpm')} · {g('wordsTyped',{count:typedWords})}</p></div></div>}
-          <div className="rounded-3xl border border-white/10 bg-[#1A1917] p-4 sm:p-7">
+          {phase === 'finished' && <div className="mb-4 rounded-2xl border border-[#D6F36B]/30 bg-[#D6F36B]/10 p-4 flex items-center gap-3"><Trophy className="text-[#D6F36B]" /><div><b>{timedOut ? g('dnf') : rank === 1 ? g('winner') : g('placed',{rank})}</b><p className="text-xs text-[#A6B1C5]">{players.find(p=>p.id===CLIENT_ID)?.wpm || 0} {g('wpm')} · {g('wordsTyped',{count:typedWords})}</p></div></div>}
+          <div className="rounded-3xl border border-white/10 bg-[#171E2B] p-4 sm:p-7">
             {message && <p role="status" className="text-xs text-[#c7bbaa] mb-3">{g(message)}</p>}
-            {phase === 'countdown' && <div className="mb-5 text-center text-5xl font-black text-[#E85D3D] animate-pulse">{g('countdown',{count:countdown})}</div>}
+            {phase === 'countdown' && <div className="mb-5 text-center text-5xl font-black text-[#D6F36B] animate-pulse">{g('countdown',{count:countdown})}</div>}
             <div className="race-world" data-running={phase === 'racing' && !paused}>
-              <div className="race-sky"><span>{g('grandPrix')}</span><b>{g(phase === 'finished' ? 'finish' : phase === 'countdown' ? 'engines' : 'circuit')}</b><div className="race-sun" /></div>
+              <div className="race-sky" style={{backgroundImage:"linear-gradient(90deg,#0d111acc,transparent),url(/images/sprint-race.webp)",backgroundSize:"cover",backgroundPosition:"center 55%"}}><span>{g('grandPrix')}</span><b>{g(phase === 'finished' ? 'finish' : phase === 'countdown' ? 'engines' : 'circuit')}</b><div className="race-sun" /></div>
               <div className="race-stands">{Array.from({length:35},(_,i)=><i key={i} style={{opacity:0.3+(i%4)*0.2}} />)}</div>
               <div className="race-road">
                 <div className="race-finish" />
@@ -511,18 +511,18 @@ export const GamesView: React.FC = () => {
               </div>
               <div className="race-curb" />
             </div>
-            {phase !== 'finished' && <div className="rounded-xl bg-black/25 p-4 sm:p-6 mb-4 font-mono text-lg sm:text-xl leading-9 break-words select-none">{raceText.split('').map((char, i) => <span key={i} className={i < typed.length ? (normalize(typed[i]) === normalize(char) ? 'text-[#6FA85C]' : 'text-[#D64545] underline') : i === typed.length ? 'text-[#E8E2D8] border-l-2 border-[#E85D3D]' : 'text-[#5C574C]'}>{char}</span>)}</div>}
-            {phase === 'racing' && !paused && <input autoFocus value={typed} onChange={onType} autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false} onPaste={(event) => event.preventDefault()} placeholder={g('placeholder')} className="w-full rounded-xl bg-black/30 border border-white/10 px-4 py-3 font-mono text-sm outline-none focus:border-[#E85D3D]" aria-label={g('raceInput')} />}
-            {phase==='racing' && !online && <div className="mt-4"><button className="rounded-lg border border-white/20 px-4 py-2" onClick={paused?resumeRace:pauseRace}>{g(paused?'resume':'pause')}</button><p className="text-xs text-[#9A9488] mt-2" role="status">{g(paused?'paused':'pauseHint')}</p></div>}
+            {phase !== 'finished' && <div className="rounded-xl bg-black/25 p-4 sm:p-6 mb-4 font-mono text-lg sm:text-xl leading-9 break-words select-none">{raceText.split('').map((char, i) => <span key={i} className={i < typed.length ? (normalize(typed[i]) === normalize(char) ? 'text-[#71D9AF]' : 'text-[#D64545] underline') : i === typed.length ? 'text-[#F0F3FA] border-l-2 border-[#D6F36B]' : 'text-[#748199]'}>{char}</span>)}</div>}
+            {phase === 'racing' && !paused && <input autoFocus value={typed} onChange={onType} autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false} onPaste={(event) => event.preventDefault()} placeholder={g('placeholder')} className="w-full rounded-xl bg-black/30 border border-white/10 px-4 py-3 font-mono text-sm outline-none focus:border-[#D6F36B]" aria-label={g('raceInput')} />}
+            {phase==='racing' && !online && <div className="mt-4"><button className="rounded-lg border border-white/20 px-4 py-2" onClick={paused?resumeRace:pauseRace}>{g(paused?'resume':'pause')}</button><p className="text-xs text-[#A6B1C5] mt-2" role="status">{g(paused?'paused':'pauseHint')}</p></div>}
             {(phase==='racing' || phase==='finished') && <div className="flex flex-wrap gap-5 mt-4 text-sm font-mono"><span>{g('accuracy')}: {accuracy}%</span><span>{g('elapsed')}: {g('seconds',{value:Math.floor(elapsed)})}</span></div>}
-            {phase === 'countdown' && <p className="text-center text-xs text-[#9A9488]">{g('getReady')}</p>}
-            <div className="mt-4 flex justify-between text-xs text-[#9A9488]"><span>{g('complete',{value:Math.round(progress)})}</span><span>{phase==='finished'?(players.find(p=>p.id===CLIENT_ID)?.wpm||0):wpm} {g('wpm')} · {g(online ? 'online' : 'soloLabel')}</span></div>
-            {phase === 'finished' && <button onClick={reset} className="mt-5 inline-flex items-center gap-2 rounded-xl bg-[#E85D3D] px-4 py-2 font-bold text-[#0F0E0D]"><RotateCcw className="w-4 h-4" /> {g('again')}</button>}
-            {online && <p className="mt-3 flex items-center gap-1 text-[11px] text-[#9A9488]"><Wifi className="w-3 h-3" /> {g('live')}</p>}
+            {phase === 'countdown' && <p className="text-center text-xs text-[#A6B1C5]">{g('getReady')}</p>}
+            <div className="mt-4 flex justify-between text-xs text-[#A6B1C5]"><span>{g('complete',{value:Math.round(progress)})}</span><span>{phase==='finished'?(players.find(p=>p.id===CLIENT_ID)?.wpm||0):wpm} {g('wpm')} · {g(online ? 'online' : 'soloLabel')}</span></div>
+            {phase === 'finished' && <button onClick={reset} className="mt-5 inline-flex items-center gap-2 rounded-xl bg-[#D6F36B] px-4 py-2 font-bold text-[#0D111A]"><RotateCcw className="w-4 h-4" /> {g('again')}</button>}
+            {online && <p className="mt-3 flex items-center gap-1 text-[11px] text-[#A6B1C5]"><Wifi className="w-3 h-3" /> {g('live')}</p>}
           </div>
         </>
       )}
-      {gameMode === 'race' && <p className="mt-4 flex items-center justify-center gap-2 text-[11px] text-[#5C574C]"><WifiOff className="w-3 h-3" /> {g('rules')}</p>}
+      {gameMode === 'race' && <p className="mt-4 flex items-center justify-center gap-2 text-[11px] text-[#748199]"><WifiOff className="w-3 h-3" /> {g('rules')}</p>}
       <AuthModal isOpen={signupOpen} initialMode="signup" onClose={closeSignup} />
     </section>
   );

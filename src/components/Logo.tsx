@@ -33,7 +33,7 @@ export const Logo: React.FC<LogoProps> = ({
         initial={isIntroDone ? false : { opacity: 0, scale: 0.3 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
-        className={`${iconSizes[size]} text-[#E85D3D] transition-transform duration-200 group-hover:scale-105 flex items-center justify-center`}
+        className={`${iconSizes[size]} text-[#D6F36B] transition-transform duration-200 group-hover:scale-105 flex items-center justify-center`}
       >
         <svg
           viewBox="0 0 32 32"
@@ -44,14 +44,14 @@ export const Logo: React.FC<LogoProps> = ({
           {/* Stem on top */}
           <path
             d="M17 3C17 3 19 4 18 6.5C17.5 7.7 16 8.5 16 8.5"
-            stroke="#6FA85C"
+            stroke="#71D9AF"
             strokeWidth="2.2"
             strokeLinecap="round"
           />
           {/* I-beam top bar integrated into stem base */}
           <path
             d="M10 8.5H22"
-            stroke="#E85D3D"
+            stroke="#D6F36B"
             strokeWidth="2"
             strokeLinecap="round"
           />
@@ -59,17 +59,17 @@ export const Logo: React.FC<LogoProps> = ({
           {/* Left curved edge */}
           <path
             d="M10 8.5C10 8.5 9 14 10.5 18C12 22 14.5 26.5 16 29.5C16.5 27 18.5 22.5 20 18.5C21.5 14.5 22 8.5 22 8.5H10Z"
-            fill="#E85D3D"
+            fill="#D6F36B"
           />
-          {/* Caret notch cutout (background color #0F0E0D fill) */}
+          {/* Caret notch cutout (background color #0D111A fill) */}
           <path
             d="M16 13L13 17H19L16 13Z"
-            fill="#0F0E0D"
+            fill="#0D111A"
           />
           {/* I-beam bottom bar */}
           <path
             d="M12 29.5H20"
-            stroke="#E85D3D"
+            stroke="#D6F36B"
             strokeWidth="2"
             strokeLinecap="round"
           />
@@ -80,9 +80,9 @@ export const Logo: React.FC<LogoProps> = ({
         <motion.span
           layoutId="logo-wordmark"
           transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
-          className={`inline-block font-mono font-medium tracking-tight text-[#E8E2D8] ${textSizes[size]}`}
+          className={`inline-block font-mono font-medium tracking-tight text-[#F0F3FA] ${textSizes[size]}`}
         >
-          qalampir
+          qalam<span className="text-[#D6F36B]">type</span>
         </motion.span>
       )}
     </div>

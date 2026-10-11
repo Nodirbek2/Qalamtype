@@ -242,20 +242,20 @@ export const AcademyView: React.FC = () => {
   if (!currentUser || !userProfile) {
     return (
       <div className="w-full max-w-md mx-auto py-20 px-4 text-center font-sans">
-        <div className="p-8 bg-[#1A1917] rounded-xl border border-[rgba(232,226,216,0.12)] space-y-5 shadow-2xl">
-          <GraduationCap className="w-14 h-14 text-[#E85D3D] mx-auto animate-bounce-slow" />
+        <div className="p-8 bg-[#171E2B] rounded-xl border border-[rgba(240,243,250,0.12)] space-y-5 shadow-2xl">
+          <GraduationCap className="w-14 h-14 text-[#D6F36B] mx-auto animate-bounce-slow" />
           <div className="space-y-2">
-            <h2 className="text-xl font-medium text-[#E8E2D8]">
+            <h2 className="text-xl font-medium text-[#F0F3FA]">
               {t('academy_login_required')}
             </h2>
-            <p className="text-xs text-[#9A9488] font-mono leading-relaxed">
+            <p className="text-xs text-[#A6B1C5] font-mono leading-relaxed">
               {t('academy_login_desc')}
             </p>
           </div>
           <button
             type="button"
             onClick={() => setAuthModalOpen(true)}
-            className="w-full py-2.5 px-4 rounded-lg bg-[#E85D3D] hover:bg-[#E85D3D]/90 text-[#0F0E0D] font-mono text-xs font-semibold transition-colors cursor-pointer shadow-sm"
+            className="w-full py-2.5 px-4 rounded-lg bg-[#D6F36B] hover:bg-[#D6F36B]/90 text-[#0D111A] font-mono text-xs font-semibold transition-colors cursor-pointer shadow-sm"
           >
             {t('nav_login')}
           </button>
@@ -302,31 +302,31 @@ export const AcademyView: React.FC = () => {
   return (
     <div className="w-full max-w-5xl mx-auto py-6 sm:py-8 px-4 font-sans animate-fade-in select-none space-y-8">
       {/* Header & Language Picker */}
-      <div className="bg-[#1A1917] rounded-2xl border border-[rgba(232,226,216,0.08)] p-6 shadow-xl space-y-6">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-[rgba(232,226,216,0.08)] pb-5">
+      <div className="bg-[#171E2B] rounded-2xl border border-[rgba(240,243,250,0.08)] p-6 shadow-xl space-y-6">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-[rgba(240,243,250,0.08)] pb-5">
           <div className="flex items-center space-x-3">
-            <div className="p-3 rounded-xl bg-[#E85D3D]/10 border border-[#E85D3D]/20 text-[#E85D3D]">
+            <div className="p-3 rounded-xl bg-[#D6F36B]/10 border border-[#D6F36B]/20 text-[#D6F36B]">
               <GraduationCap className="w-7 h-7" />
             </div>
             <div>
-              <h1 className="text-2xl font-medium text-[#E8E2D8] tracking-tight">
+              <h1 className="text-2xl font-medium text-[#F0F3FA] tracking-tight">
                 {t('academy_title')}
               </h1>
-              <p className="text-xs text-[#9A9488] font-mono mt-0.5">
+              <p className="text-xs text-[#A6B1C5] font-mono mt-0.5">
                 {t('academy_subtitle')}
               </p>
             </div>
           </div>
 
           {/* Progress Stats Summary Pill */}
-          <div className="flex items-center space-x-4 bg-[#0F0E0D] border border-[rgba(232,226,216,0.1)] rounded-xl px-4 py-2.5 font-mono text-xs">
-            <div className="flex items-center space-x-1.5 text-[#F4A340]">
-              <Star className="w-4 h-4 fill-[#F4A340]" />
+          <div className="flex items-center space-x-4 bg-[#0D111A] border border-[rgba(240,243,250,0.1)] rounded-xl px-4 py-2.5 font-mono text-xs">
+            <div className="flex items-center space-x-1.5 text-[#63D9DA]">
+              <Star className="w-4 h-4 fill-[#63D9DA]" />
               <span className="font-bold">{totalStarsEarned}</span>
-              <span className="text-[#9A9488] text-[10px]">/{maxPossibleStars}</span>
+              <span className="text-[#A6B1C5] text-[10px]">/{maxPossibleStars}</span>
             </div>
-            <div className="h-4 w-px bg-[rgba(232,226,216,0.1)]" />
-            <div className="flex items-center space-x-1.5 text-[#6FA85C]">
+            <div className="h-4 w-px bg-[rgba(240,243,250,0.1)]" />
+            <div className="flex items-center space-x-1.5 text-[#71D9AF]">
               <CheckCircle2 className="w-4 h-4" />
               <span className="font-bold">{progressPercent}%</span>
             </div>
@@ -335,8 +335,8 @@ export const AcademyView: React.FC = () => {
 
         {/* Language Selection Switcher */}
         <div className="space-y-2">
-          <label className="text-xs text-[#9A9488] font-mono flex items-center space-x-1.5">
-            <Globe className="w-3.5 h-3.5 text-[#E85D3D]" />
+          <label className="text-xs text-[#A6B1C5] font-mono flex items-center space-x-1.5">
+            <Globe className="w-3.5 h-3.5 text-[#D6F36B]" />
             <span>{t('academy_select_language')}</span>
           </label>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -349,8 +349,8 @@ export const AcademyView: React.FC = () => {
                   onClick={() => handleLanguageChange(lang.id)}
                   className={`px-3 py-2 rounded-lg border text-xs font-mono transition-colors cursor-pointer text-center ${
                     active
-                      ? 'bg-[#0F0E0D] border-[#E85D3D] text-[#E85D3D] font-semibold shadow-sm'
-                      : 'bg-[#0F0E0D]/40 border-[rgba(232,226,216,0.08)] text-[#9A9488] hover:text-[#E8E2D8] hover:bg-[#0F0E0D]/80'
+                      ? 'bg-[#0D111A] border-[#D6F36B] text-[#D6F36B] font-semibold shadow-sm'
+                      : 'bg-[#0D111A]/40 border-[rgba(240,243,250,0.08)] text-[#A6B1C5] hover:text-[#F0F3FA] hover:bg-[#0D111A]/80'
                   }`}
                 >
                   {t(lang.labelKey as any)}
@@ -373,27 +373,27 @@ export const AcademyView: React.FC = () => {
               key={tier.id}
               className={`rounded-2xl border transition-all ${
                 isTierUnlocked
-                  ? 'bg-[#1A1917] border-[rgba(232,226,216,0.08)] shadow-lg'
-                  : 'bg-[#1A1917]/50 border-[rgba(232,226,216,0.04)] opacity-70'
+                  ? 'bg-[#171E2B] border-[rgba(240,243,250,0.08)] shadow-lg'
+                  : 'bg-[#171E2B]/50 border-[rgba(240,243,250,0.04)] opacity-70'
               }`}
             >
               {/* Tier Header */}
-              <div className="p-5 sm:p-6 border-b border-[rgba(232,226,216,0.06)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+              <div className="p-5 sm:p-6 border-b border-[rgba(240,243,250,0.06)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
                 <div>
                   <div className="flex items-center space-x-2">
-                    <span className="px-2.5 py-0.5 rounded-full bg-[#E85D3D]/15 text-[#E85D3D] text-[11px] font-mono font-semibold">
+                    <span className="px-2.5 py-0.5 rounded-full bg-[#D6F36B]/15 text-[#D6F36B] text-[11px] font-mono font-semibold">
                       {tier.number}-bosqich
                     </span>
-                    <h2 className="text-lg font-medium text-[#E8E2D8]">
+                    <h2 className="text-lg font-medium text-[#F0F3FA]">
                       {tier.name[academyLang]}
                     </h2>
                   </div>
-                  <p className="text-xs text-[#9A9488] font-mono mt-1">
+                  <p className="text-xs text-[#A6B1C5] font-mono mt-1">
                     {tier.description[academyLang]}
                   </p>
                 </div>
 
-                <div className="text-xs font-mono text-[#9A9488] shrink-0">
+                <div className="text-xs font-mono text-[#A6B1C5] shrink-0">
                   {tierCompletedCount} / {tierLessons.length} darslar
                 </div>
               </div>
@@ -414,20 +414,20 @@ export const AcademyView: React.FC = () => {
                       onClick={() => unlocked && setActiveLesson(lesson)}
                       className={`relative p-4 rounded-xl border transition-all text-left flex flex-col justify-between space-y-3 ${
                         !unlocked
-                          ? 'bg-[#0F0E0D]/40 border-[rgba(232,226,216,0.04)] text-[#5C574C] cursor-not-allowed'
+                          ? 'bg-[#0D111A]/40 border-[rgba(240,243,250,0.04)] text-[#748199] cursor-not-allowed'
                           : completed
-                          ? 'bg-[#0F0E0D] border-[rgba(232,226,216,0.12)] hover:border-[#F4A340] cursor-pointer shadow-sm'
-                          : 'bg-[#0F0E0D] border-[#E85D3D]/50 hover:border-[#E85D3D] text-[#E8E2D8] cursor-pointer ring-1 ring-[#E85D3D]/20 shadow-md'
+                          ? 'bg-[#0D111A] border-[rgba(240,243,250,0.12)] hover:border-[#63D9DA] cursor-pointer shadow-sm'
+                          : 'bg-[#0D111A] border-[#D6F36B]/50 hover:border-[#D6F36B] text-[#F0F3FA] cursor-pointer ring-1 ring-[#D6F36B]/20 shadow-md'
                       }`}
                     >
                       {/* Top Status & Icons */}
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] font-mono text-[#9A9488]">
+                        <span className="text-[11px] font-mono text-[#A6B1C5]">
                           {lesson.tierNumber}.{lesson.lessonNumber}-dars
                         </span>
 
                         {!unlocked ? (
-                          <Lock className="w-4 h-4 text-[#5C574C]" />
+                          <Lock className="w-4 h-4 text-[#748199]" />
                         ) : completed ? (
                           /* Star Rating Display */
                           <div className="flex items-center space-x-0.5">
@@ -436,14 +436,14 @@ export const AcademyView: React.FC = () => {
                                 key={starNum}
                                 className={`w-3.5 h-3.5 ${
                                   starNum <= stars
-                                    ? 'fill-[#F4A340] text-[#F4A340]'
-                                    : 'text-[#5C574C]'
+                                    ? 'fill-[#63D9DA] text-[#63D9DA]'
+                                    : 'text-[#748199]'
                                 }`}
                               />
                             ))}
                           </div>
                         ) : (
-                          <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-[#E85D3D]/20 text-[#E85D3D] font-bold">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-[#D6F36B]/20 text-[#D6F36B] font-bold">
                             {t('academy_unlocked')}
                           </span>
                         )}
@@ -451,16 +451,16 @@ export const AcademyView: React.FC = () => {
 
                       {/* Lesson Title */}
                       <div>
-                        <h3 className="text-sm font-medium text-[#E8E2D8] line-clamp-2">
+                        <h3 className="text-sm font-medium text-[#F0F3FA] line-clamp-2">
                           {lesson.title[academyLang]}
                         </h3>
                       </div>
 
                       {/* Bottom Stats Badge if completed */}
                       {completed && progress && (
-                        <div className="pt-1 border-t border-[rgba(232,226,216,0.06)] flex items-center justify-between text-[10px] font-mono text-[#9A9488]">
-                          <span>WPM: <strong className="text-[#F4A340]">{progress.bestWpm}</strong></span>
-                          <span>Aniqlik: <strong className="text-[#6FA85C]">{progress.bestAccuracy}%</strong></span>
+                        <div className="pt-1 border-t border-[rgba(240,243,250,0.06)] flex items-center justify-between text-[10px] font-mono text-[#A6B1C5]">
+                          <span>WPM: <strong className="text-[#63D9DA]">{progress.bestWpm}</strong></span>
+                          <span>Aniqlik: <strong className="text-[#71D9AF]">{progress.bestAccuracy}%</strong></span>
                         </div>
                       )}
                     </button>
@@ -552,21 +552,21 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
   return (
     <div className="w-full max-w-4xl mx-auto py-6 sm:py-8 px-4 font-sans animate-fade-in space-y-6">
       {/* Top Header Controls */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[rgba(232,226,216,0.08)] pb-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[rgba(240,243,250,0.08)] pb-4">
         <button
           type="button"
           onClick={onBack}
-          className="flex items-center space-x-2 text-xs font-mono text-[#9A9488] hover:text-[#E8E2D8] bg-[#1A1917] border border-[rgba(232,226,216,0.1)] px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
+          className="flex items-center space-x-2 text-xs font-mono text-[#A6B1C5] hover:text-[#F0F3FA] bg-[#171E2B] border border-[rgba(240,243,250,0.1)] px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>{t('academy_back_to_map')}</span>
         </button>
 
         <div className="text-center sm:text-right">
-          <span className="text-[10px] font-mono uppercase tracking-wider text-[#E85D3D]">
+          <span className="text-[10px] font-mono uppercase tracking-wider text-[#D6F36B]">
             {lesson.tierNumber}-bosqich • {lesson.lessonNumber}-dars
           </span>
-          <h2 className="text-base font-medium text-[#E8E2D8]">
+          <h2 className="text-base font-medium text-[#F0F3FA]">
             {lesson.title[language]}
           </h2>
         </div>
@@ -574,10 +574,10 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
 
       {/* Lesson Complete / Results View */}
       {phase === 'completed' && result ? (
-        <div className="bg-[#1A1917] rounded-2xl border border-[rgba(232,226,216,0.12)] p-6 sm:p-8 shadow-2xl text-center space-y-6 animate-fade-in max-w-xl mx-auto">
+        <div className="bg-[#171E2B] rounded-2xl border border-[rgba(240,243,250,0.12)] p-6 sm:p-8 shadow-2xl text-center space-y-6 animate-fade-in max-w-xl mx-auto">
           {/* New Record Banner if applicable */}
           {isNewRecord && (
-            <div className="inline-flex items-center space-x-1.5 bg-[#F4A340]/15 text-[#F4A340] border border-[#F4A340]/30 px-3 py-1 rounded-full text-xs font-mono font-bold animate-bounce-slow">
+            <div className="inline-flex items-center space-x-1.5 bg-[#63D9DA]/15 text-[#63D9DA] border border-[#63D9DA]/30 px-3 py-1 rounded-full text-xs font-mono font-bold animate-bounce-slow">
               <Sparkles className="w-3.5 h-3.5" />
               <span>{t('academy_new_record')}</span>
             </div>
@@ -587,8 +587,8 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
             <div
               className={`w-14 h-14 rounded-full border flex items-center justify-center mx-auto ${
                 starsEarned > 0
-                  ? 'bg-[#E85D3D]/10 border-[#E85D3D]/30 text-[#E85D3D]'
-                  : 'bg-[#0F0E0D] border-red-500/30 text-red-400'
+                  ? 'bg-[#D6F36B]/10 border-[#D6F36B]/30 text-[#D6F36B]'
+                  : 'bg-[#0D111A] border-red-500/30 text-red-400'
               }`}
             >
               {starsEarned > 0 ? (
@@ -598,7 +598,7 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
               )}
             </div>
 
-            <h3 className="text-xl font-medium text-[#E8E2D8]">
+            <h3 className="text-xl font-medium text-[#F0F3FA]">
               {starsEarned > 0 ? t('academy_lesson_completed') : t('academy_stars_zero')}
             </h3>
 
@@ -608,7 +608,7 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
               </p>
             )}
 
-            <p className="text-xs text-[#9A9488] font-mono">
+            <p className="text-xs text-[#A6B1C5] font-mono">
               {lesson.title[language]}
             </p>
           </div>
@@ -620,15 +620,15 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
                 key={starNum}
                 className={`transition-all duration-500 ${
                   starNum <= starsEarned
-                    ? 'scale-125 text-[#F4A340]'
+                    ? 'scale-125 text-[#63D9DA]'
                     : 'scale-100 text-[#323437]'
                 }`}
               >
                 <Star
                   className={`w-10 h-10 ${
                     starNum <= starsEarned
-                      ? 'fill-[#F4A340] text-[#F4A340] drop-shadow-[0_0_8px_rgba(244,163,64,0.5)]'
-                      : 'text-[#5C574C]'
+                      ? 'fill-[#63D9DA] text-[#63D9DA] drop-shadow-[0_0_8px_rgba(244,163,64,0.5)]'
+                      : 'text-[#748199]'
                   }`}
                 />
               </div>
@@ -637,23 +637,23 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
 
           {/* Results Stats Grid */}
           <div className="grid grid-cols-3 gap-3">
-            <div className="bg-[#0F0E0D] p-3 rounded-xl border border-[rgba(232,226,216,0.08)]">
-              <span className="text-[10px] font-mono text-[#9A9488] uppercase block">WPM</span>
-              <span className="text-2xl font-mono font-bold text-[#F4A340]">
+            <div className="bg-[#0D111A] p-3 rounded-xl border border-[rgba(240,243,250,0.08)]">
+              <span className="text-[10px] font-mono text-[#A6B1C5] uppercase block">WPM</span>
+              <span className="text-2xl font-mono font-bold text-[#63D9DA]">
                 {result.wpm}
               </span>
             </div>
 
-            <div className="bg-[#0F0E0D] p-3 rounded-xl border border-[rgba(232,226,216,0.08)]">
-              <span className="text-[10px] font-mono text-[#9A9488] uppercase block">Aniqlik</span>
-              <span className={`text-2xl font-mono font-bold ${result.accuracy >= 75 ? 'text-[#6FA85C]' : 'text-red-400'}`}>
+            <div className="bg-[#0D111A] p-3 rounded-xl border border-[rgba(240,243,250,0.08)]">
+              <span className="text-[10px] font-mono text-[#A6B1C5] uppercase block">Aniqlik</span>
+              <span className={`text-2xl font-mono font-bold ${result.accuracy >= 75 ? 'text-[#71D9AF]' : 'text-red-400'}`}>
                 {result.accuracy}%
               </span>
             </div>
 
-            <div className="bg-[#0F0E0D] p-3 rounded-xl border border-[rgba(232,226,216,0.08)]">
-              <span className="text-[10px] font-mono text-[#9A9488] uppercase block">Vaqt</span>
-              <span className="text-2xl font-mono font-bold text-[#E8E2D8]">
+            <div className="bg-[#0D111A] p-3 rounded-xl border border-[rgba(240,243,250,0.08)]">
+              <span className="text-[10px] font-mono text-[#A6B1C5] uppercase block">Vaqt</span>
+              <span className="text-2xl font-mono font-bold text-[#F0F3FA]">
                 {result.timeSec}s
               </span>
             </div>
@@ -664,7 +664,7 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
             <button
               type="button"
               onClick={resetTest}
-              className="flex-1 py-2.5 px-4 rounded-xl bg-[#0F0E0D] hover:bg-[#0F0E0D]/80 border border-[rgba(232,226,216,0.12)] text-[#E8E2D8] font-mono text-xs font-medium flex items-center justify-center space-x-2 transition-colors cursor-pointer"
+              className="flex-1 py-2.5 px-4 rounded-xl bg-[#0D111A] hover:bg-[#0D111A]/80 border border-[rgba(240,243,250,0.12)] text-[#F0F3FA] font-mono text-xs font-medium flex items-center justify-center space-x-2 transition-colors cursor-pointer"
             >
               <RotateCcw className="w-4 h-4" />
               <span>{t('academy_retry_lesson')}</span>
@@ -674,7 +674,7 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
               <button
                 type="button"
                 onClick={() => onNextLesson(nextLesson)}
-                className="flex-1 py-2.5 px-4 rounded-xl bg-[#E85D3D] hover:bg-[#E85D3D]/90 text-[#0F0E0D] font-mono text-xs font-semibold flex items-center justify-center space-x-2 transition-colors cursor-pointer shadow-md"
+                className="flex-1 py-2.5 px-4 rounded-xl bg-[#D6F36B] hover:bg-[#D6F36B]/90 text-[#0D111A] font-mono text-xs font-semibold flex items-center justify-center space-x-2 transition-colors cursor-pointer shadow-md"
               >
                 <span>{t('academy_next_lesson')}</span>
                 <ArrowRight className="w-4 h-4" />

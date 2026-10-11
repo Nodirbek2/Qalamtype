@@ -132,16 +132,16 @@ CREATE POLICY "Users insert own result" ON public.results FOR INSERT WITH CHECK 
   return (
     <div className="w-full max-w-5xl mx-auto py-6 sm:py-10 px-4 font-sans animate-fade-in select-none">
       {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 pb-6 border-b border-[rgba(232,226,216,0.08)]">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 pb-6 border-b border-[rgba(240,243,250,0.08)]">
         <div>
-          <div className="flex items-center space-x-2 text-[#E85D3D] font-mono text-xs mb-1">
+          <div className="flex items-center space-x-2 text-[#D6F36B] font-mono text-xs mb-1">
             <Trophy className="w-4 h-4 shrink-0" />
             <span>{t('lb_title')}</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-medium text-[#E8E2D8] tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-medium text-[#F0F3FA] tracking-tight">
             {t('nav_leaderboard')}
           </h1>
-          <p className="text-xs text-[#9A9488] font-mono mt-1">
+          <p className="text-xs text-[#A6B1C5] font-mono mt-1">
             {t('lb_subtitle')}
           </p>
         </div>
@@ -150,7 +150,7 @@ CREATE POLICY "Users insert own result" ON public.results FOR INSERT WITH CHECK 
       {/* Primary Filters Control Bar */}
       <div className="flex flex-col gap-4 mb-6">
         {/* Time Range Tabs */}
-        <div className="flex items-center justify-between flex-wrap gap-3 bg-[#1A1917] p-1.5 rounded-xl border border-[rgba(232,226,216,0.08)]">
+        <div className="flex items-center justify-between flex-wrap gap-3 bg-[#171E2B] p-1.5 rounded-xl border border-[rgba(240,243,250,0.08)]">
           <div className="flex items-center space-x-1 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
             {(['today', 'week', 'month', 'all'] as TimeRangeFilter[]).map((tr) => {
               const labels: Record<TimeRangeFilter, string> = {
@@ -167,8 +167,8 @@ CREATE POLICY "Users insert own result" ON public.results FOR INSERT WITH CHECK 
                   onClick={() => setFilters((f) => ({ ...f, timeRange: tr }))}
                   className={`px-3.5 py-1.5 rounded-lg text-xs font-mono font-medium transition-all whitespace-nowrap cursor-pointer ${
                     active
-                      ? 'bg-[#0F0E0D] text-[#E85D3D] border border-[rgba(232,226,216,0.12)] shadow-xs'
-                      : 'text-[#9A9488] hover:text-[#E8E2D8] hover:bg-[rgba(232,226,216,0.04)]'
+                      ? 'bg-[#0D111A] text-[#D6F36B] border border-[rgba(240,243,250,0.12)] shadow-xs'
+                      : 'text-[#A6B1C5] hover:text-[#F0F3FA] hover:bg-[rgba(240,243,250,0.04)]'
                   }`}
                 >
                   {labels[tr]}
@@ -177,7 +177,7 @@ CREATE POLICY "Users insert own result" ON public.results FOR INSERT WITH CHECK 
             })}
           </div>
 
-          <div className="text-[11px] text-[#5C574C] font-mono px-3 hidden md:block">
+          <div className="text-[11px] text-[#748199] font-mono px-3 hidden md:block">
             {results.length} {t('lb_runs_loaded')}
           </div>
         </div>
@@ -185,99 +185,99 @@ CREATE POLICY "Users insert own result" ON public.results FOR INSERT WITH CHECK 
         {/* Dropdown Filters: Language, Mode, Difficulty */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {/* Language Filter */}
-          <div className="flex items-center space-x-2 bg-[#1A1917] px-3 py-2 rounded-lg border border-[rgba(232,226,216,0.08)]">
-            <Globe className="w-3.5 h-3.5 text-[#9A9488] shrink-0" />
+          <div className="flex items-center space-x-2 bg-[#171E2B] px-3 py-2 rounded-lg border border-[rgba(240,243,250,0.08)]">
+            <Globe className="w-3.5 h-3.5 text-[#A6B1C5] shrink-0" />
             <select
               value={filters.language}
               onChange={(e) =>
                 setFilters((f) => ({ ...f, language: e.target.value as LanguageFilter }))
               }
-              className="bg-transparent text-xs font-mono text-[#E8E2D8] w-full focus:outline-none cursor-pointer"
+              className="bg-transparent text-xs font-mono text-[#F0F3FA] w-full focus:outline-none cursor-pointer"
             >
-              <option value="all" className="bg-[#1A1917] text-[#E8E2D8]">
+              <option value="all" className="bg-[#171E2B] text-[#F0F3FA]">
                 {t('lb_all_languages')}
               </option>
-              <option value="uzbek_latin" className="bg-[#1A1917] text-[#E8E2D8]">
+              <option value="uzbek_latin" className="bg-[#171E2B] text-[#F0F3FA]">
                 {t('lang_uzbek_latin')}
               </option>
-              <option value="uzbek_cyrillic" className="bg-[#1A1917] text-[#E8E2D8]">
+              <option value="uzbek_cyrillic" className="bg-[#171E2B] text-[#F0F3FA]">
                 {t('lang_uzbek_cyrillic')}
               </option>
-              <option value="russian" className="bg-[#1A1917] text-[#E8E2D8]">
+              <option value="russian" className="bg-[#171E2B] text-[#F0F3FA]">
                 {t('lang_russian')}
               </option>
-              <option value="english" className="bg-[#1A1917] text-[#E8E2D8]">
+              <option value="english" className="bg-[#171E2B] text-[#F0F3FA]">
                 {t('lang_english')}
               </option>
             </select>
           </div>
 
           {/* Mode Filter */}
-          <div className="flex items-center space-x-2 bg-[#1A1917] px-3 py-2 rounded-lg border border-[rgba(232,226,216,0.08)]">
-            <Zap className="w-3.5 h-3.5 text-[#9A9488] shrink-0" />
+          <div className="flex items-center space-x-2 bg-[#171E2B] px-3 py-2 rounded-lg border border-[rgba(240,243,250,0.08)]">
+            <Zap className="w-3.5 h-3.5 text-[#A6B1C5] shrink-0" />
             <select
               value={filters.modeFilter}
               onChange={(e) =>
                 setFilters((f) => ({ ...f, modeFilter: e.target.value as ModeFilter }))
               }
-              className="bg-transparent text-xs font-mono text-[#E8E2D8] w-full focus:outline-none cursor-pointer"
+              className="bg-transparent text-xs font-mono text-[#F0F3FA] w-full focus:outline-none cursor-pointer"
             >
-              <option value="all" className="bg-[#1A1917] text-[#E8E2D8]">
+              <option value="all" className="bg-[#171E2B] text-[#F0F3FA]">
                 {t('lb_all_modes_durations')}
               </option>
-              <option value="time" className="bg-[#1A1917] text-[#E8E2D8]">
+              <option value="time" className="bg-[#171E2B] text-[#F0F3FA]">
                 {t('lb_time_mode')}
               </option>
-              <option value="time_15" className="bg-[#1A1917] text-[#E8E2D8]">
+              <option value="time_15" className="bg-[#171E2B] text-[#F0F3FA]">
                 15s
               </option>
-              <option value="time_30" className="bg-[#1A1917] text-[#E8E2D8]">
+              <option value="time_30" className="bg-[#171E2B] text-[#F0F3FA]">
                 30s
               </option>
-              <option value="time_60" className="bg-[#1A1917] text-[#E8E2D8]">
+              <option value="time_60" className="bg-[#171E2B] text-[#F0F3FA]">
                 60s
               </option>
-              <option value="time_120" className="bg-[#1A1917] text-[#E8E2D8]">
+              <option value="time_120" className="bg-[#171E2B] text-[#F0F3FA]">
                 120s
               </option>
-              <option value="words" className="bg-[#1A1917] text-[#E8E2D8]">
+              <option value="words" className="bg-[#171E2B] text-[#F0F3FA]">
                 {t('lb_words_mode')}
               </option>
-              <option value="words_10" className="bg-[#1A1917] text-[#E8E2D8]">
+              <option value="words_10" className="bg-[#171E2B] text-[#F0F3FA]">
                 10 {t('mode_words')}
               </option>
-              <option value="words_25" className="bg-[#1A1917] text-[#E8E2D8]">
+              <option value="words_25" className="bg-[#171E2B] text-[#F0F3FA]">
                 25 {t('mode_words')}
               </option>
-              <option value="words_50" className="bg-[#1A1917] text-[#E8E2D8]">
+              <option value="words_50" className="bg-[#171E2B] text-[#F0F3FA]">
                 50 {t('mode_words')}
               </option>
-              <option value="words_100" className="bg-[#1A1917] text-[#E8E2D8]">
+              <option value="words_100" className="bg-[#171E2B] text-[#F0F3FA]">
                 100 {t('mode_words')}
               </option>
             </select>
           </div>
 
           {/* Difficulty Filter */}
-          <div className="flex items-center space-x-2 bg-[#1A1917] px-3 py-2 rounded-lg border border-[rgba(232,226,216,0.08)]">
-            <Filter className="w-3.5 h-3.5 text-[#9A9488] shrink-0" />
+          <div className="flex items-center space-x-2 bg-[#171E2B] px-3 py-2 rounded-lg border border-[rgba(240,243,250,0.08)]">
+            <Filter className="w-3.5 h-3.5 text-[#A6B1C5] shrink-0" />
             <select
               value={filters.difficulty}
               onChange={(e) =>
                 setFilters((f) => ({ ...f, difficulty: e.target.value as DifficultyFilter }))
               }
-              className="bg-transparent text-xs font-mono text-[#E8E2D8] w-full focus:outline-none cursor-pointer"
+              className="bg-transparent text-xs font-mono text-[#F0F3FA] w-full focus:outline-none cursor-pointer"
             >
-              <option value="all" className="bg-[#1A1917] text-[#E8E2D8]">
+              <option value="all" className="bg-[#171E2B] text-[#F0F3FA]">
                 {t('lb_all_difficulties')}
               </option>
-              <option value="easy" className="bg-[#1A1917] text-[#E8E2D8]">
+              <option value="easy" className="bg-[#171E2B] text-[#F0F3FA]">
                 {t('diff_easy')}
               </option>
-              <option value="medium" className="bg-[#1A1917] text-[#E8E2D8]">
+              <option value="medium" className="bg-[#171E2B] text-[#F0F3FA]">
                 {t('diff_medium')}
               </option>
-              <option value="hard" className="bg-[#1A1917] text-[#E8E2D8]">
+              <option value="hard" className="bg-[#171E2B] text-[#F0F3FA]">
                 {t('diff_hard')}
               </option>
             </select>
@@ -287,33 +287,33 @@ CREATE POLICY "Users insert own result" ON public.results FOR INSERT WITH CHECK 
 
       {/* Database Schema Notice Banner when table missing */}
       {isTableMissing && (
-        <div className="bg-[#1A1917] border border-[#F4A340]/30 rounded-xl p-4 font-mono text-xs text-[#E8E2D8] space-y-3 shadow-md mb-6">
+        <div className="bg-[#171E2B] border border-[#63D9DA]/30 rounded-xl p-4 font-mono text-xs text-[#F0F3FA] space-y-3 shadow-md mb-6">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2.5 text-[#F4A340]">
-              <Database className="w-4 h-4 text-[#E85D3D] shrink-0" />
+            <div className="flex items-center space-x-2.5 text-[#63D9DA]">
+              <Database className="w-4 h-4 text-[#D6F36B] shrink-0" />
               <span className="font-medium text-xs">
                 {t('lb_notice_title')}
               </span>
             </div>
             <button
               onClick={copySql}
-              className="flex items-center space-x-1.5 px-3 py-1.5 bg-[#E85D3D] hover:bg-[#d44e30] text-[#E8E2D8] rounded font-medium transition-colors text-xs shrink-0 cursor-pointer"
+              className="flex items-center space-x-1.5 px-3 py-1.5 bg-[#D6F36B] hover:bg-[#d44e30] text-[#F0F3FA] rounded font-medium transition-colors text-xs shrink-0 cursor-pointer"
             >
               {copied ? <Check className="w-3.5 h-3.5 text-white" /> : <Copy className="w-3.5 h-3.5 text-white" />}
               <span>{copied ? t('lb_notice_copied') : t('lb_notice_copy')}</span>
             </button>
           </div>
-          <p className="text-[#9A9488] text-[11px] leading-relaxed">
+          <p className="text-[#A6B1C5] text-[11px] leading-relaxed">
             {t('lb_notice_desc')}
           </p>
         </div>
       )}
 
       {/* Leaderboard Table Container */}
-      <div className="bg-[#1A1917] rounded-xl border border-[rgba(232,226,216,0.08)] overflow-hidden shadow-lg">
+      <div className="bg-[#171E2B] rounded-xl border border-[rgba(240,243,250,0.08)] overflow-hidden shadow-lg">
         {loading ? (
-          <div className="py-20 flex flex-col items-center justify-center text-[#9A9488] space-y-3 font-mono text-xs">
-            <Loader2 className="w-6 h-6 animate-spin text-[#E85D3D]" />
+          <div className="py-20 flex flex-col items-center justify-center text-[#A6B1C5] space-y-3 font-mono text-xs">
+            <Loader2 className="w-6 h-6 animate-spin text-[#D6F36B]" />
             <span>{t('lb_loading')}</span>
           </div>
         ) : error && !isTableMissing ? (
@@ -322,8 +322,8 @@ CREATE POLICY "Users insert own result" ON public.results FOR INSERT WITH CHECK 
           </div>
         ) : results.length === 0 ? (
           <div className="py-20 text-center space-y-2">
-            <p className="text-sm font-mono text-[#E8E2D8]">{t('lb_empty')}</p>
-            <p className="text-xs text-[#9A9488] font-mono">
+            <p className="text-sm font-mono text-[#F0F3FA]">{t('lb_empty')}</p>
+            <p className="text-xs text-[#A6B1C5] font-mono">
               {t('lb_empty_sub')}
             </p>
           </div>
@@ -331,7 +331,7 @@ CREATE POLICY "Users insert own result" ON public.results FOR INSERT WITH CHECK 
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse font-mono text-xs">
               <thead>
-                <tr className="border-b border-[rgba(232,226,216,0.08)] bg-[#0F0E0D]/60 text-[#9A9488] text-[11px]">
+                <tr className="border-b border-[rgba(240,243,250,0.08)] bg-[#0D111A]/60 text-[#A6B1C5] text-[11px]">
                   <th className="py-3 px-4 font-normal w-14 text-center">#</th>
                   <th className="py-3 px-4 font-normal">{t('lb_user')}</th>
                   <th className="py-3 px-4 font-normal text-right">{t('results_wpm')}</th>
@@ -340,7 +340,7 @@ CREATE POLICY "Users insert own result" ON public.results FOR INSERT WITH CHECK 
                   <th className="py-3 px-4 font-normal text-right">{t('lb_date')}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[rgba(232,226,216,0.05)]">
+              <tbody className="divide-y divide-[rgba(240,243,250,0.05)]">
                 {results.map((row, index) => {
                   const rank = index + 1;
                   const isTop1 = rank === 1;
@@ -349,17 +349,17 @@ CREATE POLICY "Users insert own result" ON public.results FOR INSERT WITH CHECK 
                   const isCurrentUser = currentUser && row.uid === currentUser.id;
 
                   let rowBorderClass = '';
-                  let rankColorClass = 'text-[#9A9488]';
+                  let rankColorClass = 'text-[#A6B1C5]';
 
                   if (isTop1) {
-                    rowBorderClass = 'border-l-4 border-l-[#E85D3D] bg-[#E85D3D]/5';
-                    rankColorClass = 'text-[#E85D3D] font-bold text-sm';
+                    rowBorderClass = 'border-l-4 border-l-[#D6F36B] bg-[#D6F36B]/5';
+                    rankColorClass = 'text-[#D6F36B] font-bold text-sm';
                   } else if (isTop2) {
-                    rowBorderClass = 'border-l-4 border-l-[#F4A340] bg-[#F4A340]/5';
-                    rankColorClass = 'text-[#F4A340] font-bold text-sm';
+                    rowBorderClass = 'border-l-4 border-l-[#63D9DA] bg-[#63D9DA]/5';
+                    rankColorClass = 'text-[#63D9DA] font-bold text-sm';
                   } else if (isTop3) {
-                    rowBorderClass = 'border-l-4 border-l-[#F4A340]/60 bg-[#F4A340]/3';
-                    rankColorClass = 'text-[#F4A340]/90 font-bold';
+                    rowBorderClass = 'border-l-4 border-l-[#63D9DA]/60 bg-[#63D9DA]/3';
+                    rankColorClass = 'text-[#63D9DA]/90 font-bold';
                   }
 
                   const langText = t(`lang_${row.typingLanguage}` as any) || row.typingLanguage;
@@ -368,8 +368,8 @@ CREATE POLICY "Users insert own result" ON public.results FOR INSERT WITH CHECK 
                   return (
                     <tr
                       key={row.id}
-                      className={`hover:bg-[rgba(232,226,216,0.03)] transition-colors ${rowBorderClass} ${
-                        isCurrentUser ? 'bg-[#E85D3D]/10' : ''
+                      className={`hover:bg-[rgba(240,243,250,0.03)] transition-colors ${rowBorderClass} ${
+                        isCurrentUser ? 'bg-[#D6F36B]/10' : ''
                       }`}
                     >
                       {/* Rank Number */}
@@ -388,16 +388,16 @@ CREATE POLICY "Users insert own result" ON public.results FOR INSERT WITH CHECK 
                               className="w-6 h-6 rounded-full object-cover shrink-0"
                             />
                           ) : (
-                            <div className="w-6 h-6 rounded-full bg-[#1A1917] border border-[rgba(232,226,216,0.12)] text-[#E85D3D] flex items-center justify-center font-mono font-bold text-[10px] shrink-0">
+                            <div className="w-6 h-6 rounded-full bg-[#171E2B] border border-[rgba(240,243,250,0.12)] text-[#D6F36B] flex items-center justify-center font-mono font-bold text-[10px] shrink-0">
                               {row.username.charAt(0).toUpperCase()}
                             </div>
                           )}
                           <div className="flex items-center gap-1.5">
-                            <span className="font-medium text-[#E8E2D8] hover:text-[#E85D3D] transition-colors">
+                            <span className="font-medium text-[#F0F3FA] hover:text-[#D6F36B] transition-colors">
                               @{row.username}
                             </span>
                             {isCurrentUser && (
-                              <span className="text-[9px] px-1.5 py-0.5 rounded bg-[#E85D3D]/20 text-[#E85D3D] border border-[#E85D3D]/30">
+                              <span className="text-[9px] px-1.5 py-0.5 rounded bg-[#D6F36B]/20 text-[#D6F36B] border border-[#D6F36B]/30">
                                 {t('lb_you')}
                               </span>
                             )}
@@ -407,28 +407,28 @@ CREATE POLICY "Users insert own result" ON public.results FOR INSERT WITH CHECK 
 
                       {/* WPM */}
                       <td className="py-3.5 px-4 text-right">
-                        <span className="text-sm font-semibold text-[#F4A340]">
+                        <span className="text-sm font-semibold text-[#63D9DA]">
                           {row.wpm}
                         </span>
-                        <span className="text-[10px] text-[#5C574C] ml-1">wpm</span>
+                        <span className="text-[10px] text-[#748199] ml-1">wpm</span>
                       </td>
 
                       {/* Accuracy */}
                       <td className="py-3.5 px-4 text-right">
-                        <span className="text-xs text-[#E8E2D8]">{row.accuracy}%</span>
+                        <span className="text-xs text-[#F0F3FA]">{row.accuracy}%</span>
                       </td>
 
                       {/* Mode details */}
-                      <td className="py-3.5 px-4 text-[#9A9488]">
+                      <td className="py-3.5 px-4 text-[#A6B1C5]">
                         <span className="capitalize">{langText}</span>
-                        <span className="text-[#5C574C] mx-1">•</span>
+                        <span className="text-[#748199] mx-1">•</span>
                         <span>{row.mode === 'time' ? `${row.modeValue}s` : `${row.modeValue} ${t('mode_words')}`}</span>
-                        <span className="text-[#5C574C] mx-1">•</span>
-                        <span className="text-[10px] text-[#5C574C]">{diffText}</span>
+                        <span className="text-[#748199] mx-1">•</span>
+                        <span className="text-[10px] text-[#748199]">{diffText}</span>
                       </td>
 
                       {/* Date */}
-                      <td className="py-3.5 px-4 text-right text-[11px] text-[#5C574C]">
+                      <td className="py-3.5 px-4 text-right text-[11px] text-[#748199]">
                         {formatDate(row.date)}
                       </td>
                     </tr>

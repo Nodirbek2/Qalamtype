@@ -146,21 +146,21 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-fade-in select-none">
-      <div className="relative w-full max-w-xl bg-[#1A1917] border border-[rgba(232,226,216,0.12)] rounded-2xl shadow-2xl overflow-hidden font-sans">
+      <div className="relative w-full max-w-xl bg-[#171E2B] border border-[rgba(240,243,250,0.12)] rounded-2xl shadow-2xl overflow-hidden font-sans">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[rgba(232,226,216,0.08)] bg-[#0F0E0D]/50">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[rgba(240,243,250,0.08)] bg-[#0D111A]/50">
           <div>
-            <h2 className="text-lg font-medium text-[#E8E2D8] tracking-tight">
+            <h2 className="text-lg font-medium text-[#F0F3FA] tracking-tight">
               {t('settings_title')}
             </h2>
-            <p className="text-xs font-mono text-[#9A9488]">
+            <p className="text-xs font-mono text-[#A6B1C5]">
               {t('settings_subtitle')}
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-2 text-[#9A9488] hover:text-[#E8E2D8] hover:bg-[rgba(232,226,216,0.06)] rounded-lg transition-colors cursor-pointer"
+            className="p-2 text-[#A6B1C5] hover:text-[#F0F3FA] hover:bg-[rgba(240,243,250,0.06)] rounded-lg transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -170,8 +170,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         <div className="p-6 space-y-6 max-h-[80vh] overflow-y-auto font-mono text-xs">
           {/* 1. Typing Sound Setting */}
           <div className="space-y-2">
-            <label className="text-[#E8E2D8] font-medium flex items-center space-x-2">
-              <Volume2 className="w-4 h-4 text-[#E85D3D]" />
+            <label className="text-[#F0F3FA] font-medium flex items-center space-x-2">
+              <Volume2 className="w-4 h-4 text-[#D6F36B]" />
               <span>{t('settings_typing_sound')}</span>
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -184,8 +184,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     onClick={() => setTypingSound(opt.id)}
                     className={`px-3 py-2 rounded-lg text-left border flex items-center justify-between transition-colors cursor-pointer ${
                       active
-                        ? 'bg-[#0F0E0D] border-[#E85D3D] text-[#E85D3D] font-semibold'
-                        : 'bg-[#0F0E0D]/40 border-[rgba(232,226,216,0.08)] text-[#9A9488] hover:text-[#E8E2D8] hover:bg-[#0F0E0D]/80'
+                        ? 'bg-[#0D111A] border-[#D6F36B] text-[#D6F36B] font-semibold'
+                        : 'bg-[#0D111A]/40 border-[rgba(240,243,250,0.08)] text-[#A6B1C5] hover:text-[#F0F3FA] hover:bg-[#0D111A]/80'
                     }`}
                   >
                     <span className="truncate">{t(opt.labelKey as any)}</span>
@@ -195,7 +195,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                           e.stopPropagation();
                           testSound(opt.id);
                         }}
-                        className="p-1 hover:text-[#E85D3D] transition-colors cursor-pointer"
+                        className="p-1 hover:text-[#D6F36B] transition-colors cursor-pointer"
                         title="Preview sound"
                       >
                         <Play className="w-3 h-3 fill-current" />
@@ -209,8 +209,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
           {/* 2. Smooth Caret Speed Setting */}
           <div className="space-y-2">
-            <label className="text-[#E8E2D8] font-medium flex items-center space-x-2">
-              <MousePointer className="w-4 h-4 text-[#F4A340]" />
+            <label className="text-[#F0F3FA] font-medium flex items-center space-x-2">
+              <MousePointer className="w-4 h-4 text-[#63D9DA]" />
               <span>{t('settings_smooth_caret')}</span>
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -223,8 +223,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     onClick={() => setSmoothCaret(opt.id)}
                     className={`px-3 py-2 rounded-lg border text-center transition-colors cursor-pointer ${
                       active
-                        ? 'bg-[#0F0E0D] border-[#F4A340] text-[#F4A340] font-semibold'
-                        : 'bg-[#0F0E0D]/40 border-[rgba(232,226,216,0.08)] text-[#9A9488] hover:text-[#E8E2D8] hover:bg-[#0F0E0D]/80'
+                        ? 'bg-[#0D111A] border-[#63D9DA] text-[#63D9DA] font-semibold'
+                        : 'bg-[#0D111A]/40 border-[rgba(240,243,250,0.08)] text-[#A6B1C5] hover:text-[#F0F3FA] hover:bg-[#0D111A]/80'
                     }`}
                   >
                     {t(opt.labelKey as any)}
@@ -236,8 +236,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
           {/* 3. Site Language Setting (Uzbek listed first) */}
           <div className="space-y-2">
-            <label className="text-[#E8E2D8] font-medium flex items-center space-x-2">
-              <Globe className="w-4 h-4 text-[#6FA85C]" />
+            <label className="text-[#F0F3FA] font-medium flex items-center space-x-2">
+              <Globe className="w-4 h-4 text-[#71D9AF]" />
               <span>{t('settings_site_language')}</span>
             </label>
             <div className="grid grid-cols-3 gap-2">
@@ -250,11 +250,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     onClick={() => setSiteLanguage(opt.id)}
                     className={`px-3 py-2 rounded-lg border flex items-center justify-center space-x-2 transition-colors cursor-pointer ${
                       active
-                        ? 'bg-[#0F0E0D] border-[#6FA85C] text-[#6FA85C] font-semibold'
-                        : 'bg-[#0F0E0D]/40 border-[rgba(232,226,216,0.08)] text-[#9A9488] hover:text-[#E8E2D8] hover:bg-[#0F0E0D]/80'
+                        ? 'bg-[#0D111A] border-[#71D9AF] text-[#71D9AF] font-semibold'
+                        : 'bg-[#0D111A]/40 border-[rgba(240,243,250,0.08)] text-[#A6B1C5] hover:text-[#F0F3FA] hover:bg-[#0D111A]/80'
                     }`}
                   >
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-[rgba(232,226,216,0.1)]">
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-[rgba(240,243,250,0.1)]">
                       {opt.flag}
                     </span>
                     <span>{t(opt.labelKey as any)}</span>
@@ -266,8 +266,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
           {/* 4. Typing Language Setting (Uzbek listed first) */}
           <div className="space-y-2">
-            <label className="text-[#E8E2D8] font-medium flex items-center space-x-2">
-              <Keyboard className="w-4 h-4 text-[#E85D3D]" />
+            <label className="text-[#F0F3FA] font-medium flex items-center space-x-2">
+              <Keyboard className="w-4 h-4 text-[#D6F36B]" />
               <span>{t('settings_typing_language')}</span>
             </label>
             <div className="grid grid-cols-3 gap-2">
@@ -280,11 +280,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     onClick={() => setTypingLanguage(opt.id)}
                     className={`px-3 py-2 rounded-lg border flex items-center justify-center space-x-2 transition-colors cursor-pointer ${
                       active
-                        ? 'bg-[#0F0E0D] border-[#E85D3D] text-[#E85D3D] font-semibold'
-                        : 'bg-[#0F0E0D]/40 border-[rgba(232,226,216,0.08)] text-[#9A9488] hover:text-[#E8E2D8] hover:bg-[#0F0E0D]/80'
+                        ? 'bg-[#0D111A] border-[#D6F36B] text-[#D6F36B] font-semibold'
+                        : 'bg-[#0D111A]/40 border-[rgba(240,243,250,0.08)] text-[#A6B1C5] hover:text-[#F0F3FA] hover:bg-[#0D111A]/80'
                     }`}
                   >
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-[rgba(232,226,216,0.1)]">
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-[rgba(240,243,250,0.1)]">
                       {opt.flag}
                     </span>
                     <span>{t(opt.labelKey as any)}</span>
@@ -296,8 +296,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
           {/* 5. Typing Font Setting */}
           <div className="space-y-2">
-            <label className="text-[#E8E2D8] font-medium flex items-center space-x-2">
-              <Type className="w-4 h-4 text-[#F4A340]" />
+            <label className="text-[#F0F3FA] font-medium flex items-center space-x-2">
+              <Type className="w-4 h-4 text-[#63D9DA]" />
               <span>{t('settings_typing_font')}</span>
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -311,8 +311,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     style={{ fontFamily: FONT_FAMILIES[opt.id] }}
                     className={`px-3 py-2 rounded-lg border text-left transition-colors cursor-pointer text-sm ${
                       active
-                        ? 'bg-[#0F0E0D] border-[#F4A340] text-[#F4A340] font-semibold'
-                        : 'bg-[#0F0E0D]/40 border-[rgba(232,226,216,0.08)] text-[#9A9488] hover:text-[#E8E2D8] hover:bg-[#0F0E0D]/80'
+                        ? 'bg-[#0D111A] border-[#63D9DA] text-[#63D9DA] font-semibold'
+                        : 'bg-[#0D111A]/40 border-[rgba(240,243,250,0.08)] text-[#A6B1C5] hover:text-[#F0F3FA] hover:bg-[#0D111A]/80'
                     }`}
                   >
                     {t(opt.labelKey as any)}
@@ -324,19 +324,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
           {/* 6. Account & Username Setting */}
           {currentUser && userProfile && (
-            <div className="pt-2 border-t border-[rgba(232,226,216,0.08)] space-y-2">
-              <label className="text-[#E8E2D8] font-medium flex items-center justify-between">
+            <div className="pt-2 border-t border-[rgba(240,243,250,0.08)] space-y-2">
+              <label className="text-[#F0F3FA] font-medium flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <User className="w-4 h-4 text-[#E85D3D]" />
+                  <User className="w-4 h-4 text-[#D6F36B]" />
                   <span>{t('acc_username')}</span>
                 </div>
                 {usernameChecking && (
-                  <span className="text-[10px] text-[#5C574C] flex items-center gap-1 font-mono">
+                  <span className="text-[10px] text-[#748199] flex items-center gap-1 font-mono">
                     <Loader2 className="w-3 h-3 animate-spin" /> checking...
                   </span>
                 )}
                 {!usernameChecking && usernameStatus === 'available' && (
-                  <span className="text-[10px] text-[#6FA85C] flex items-center gap-1 font-mono">
+                  <span className="text-[10px] text-[#71D9AF] flex items-center gap-1 font-mono">
                     <CheckCircle2 className="w-3 h-3" /> available
                   </span>
                 )}
@@ -355,16 +355,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     value={usernameInput}
                     onChange={(e) => setUsernameInput(e.target.value)}
                     placeholder="taxallus"
-                    className="w-full bg-[#0F0E0D] border border-[rgba(232,226,216,0.12)] rounded-lg px-3 py-2 text-xs text-[#E8E2D8] font-mono focus:outline-none focus:border-[#E85D3D] transition-colors"
+                    className="w-full bg-[#0D111A] border border-[rgba(240,243,250,0.12)] rounded-lg px-3 py-2 text-xs text-[#F0F3FA] font-mono focus:outline-none focus:border-[#D6F36B] transition-colors"
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={usernameSaving || usernameChecking || usernameStatus === 'taken'}
-                  className="bg-[#E85D3D] hover:bg-[#E85D3D]/90 text-[#0F0E0D] font-mono text-xs font-semibold px-4 py-2 rounded-lg transition-colors cursor-pointer disabled:opacity-50 shrink-0 flex items-center gap-1"
+                  className="bg-[#D6F36B] hover:bg-[#D6F36B]/90 text-[#0D111A] font-mono text-xs font-semibold px-4 py-2 rounded-lg transition-colors cursor-pointer disabled:opacity-50 shrink-0 flex items-center gap-1"
                 >
                   {usernameSaving ? (
-                    <Loader2 className="w-3.5 h-3.5 animate-spin text-[#0F0E0D]" />
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-[#0D111A]" />
                   ) : (
                     <span>{t('acc_save_changes')}</span>
                   )}
@@ -372,7 +372,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
               </form>
 
               {usernameSuccess && (
-                <p className="text-[11px] text-[#6FA85C] flex items-center gap-1 font-mono">
+                <p className="text-[11px] text-[#71D9AF] flex items-center gap-1 font-mono">
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   <span>{t('acc_saved')}</span>
                 </p>
@@ -389,11 +389,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-[rgba(232,226,216,0.08)] bg-[#0F0E0D]/50 flex justify-end">
+        <div className="px-6 py-4 border-t border-[rgba(240,243,250,0.08)] bg-[#0D111A]/50 flex justify-end">
           <button
             type="button"
             onClick={onClose}
-            className="bg-[#E85D3D] hover:bg-[#E85D3D]/90 text-[#0F0E0D] font-mono font-semibold text-xs px-5 py-2 rounded-lg transition-colors cursor-pointer"
+            className="bg-[#D6F36B] hover:bg-[#D6F36B]/90 text-[#0D111A] font-mono font-semibold text-xs px-5 py-2 rounded-lg transition-colors cursor-pointer"
           >
             {t('settings_close')}
           </button>

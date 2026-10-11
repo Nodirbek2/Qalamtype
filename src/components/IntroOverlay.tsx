@@ -74,7 +74,7 @@ export const IntroOverlay: React.FC<IntroOverlayProps> = ({
       animate={{ opacity: isAnimating ? 0 : 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
-      className="fixed inset-0 z-50 bg-[#0F0E0D] flex flex-col items-center justify-center select-none overflow-hidden cursor-pointer"
+      className="fixed inset-0 z-50 bg-[#0D111A] flex flex-col items-center justify-center select-none overflow-hidden cursor-pointer"
     >
       <div className="flex flex-col items-center text-center px-4 max-w-xl mx-auto">
         {/* Line 2: "qalampir" (Wordmark) */}
@@ -83,7 +83,7 @@ export const IntroOverlay: React.FC<IntroOverlayProps> = ({
             <motion.span
               layoutId="logo-wordmark"
               transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
-              className="inline-block font-mono font-medium text-[48px] sm:text-[60px] text-[#E85D3D] leading-none tracking-tight"
+              className="inline-block font-mono font-medium text-[48px] sm:text-[60px] text-[#D6F36B] leading-none tracking-tight"
             >
               qalampir
             </motion.span>
@@ -106,7 +106,7 @@ export const IntroOverlay: React.FC<IntroOverlayProps> = ({
               e.stopPropagation();
               onSkip();
             }}
-            className="bg-[#E85D3D] hover:bg-[#E85D3D]/90 text-[#4A1B0C] font-mono text-sm font-semibold px-6 py-2 rounded-full transition-colors shadow-lg cursor-pointer"
+            className="bg-[#D6F36B] hover:bg-[#D6F36B]/90 text-[#4A1B0C] font-mono text-sm font-semibold px-6 py-2 rounded-full transition-colors shadow-lg cursor-pointer"
           >
             Boshlash
           </button>
