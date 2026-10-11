@@ -126,9 +126,9 @@ header > div { padding-top: 20px; padding-bottom: 20px; }
 .game-tag { display:block;font:9px monospace;letter-spacing:.16em;color:#63d9da;margin-bottom:10px; }
 .game-launch { display:flex;justify-content:space-between;align-items:center;background:#222d40;border:1px solid #ffffff0c;padding:12px 15px;margin-top:18px;border-radius:11px;font-size:12px;color:#d6f36b; }
 .game-card[aria-pressed=true] .game-launch { background:#d6f36b;color:#0d111a;font-weight:700; }
-.wb-arena-art { width:100%;height:100%;object-fit:cover;opacity:.7; }
+.wb-arena-art { display:block;width:100%;height:100%;object-fit:contain;opacity:.85; }
 .wb-arena .wb-moon,.wb-arena .wb-floor,.wb-arena .wb-hero,.wb-arena .wb-monster { display:none; }
-.wb-arena { height:310px!important;border:1px solid #a994ff33!important; }
+.wb-arena { height:auto!important;aspect-ratio:1600 / 265;border:1px solid #a994ff33!important; }
 .wb-arena:has(.wb-defeated) .wb-arena-art { opacity:.3;filter:grayscale(.7); }
 .wb-shell { box-shadow:0 20px 65px #0003; }
 main > section:not(.arcade-page), main > div:not(.home-experience) { animation: page-reveal .35s ease-out; }
@@ -136,5 +136,8 @@ main > section:not(.arcade-page), main > div:not(.home-experience) { animation: 
 [data-typing-focus=true] .home-hero,[data-typing-focus=true] .studio-label,[data-typing-focus=true] .discovery-grid { display:none; }
 [data-typing-focus=true] main { justify-content:center; }
 footer { border-top:1px solid #ffffff0d;margin-top:auto; }
-@media(max-width:640px) { .home-hero { grid-template-columns:1fr;padding-bottom:28px;gap:18px; }.keyboard-art { display:none; }.hero-copy h1 { font-size:39px; }.discovery-grid { grid-template-columns:1fr; }.studio-label { flex-direction:column;align-items:flex-start;gap:6px; }.game-cover { height:190px; }.mode-console { padding:10px!important; }.wb-arena {height:220px!important;} }
+@media(max-width:640px) { .home-hero { grid-template-columns:1fr;padding-bottom:28px;gap:18px; }.keyboard-art { display:none; }.hero-copy h1 { font-size:39px; }.discovery-grid { grid-template-columns:1fr; }.studio-label { flex-direction:column;align-items:flex-start;gap:6px; }.game-cover { height:190px; }.mode-console { padding:10px!important; } }
 @media(prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important; }.discovery-card:hover,.game-card:hover {transform:none;} }
+
+/* Preserve both opponents and the full illustration on narrow game cards too. */
+.game-cover { height:auto;aspect-ratio:1600 / 265;object-fit:contain; }

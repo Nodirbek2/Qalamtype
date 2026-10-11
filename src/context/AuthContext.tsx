@@ -1,3 +1,4 @@
+import { getAuthRedirectUrl } from '../lib/authRedirect';
 import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
@@ -180,6 +181,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       email,
       password,
       options: {
+        emailRedirectTo: getAuthRedirectUrl(window.location.origin),
         data: {
           full_name: `${firstName || ''} ${lastName || ''}`.trim(),
           first_name: firstName || '',
@@ -235,7 +237,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: window.location.origin,
+        redirectTo: getAuthRedirectUrl(window.location.origin),
       },
     });
 
