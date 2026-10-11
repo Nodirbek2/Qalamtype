@@ -416,6 +416,7 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
   const { t, siteLanguage } = useSettings();
   const c = academyCopy[siteLanguage];
   const [practiceText, setPracticeText] = useState<string | null>(null);
+  const lessonContainer = useRef<HTMLDivElement>(null);
   const mistakes = useRef<Record<string, number>>({});
   const goals = starGoals(lesson.tierNumber);
   const lessonText = lesson.content[language] || lesson.content.uzbek_latin;
@@ -490,7 +491,7 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
   const startPractice = () => setPracticeText(weakKeys.map(k => `${k} ${k} ${k}${k} ${k}${k}`).join(' '));
 
   return (
-    <div className="academy-runner w-full max-w-4xl mx-auto py-2 px-4 font-sans animate-fade-in space-y-4">
+    <div ref={lessonContainer} className="academy-runner w-full max-w-4xl mx-auto py-2 px-4 font-sans animate-fade-in space-y-4">
       {/* Top Header Controls */}
       <div className="academy-lesson-header flex items-center justify-between gap-3 border-b border-[rgba(240,243,250,0.08)] pb-3">
         <div className="flex items-center gap-2">
@@ -502,7 +503,7 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>{t('academy_back_to_map')}</span>
         </button>
-        <button type="button" onClick={resetTest} aria-label={t('academy_retry_lesson')} title={t('academy_retry_lesson')} className="academy-reset"><RotateCcw size={16}/></button>
+        <button type="button" onClick={() => { resetTest(); lessonContainer.current?.querySelector<HTMLInputElement>('input')?.focus(); }} aria-label={t('academy_retry_lesson')} title={t('academy_retry_lesson')} className="academy-reset"><RotateCcw size={16}/></button>
         </div>
 
         <div className="text-center sm:text-right">
