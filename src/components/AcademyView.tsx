@@ -1,9 +1,12 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
 import { useTypingEngine } from '../hooks/useTypingEngine';
 import { ACADEMY_TIERS } from '../data/academyData';
 import { AcademyLesson, Language, LessonProgress } from '../types';
+import { academyAccuracy, academyCopy, calculateTierStars, lessonUnlocked, starGoals } from '../lib/academyLearning';
+import { KeyboardCoach } from './KeyboardCoach';
+export { calculateTierStars } from '../lib/academyLearning';
 import { TypingArea } from './TypingArea';
 import { AuthModal } from './AuthModal';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
@@ -23,42 +26,11 @@ import {
   Award,
 } from 'lucide-react';
 
-/**
- * Calculates 0-3 stars based on WPM and Accuracy thresholds tuned per tier difficulty.
- * - Accuracy < 75%: 0 stars (Fail floor - user must retry)
- * - 1 star: Accuracy >= 75%
- * - 2 stars: Moderate WPM & Accuracy >= 90%
- * - 3 stars: High WPM for that tier & Accuracy >= 95%
- */
-export function calculateTierStars(tierNumber: number, wpm: number, accuracy: number): number {
-  if (accuracy < 75) return 0;
-
-  const tierThresholds: Record<number, { wpm2: number; wpm3: number }> = {
-    1: { wpm2: 12, wpm3: 20 }, // Harflar (Letters)
-    2: { wpm2: 18, wpm3: 28 }, // Oson so'zlar (Easy words)
-    3: { wpm2: 22, wpm3: 35 }, // O'rta jumlalar (Medium sentences)
-    4: { wpm2: 22, wpm3: 35 }, // Tinish belgilari (Punctuation)
-    5: { wpm2: 20, wpm3: 32 }, // Raqamlar (Numbers)
-    6: { wpm2: 18, wpm3: 30 }, // Maxsus belgilar (Special characters)
-    7: { wpm2: 25, wpm3: 42 }, // Qiyin matnlar (Hard texts)
-    8: { wpm2: 28, wpm3: 48 }, // Adabiyot (Literature)
-  };
-
-  const config = tierThresholds[tierNumber] || { wpm2: 20, wpm3: 35 };
-
-  if (accuracy >= 95 && wpm >= config.wpm3) {
-    return 3;
-  }
-  if (accuracy >= 90 && wpm >= config.wpm2) {
-    return 2;
-  }
-  return 1;
-}
-
 export const AcademyView: React.FC = () => {
   const { currentUser, userProfile } = useAuth();
-  const { t, typingSound, setTypingLanguage } = useSettings();
+  const { t, typingSound, setTypingLanguage, siteLanguage } = useSettings();
 
+  const c = academyCopy[siteLanguage];
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
   // Selected language for Academy lessons
@@ -146,8 +118,6 @@ export const AcademyView: React.FC = () => {
   // Function to save progress to LocalStorage and Supabase
   const saveLessonProgress = useCallback(
     async (lesson: AcademyLesson, wpm: number, accuracy: number): Promise<{ stars: number; isNewRecord: boolean }> => {
-      if (!currentUser) return { stars: 0, isNewRecord: false };
-
       const stars = calculateTierStars(lesson.tierNumber, wpm, accuracy);
 
       const existing = progressMap[lesson.id];
@@ -166,7 +136,7 @@ export const AcademyView: React.FC = () => {
       };
       setProgressMap(nextMap);
       try {
-        localStorage.setItem(`qalampir_academy_progress_${currentUser.id}_${academyLang}`, JSON.stringify(nextMap));
+        if (currentUser) localStorage.setItem(`qalampir_academy_progress_${currentUser.id}_${academyLang}`, JSON.stringify(nextMap));
       } catch (error) {
         console.warn('Academy local storage unavailable:', error);
       }
@@ -202,77 +172,16 @@ export const AcademyView: React.FC = () => {
     [currentUser, academyLang, progressMap]
   );
 
-  // Check if a lesson is unlocked
   const isLessonUnlocked = useCallback(
-    (lesson: AcademyLesson): boolean => {
-      // Tier 1, Lesson 1 is ALWAYS unlocked
-      if (lesson.tierNumber === 1 && lesson.lessonNumber === 1) {
-        return true;
-      }
-
-      const currentTier = ACADEMY_TIERS.find((t) => t.number === lesson.tierNumber);
-      if (!currentTier) return false;
-
-      // Within the same tier: Lesson N is unlocked if Lesson N-1 has at least 1 star / is completed
-      if (lesson.lessonNumber > 1) {
-        const prevLesson = currentTier.lessons.find((l) => l.lessonNumber === lesson.lessonNumber - 1);
-        if (prevLesson) {
-          const p = progressMap[prevLesson.id];
-          return Boolean(p && (p.stars >= 1 || p.completed));
-        }
-      }
-
-      // First lesson of Tier T > 1: Unlocked if ALL lessons in Tier T-1 have at least 1 star / completed
-      if (lesson.lessonNumber === 1 && lesson.tierNumber > 1) {
-        const prevTier = ACADEMY_TIERS.find((t) => t.number === lesson.tierNumber - 1);
-        if (prevTier) {
-          return prevTier.lessons.every((l) => {
-            const p = progressMap[l.id];
-            return Boolean(p && (p.stars >= 1 || p.completed));
-          });
-        }
-      }
-
-      return false;
-    },
+    (lesson: AcademyLesson) => lessonUnlocked(lesson, ACADEMY_TIERS.flatMap(t => t.lessons), progressMap),
     [progressMap]
   );
-
-  // Unauthenticated Gated View
-  if (!currentUser || !userProfile) {
-    return (
-      <div className="w-full max-w-md mx-auto py-20 px-4 text-center font-sans">
-        <div className="p-8 bg-[#171E2B] rounded-xl border border-[rgba(240,243,250,0.12)] space-y-5 shadow-2xl">
-          <GraduationCap className="w-14 h-14 text-[#D6F36B] mx-auto animate-bounce-slow" />
-          <div className="space-y-2">
-            <h2 className="text-xl font-medium text-[#F0F3FA]">
-              {t('academy_login_required')}
-            </h2>
-            <p className="text-xs text-[#A6B1C5] font-mono leading-relaxed">
-              {t('academy_login_desc')}
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setAuthModalOpen(true)}
-            className="w-full py-2.5 px-4 rounded-lg bg-[#D6F36B] hover:bg-[#D6F36B]/90 text-[#0D111A] font-mono text-xs font-semibold transition-colors cursor-pointer shadow-sm"
-          >
-            {t('nav_login')}
-          </button>
-        </div>
-
-        <AuthModal
-          isOpen={authModalOpen}
-          onClose={() => setAuthModalOpen(false)}
-        />
-      </div>
-    );
-  }
 
   // Active Lesson Drill View
   if (activeLesson) {
     return (
       <ActiveLessonRunner
+        key={`${academyLang}:${activeLesson.id}`}
         lesson={activeLesson}
         language={academyLang}
         typingSound={typingSound}
@@ -290,6 +199,7 @@ export const AcademyView: React.FC = () => {
   const completedLessonsCount = allLessons.filter((l) => (progressMap[l.id]?.stars || 0) > 0).length;
   const totalStarsEarned = allLessons.reduce((sum, l) => sum + (progressMap[l.id]?.stars || 0), 0);
   const maxPossibleStars = totalLessonsCount * 3;
+  const suggested = allLessons.find(l => isLessonUnlocked(l) && !progressMap[l.id]?.completed) || allLessons[0];
   const progressPercent = Math.round((completedLessonsCount / totalLessonsCount) * 100);
 
   const languagesList: Array<{ id: Language; labelKey: string }> = [
@@ -301,6 +211,14 @@ export const AcademyView: React.FC = () => {
 
   return (
     <div className="w-full max-w-5xl mx-auto py-6 sm:py-8 px-4 font-sans animate-fade-in select-none space-y-8">
+      <section className="academy-intro">
+        <span className="academy-eyebrow">QALAMTYPE / ACADEMY</span>
+        <h2>{c[0]}</h2><p>{c[1]}</p>
+        <button className="academy-start" type="button" onClick={() => setActiveLesson(suggested)}>{completedLessonsCount ? c[2] : c[3]} <ArrowRight size={18}/></button>
+        <p className="academy-tip mt-4">{c[31]}</p>
+      </section>
+      {!currentUser && <div className="academy-guest"><div>{c[4]}<small>{c[5]}</small></div><button onClick={() => setAuthModalOpen(true)}>{t('nav_login')}</button></div>}
+      <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
       {/* Header & Language Picker */}
       <div className="bg-[#171E2B] rounded-2xl border border-[rgba(240,243,250,0.08)] p-6 shadow-xl space-y-6">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-[rgba(240,243,250,0.08)] pb-5">
@@ -363,7 +281,7 @@ export const AcademyView: React.FC = () => {
 
       {/* Skill Tree Progression Map */}
       <div className="space-y-8">
-        {ACADEMY_TIERS.map((tier) => {
+        {ACADEMY_TIERS.map((tier, tierIndex) => {
           const tierLessons = tier.lessons;
           const tierCompletedCount = tierLessons.filter((l) => (progressMap[l.id]?.stars || 0) > 0).length;
           const isTierUnlocked = tierLessons.some((l) => isLessonUnlocked(l));
@@ -382,7 +300,7 @@ export const AcademyView: React.FC = () => {
                 <div>
                   <div className="flex items-center space-x-2">
                     <span className="px-2.5 py-0.5 rounded-full bg-[#D6F36B]/15 text-[#D6F36B] text-[11px] font-mono font-semibold">
-                      {tier.number}-bosqich
+                      {tierIndex + 1}
                     </span>
                     <h2 className="text-lg font-medium text-[#F0F3FA]">
                       {tier.name[academyLang]}
@@ -394,7 +312,7 @@ export const AcademyView: React.FC = () => {
                 </div>
 
                 <div className="text-xs font-mono text-[#A6B1C5] shrink-0">
-                  {tierCompletedCount} / {tierLessons.length} darslar
+                  {tierCompletedCount} / {tierLessons.length} · {c[6]}
                 </div>
               </div>
 
@@ -495,7 +413,11 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
   progressMap,
   onNextLesson,
 }) => {
-  const { t } = useSettings();
+  const { t, siteLanguage } = useSettings();
+  const c = academyCopy[siteLanguage];
+  const [practiceText, setPracticeText] = useState<string | null>(null);
+  const mistakes = useRef<Record<string, number>>({});
+  const goals = starGoals(lesson.tierNumber);
   const lessonText = lesson.content[language] || lesson.content.uzbek_latin;
 
   const {
@@ -517,17 +439,17 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
     difficulty: 'easy',
     language,
     typingSound,
-    customText: lessonText,
+    customText: practiceText || lessonText,
   });
 
-  const [starsEarned, setStarsEarned] = useState<number>(0);
+  const starsEarned = result && !practiceText ? calculateTierStars(lesson.tierNumber, result.wpm, academyAccuracy(result)) : 0;
   const [isNewRecord, setIsNewRecord] = useState<boolean>(false);
   const [processed, setProcessed] = useState<boolean>(false);
 
   useEffect(() => {
     if (phase === 'idle') {
+      mistakes.current = {};
       setProcessed(false);
-      setStarsEarned(0);
       setIsNewRecord(false);
     }
   }, [lesson.id, phase]);
@@ -535,12 +457,12 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
   useEffect(() => {
     if (phase === 'completed' && result && !processed) {
       setProcessed(true);
-      onSaveProgress(lesson, result.wpm, result.accuracy).then((res) => {
-        setStarsEarned(res.stars);
-        setIsNewRecord(res.isNewRecord);
-      });
+      if (practiceText) return;
+      const previous = progressMap[lesson.id];
+      setIsNewRecord(starsEarned > 0 && (result.wpm > (previous?.bestWpm || 0) || starsEarned > (previous?.stars || 0)));
+      void onSaveProgress(lesson, result.wpm, academyAccuracy(result));
     }
-  }, [phase, result, processed, lesson, onSaveProgress]);
+  }, [phase, result, processed, lesson, onSaveProgress, practiceText, progressMap, starsEarned]);
 
   // Find next lesson
   const allLessons = ACADEMY_TIERS.flatMap((t) => t.lessons);
@@ -548,6 +470,17 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
   const nextLesson = currentIdx !== -1 && currentIdx < allLessons.length - 1 ? allLessons[currentIdx + 1] : null;
 
   const liveStats = getLiveStats();
+  const cursor = wordsDisplay.flatMap(w => w.chars).find(ch => ch.isCurrent || ch.isCurrentRight);
+  const nextChar = cursor?.isCurrentRight ? 'Backspace' : cursor?.char || ' ';
+  const handleLessonKey = (e: KeyboardEvent) => {
+    if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey && !e.isComposing && e.key !== ' ' && nextChar !== 'Backspace') {
+      const normalized = e.key.replace(/[‘’ʻʼ]/g, "'");
+      if (normalized !== nextChar.replace(/[‘’ʻʼ]/g, "'")) mistakes.current[nextChar] = (mistakes.current[nextChar] || 0) + 1;
+    }
+    handleKeyDown(e);
+  };
+  const weakKeys = Object.entries(mistakes.current).sort((a,b) => b[1] - a[1]).slice(0,5).map(([key]) => key);
+  const startPractice = () => setPracticeText(weakKeys.map(k => `${k} ${k} ${k}${k} ${k}${k}`).join(' '));
 
   return (
     <div className="w-full max-w-4xl mx-auto py-6 sm:py-8 px-4 font-sans animate-fade-in space-y-6">
@@ -564,7 +497,7 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
 
         <div className="text-center sm:text-right">
           <span className="text-[10px] font-mono uppercase tracking-wider text-[#D6F36B]">
-            {lesson.tierNumber}-bosqich • {lesson.lessonNumber}-dars
+            {ACADEMY_TIERS.findIndex(tier => tier.number === lesson.tierNumber) + 1} / {lesson.lessonNumber} · {c[6]}
           </span>
           <h2 className="text-base font-medium text-[#F0F3FA]">
             {lesson.title[language]}
@@ -599,12 +532,12 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
             </div>
 
             <h3 className="text-xl font-medium text-[#F0F3FA]">
-              {starsEarned > 0 ? t('academy_lesson_completed') : t('academy_stars_zero')}
+              {practiceText ? c[30] : starsEarned > 0 ? t('academy_lesson_completed') : t('academy_stars_zero')}
             </h3>
 
-            {starsEarned === 0 && (
+            {!practiceText && starsEarned === 0 && (
               <p className="text-xs text-red-400 font-mono">
-                {t('academy_retry_desc')}
+                {c[27]}
               </p>
             )}
 
@@ -647,7 +580,7 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
             <div className="bg-[#0D111A] p-3 rounded-xl border border-[rgba(240,243,250,0.08)]">
               <span className="text-[10px] font-mono text-[#A6B1C5] uppercase block">Aniqlik</span>
               <span className={`text-2xl font-mono font-bold ${result.accuracy >= 75 ? 'text-[#71D9AF]' : 'text-red-400'}`}>
-                {result.accuracy}%
+                {academyAccuracy(result)}%
               </span>
             </div>
 
@@ -659,6 +592,9 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
             </div>
           </div>
 
+          <p className="academy-tip">{practiceText ? c[30] : starsEarned >= 2 ? c[25] : c[26]}</p>
+          {!practiceText && weakKeys.length > 0 && <div className="academy-guest"><div>{c[29]}<small>{weakKeys.join(' · ')}</small></div><button type="button" onClick={startPractice}>{c[28]}</button></div>}
+          {practiceText && <button type="button" className="academy-start" onClick={() => setPracticeText(null)}>{t('academy_retry_lesson')}</button>}
           {/* Action Buttons */}
           <div className="pt-4 flex flex-col sm:flex-row gap-3">
             <button
@@ -670,7 +606,7 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
               <span>{t('academy_retry_lesson')}</span>
             </button>
 
-            {starsEarned > 0 && nextLesson && (
+            {!practiceText && starsEarned > 0 && nextLesson && (
               <button
                 type="button"
                 onClick={() => onNextLesson(nextLesson)}
@@ -685,6 +621,16 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
       ) : (
         /* Typing Engine Area */
         <div className="space-y-4">
+          <div className="academy-lesson-shell">
+          <p className="academy-tip">{practiceText ? c[29] : c[27]}</p>
+          <div className="academy-goals">
+            <span><b>★</b>{c[7]} ≥ {goals.pass}%</span>
+            <span><b>★★</b>{c[7]} ≥ {goals.two}%</span>
+            <span><b>★★★</b>{c[7]} ≥ {goals.three}% · {goals.beginner ? c[23] : `${goals.speed} WPM`}</span>
+          </div>
+          {!goals.beginner && <p className="academy-tip">{c[24]}</p>}
+          <div className="flex justify-between text-xs text-[#A6B1C5]"><span>{Math.round(liveStats.progress)}%</span><span>{c[7]} {Math.round(liveStats.accuracy)}% · {liveStats.wpm} WPM</span></div>
+          <div className="academy-progress-track"><div style={{width: `${Math.min(100, liveStats.progress)}%`}} /></div>
           <TypingArea
             wordsDisplay={wordsDisplay}
             currentIndex={currentIndex}
@@ -699,9 +645,11 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
             onRestart={resetTest}
             onPause={pauseTest}
             onResume={resumeTest}
-            onKeyDown={handleKeyDown}
+            onKeyDown={handleLessonKey}
             liveWpm={liveStats.wpm}
           />
+          </div>
+          <KeyboardCoach nextChar={nextChar} language={language} uiLanguage={siteLanguage} />
         </div>
       )}
     </div>

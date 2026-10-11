@@ -1,7 +1,7 @@
 import { AcademyTier, Language } from '../types';
 import uzLiterature from './uz_literature.json';
 
-export const ACADEMY_TIERS: AcademyTier[] = [
+const LEGACY_TIERS: AcademyTier[] = [
   // TIER 1: Harflar (Letters)
   {
     id: 'tier_1',
@@ -484,4 +484,48 @@ export const ACADEMY_TIERS: AcademyTier[] = [
       },
     ],
   },
+];
+
+// Stable IDs retain previous achievements. Display order follows the learning path,
+// not the historical tier numbers stored in academy_progress.
+const localized = (uz: string, cy: string, ru: string, en: string): Record<Language, string> => ({
+  uzbek_latin: uz, uzbek_cyrillic: cy, russian: ru, english: en,
+});
+const drill = (id: string, tierNumber: number, lessonNumber: number, title: Record<Language, string>, latin: string, russian: string = latin, cyrillic: string = russian): import('../types').AcademyLesson => ({
+  id, tierNumber, lessonNumber, title, content: { uzbek_latin: latin, english: latin, russian, uzbek_cyrillic: cyrillic },
+});
+const letters = [
+  drill('t1_l1', 1, 1, localized('F va J: birinchi qadam', 'А ва О: биринчи қадам', 'А и О: первые шаги', 'F and J: first steps'), 'f j f j ff jj fj jf f j fj jf', 'а о а о аа оо ао оа а о ао оа'),
+  drill('t1_l2', 1, 2, localized('D va K: ikki qo‘l', 'В ва Л: икки қўл', 'В и Л: две руки', 'D and K: both hands'), 'd k d k dd kk dk kd fd jk df kj', 'в л в л вв лл вл лв ва ол ав ло'),
+  drill('t1_l3', 1, 3, localized('S va L: asosiy qator', 'Қ ва Д: асосий қатор', 'Ы и Д: основной ряд', 'S and L: home row'), 's l s l ss ll sl ls sd kl ds lk', 'ы д ы д ыы дд ыд ды ыв лд вы дл', 'қ д қ д ққ дд қд дқ қв лд вқ дл'),
+  drill('t1_l4', 1, 4, localized('A: chap jimjiloq', 'Ф: чап жимжилоқ', 'Ф: левый мизинец', 'A: left little finger'), 'a s d f j k l a as df jk la fads', 'ф ы в а о л д ф фы ва ол дф фава', 'ф қ в а о л д ф фқ ва ол дф фава'),
+  drill('t1_l5', 1, 5, localized('G va H: markaz', 'П ва Р: марказ', 'П и Р: центр', 'G and H: the centre'), 'g h g h fg jh gf hj gag had flag', 'п р п р ап ор па ро папа пара'),
+  drill('t1_l6', 1, 6, localized('Yuqori qator: E va I', 'Юқори қатор: У ва Ш', 'Верхний ряд: У и Ш', 'Top row: E and I'), 'e i e i de ki ed ik fed kid side', 'у ш у ш ву лш ув шл шла ушла'),
+  drill('t1_l7', 1, 7, localized('Yuqori qatorni kengaytiramiz', 'Юқори қаторни кенгайтирамиз', 'Осваиваем верхний ряд', 'Explore the top row'), 'q w r t y u o p we are you top red', 'й ц к е н г щ з йц ке нг щз река', 'й ц к е н г ў з йц ке нг ўз река'),
+  drill('t1_l8', 1, 8, localized('Quyi qator va takrorlash', 'Қуйи қатор ва такрорлаш', 'Нижний ряд и повторение', 'Bottom row and review'), 'z x c v b n m zx cv bn nm can man', 'я ч с м и т ь б ю яч см ит ьб ю', 'я ч с м и т ь б ю яч см ит ьб ю'),
+];
+letters.push(drill('t1_l9', 1, 9, localized('Harflarni mustahkamlaymiz', 'Ў Қ Ғ Ҳ: махсус ҳарфлар', 'Ё Ж Э: повторение букв', 'Complete the letter review'), 'a s d f g h j k l q w e r t y u i o p z x c v b n m', 'ё ж э ёё жж ээ ёж жэ эж', 'ў қ ғ ҳ ўў ққ ғғ ҳҳ ўқ ғҳ қў ҳғ'));
+const numbers = [
+  drill('t5_l1', 5, 1, localized('1 dan 5 gacha', '1 дан 5 гача', 'От 1 до 5', 'Numbers 1 to 5'), '1 2 3 4 5 11 22 33 44 55 12 34 45'),
+  drill('t5_l2', 5, 2, localized('6 dan 0 gacha', '6 дан 0 гача', 'От 6 до 0', 'Numbers 6 to 0'), '6 7 8 9 0 66 77 88 99 00 67 89 90'),
+  drill('t5_l3', 5, 3, localized('Raqamlar ritmi', 'Рақамлар ритми', 'Ритм чисел', 'Number rhythm'), '12 34 56 78 90 123 456 789 2026 1000'),
+  drill('t5_l4', 5, 4, localized('Sana va vaqt', 'Сана ва вақт', 'Дата и время', 'Dates and time'), '10:30 12:45 08:00 2026 15.05 21.06 7 14 28'),
+];
+const easy = LEGACY_TIERS.find(t => t.number === 2)!;
+const shortWords = [
+  localized('uy oy ot it un suv non ona ota men sen', 'уй ой от ит ун сув нон она ота мен сен', 'дом кот лес мир сон сад чай сыр нос рот', 'cat dog sun pen map red sky top cup bed'),
+  localized('bola aka uka opa dala olma asal gul kun tun', 'бола ака ука опа дала олма асал гул кун тун', 'мама папа рука нога окно вода хлеб утро', 'home hand book tree rain wind milk fish'),
+  localized('kitob qalam maktab yangi yaxshi do‘st shahar', 'китоб қалам мактаб янги яхши дўст шаҳар', 'книга школа город новый добрый письмо', 'school friend green happy story learn'),
+];
+const sentenceTier = LEGACY_TIERS.find(t => t.number === 3)!;
+const simpleSentences = [
+  localized('men kitob olaman sen ham yoz biz birga mashq qilamiz har kuni ozgina yoz', 'мен китоб оламан сен ҳам ёз биз бирга машқ қиламиз ҳар куни озгина ёз', 'я читаю книгу мы учимся вместе ты пишешь слова каждый день', 'i can type you can learn we practise together a little every day'),
+  localized('Bugun havo yaxshi. Men yangi kitob o‘qidim. Har kuni mashq qilaman.', 'Бугун ҳаво яхши. Мен янги китоб ўқидим. Ҳар куни машқ қиламан.', 'Сегодня хорошая погода. Я читаю новую книгу. Мы учимся каждый день.', 'Today is a good day. I read a new book. We learn a little every day.'),
+];
+export const ACADEMY_TIERS: AcademyTier[] = [
+  { ...LEGACY_TIERS[0], lessons: letters },
+  { ...LEGACY_TIERS.find(t => t.number === 5)!, lessons: numbers },
+  { ...easy, lessons: easy.lessons.map((l, i) => ({ ...l, tierNumber: 2, content: shortWords[i] })) },
+  { ...sentenceTier, lessons: sentenceTier.lessons.map((l, i) => ({ ...l, content: simpleSentences[i] })) },
+  ...[4, 6, 7, 8].map(n => LEGACY_TIERS.find(t => t.number === n)!),
 ];
