@@ -17,14 +17,14 @@ export const BLOG_ARTICLES: BlogArticle[] = [
   {
     slug: 'klaviaturada-tez-yozish',
     title: "Klaviaturada tez yozishni qanday o'rganish mumkin",
-    description: "Klaviaturada tez yozish — bu tug'ma qobiliyat emas, balki mashq orqali rivojlanadigan oddiy ko'nikma. To'g'ri usulda mashq qilsangiz, bir necha hafta ichida sezilarli farqni ko'rasiz.",
+    description: "Klaviaturada tez yozish — bu tug'ma qobiliyat emas, balki mashq orqali rivojlanadigan oddiy ko'nikma. Asosiy qatordan boshlang, aniqlikni kuzating va mashqlarni asta-sekin murakkablashtiring. Har kimning rivojlanish sur’ati turlicha.",
     date: '2026-08-09',
     readTime: '4 min o\'qish',
     sections: [
       {
         heading: "1. Barmoqlarni to'g'ri joylashtiring",
         paragraphs: [
-          "Har bir barmoq klaviaturada o'z \"uyi\"ga ega bo'lishi kerak — bu asosiy qator (home row) deb ataladi: chap qo'l uchun A-S-D-F, o'ng qo'l uchun J-K-L-;. Har safar yozishni boshlashdan oldin barmoqlaringizni shu qatorga qo'ying. Boshida bu noqulay tuyulishi mumkin, lekin bu — tez yozishning poydevori."
+          "Har bir barmoq klaviaturada o'z \"uyi\"ga ega bo'lishi kerak — bu asosiy qator (home row) deb ataladi: chap qo'l uchun A-S-D-F, o'ng qo'l uchun J-K-L-;. F va J tugmalaridagi bo'rtmalar joyni ko'z bilan qidirmasdan topishga yordam beradi. Bo'shliqni bosh barmoq bilan bosing. Har safar yozishni boshlashdan oldin barmoqlaringizni shu qatorga qo'ying. Boshida bu noqulay tuyulishi mumkin, lekin bu — tez yozishning poydevori."
         ]
       },
       {
@@ -36,7 +36,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
       {
         heading: "3. Aniqlikni tezlikdan ustun qo'ying",
         paragraphs: [
-          "Ko'p odamlar xato qiladigan narsa — boshida tezlikka intilish. Aslida teskarisi to'g'ri: avval 100% aniqlik bilan yozishni o'rganing, tezlik esa vaqt o'tishi bilan tabiiy ravishda oshadi. Xato bilan tez yozish — sekin, lekin to'g'ri yozishdan ko'ra foydasizroq, chunki xatolarni tuzatish vaqtni ko'proq oladi."
+          "Ko'p odamlar xato qiladigan narsa — boshida tezlikka intilish. Aslida teskarisi to'g'ri: avval shoshilmasdan, kamroq xato bilan yozishni mashq qiling, tezlik esa vaqt o'tishi bilan tabiiy ravishda oshadi. Xato bilan tez yozish — sekin, lekin to'g'ri yozishdan ko'ra foydasizroq, chunki xatolarni tuzatish vaqtni ko'proq oladi."
         ]
       },
       {
@@ -46,7 +46,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
         ],
         listItems: [
           "Harflar va harf birikmalari — asosiy qatordan boshlab, keyin yuqori va pastki qatorlarga o'ting",
-          "Oddiy so'zlar — qisqa, tez-tez ishlatiladigan so me'yoriy so'zlar",
+          "Oddiy so'zlar — qisqa, tez-tez ishlatiladigan so'zlar",
           "Jumlalar — tinish belgilari bilan tabiiy matn",
           "Raqamlar va maxsus belgilar — @ # % kabi belgilar, sanalar",
           "Uzun, murakkab matnlar — haqiqiy maqolalar, adabiy parchalar"
@@ -55,13 +55,13 @@ export const BLOG_ARTICLES: BlogArticle[] = [
       {
         heading: "5. Har kuni, qisqa vaqt mashq qiling",
         paragraphs: [
-          "Haftada bir marta bir soat mashq qilishdan ko'ra, har kuni 10-15 daqiqa mashq qilish ancha samaraliroq — bu mushak xotirasini (muscle memory) shakllantiradi, bu esa tez yozishning asosiy siri."
+          "Haftada bir marta bir soat mashq qilishdan ko'ra, har kuni 10-15 daqiqa mashq qilish ancha samaraliroq — bu harakatlarni takrorlashga yordam beradi. Qo'llarni bo'sh tuting, yelkalarni ko'tarmang va charchaganda tanaffus qiling."
         ]
       },
       {
-        heading: "Qalampir bilan mashq qiling",
+        heading: "Qalamtype bilan mashq qiling",
         paragraphs: [
-          "Qalampir'ning Akademiya bo'limi aynan shu bosqichma-bosqich tizim asosida qurilgan — harflardan boshlab, so'zlar, tinish belgilari, raqamlar va murakkab matnlargacha. Har bir darsdan so'ng yulduzcha bahosi bilan o'z natijangizni ko'rasiz va qayerda ko'proq mashq kerakligini aniq bilib olasiz. O'zbek, rus va ingliz tillarida — bepul."
+          "Qalamtype'ning Akademiya bo'limi aynan shu bosqichma-bosqich tizim asosida qurilgan — harflardan boshlab, so'zlar, tinish belgilari, raqamlar va murakkab matnlargacha. Har bir darsdan so'ng yulduzcha bahosi bilan o'z natijangizni ko'rasiz va qayerda ko'proq mashq kerakligini aniq bilib olasiz. O'zbek, rus va ingliz tillarida — bepul."
         ]
       }
     ]
@@ -76,13 +76,13 @@ export const BLOG_ARTICLES: BlogArticle[] = [
       {
         heading: "1. Asosiy qator mashqlari",
         paragraphs: [
-          "Eng zerikarli, lekin eng zarur mashq turi. asdf jkl; kabi ketma-ketliklarni takrorlash barmoqlarning to'g'ri joyini \"yodda saqlashi\"ga yordam beradi. Buni har kungi mashqning boshida 2-3 daqiqa qilish tavsiya etiladi."
+          "Boshlash uchun sodda mashq: ko'rsatkich barmoqlar F va J dagi bo'rtmalarni topsin, qolgan barmoqlar ASDF va JKL; qatoriga joylashsin. asdf jkl; kabi ketma-ketliklarni takrorlash barmoqlarning to'g'ri joyini \"yodda saqlashi\"ga yordam beradi. Buni har kungi mashqning boshida 2-3 daqiqa qilish tavsiya etiladi."
         ]
       },
       {
         heading: "2. Tez-tez uchraydigan so'zlar mashqi",
         paragraphs: [
-          "Har qanday tilda eng ko'p ishlatiladigan 100-150 ta so'z bor (\"va\", \"bu\", \"men\", \"uchun\" kabi). Aynan shu so'zlarni tez va xatosiz yoza olish — umumiy tezlikka eng katta ta'sir ko'rsatadigan omil, chunki ular matnning katta qismini tashkil qiladi."
+          "Kundalik matnlarda tez-tez uchraydigan so'zlarni tanlang (\"va\", \"bu\", \"men\", \"uchun\" kabi). Qisqa so'zlarni ravon yozishga odatlaning. Keyin yangi so'zlar qo'shib, mashqni bir xil ketma-ketlikni yodlash bilan cheklamang."
         ]
       },
       {
@@ -118,15 +118,15 @@ export const BLOG_ARTICLES: BlogArticle[] = [
       {
         heading: "Bularning barchasi bitta joyda",
         paragraphs: [
-          "Qalampir yuqoridagi mashq turlarining barchasini o'z ichiga oladi: oson/o'rtacha/qiyin darajalar, vaqt va so'z soni bo'yicha testlar, Akademiyada tuzilgan darslar, va jonli reyting jadvali — o'zbek, rus va ingliz tillarida, bepul."
+          "Qalamtype yuqoridagi mashq turlarining barchasini o'z ichiga oladi: oson/o'rtacha/qiyin darajalar, vaqt va so'z soni bo'yicha testlar, Akademiyada tuzilgan darslar, va jonli reyting jadvali — o'zbek, rus va ingliz tillarida, bepul."
         ]
       }
     ]
   },
   {
     slug: 'tez-yozish-oyinlari',
-    title: "Tez yozish o'yinlari: Qalampir va boshqalar",
-    description: "Tez yozishni o'rganish shart emas zerikarli bo'lishi kerak. So'nggi yillarda \"tez yozish o'yini\" tushunchasi mashhur bo'lib bormoqda — bu oddiy testlarni raqobat, mukofot va o'yin elementlari bilan boyitilgan formatga aylantiradi.",
+    title: "Tez yozish o'yinlari: Qalamtype va boshqalar",
+    description: "Tez yozishni o'rganish zerikarli bo'lishi shart emas. So'nggi yillarda \"tez yozish o'yini\" tushunchasi mashhur bo'lib bormoqda — bu oddiy testlarni raqobat, mukofot va o'yin elementlari bilan boyitilgan formatga aylantiradi.",
     date: '2026-08-09',
     readTime: '3 min o\'qish',
     sections: [
@@ -137,9 +137,9 @@ export const BLOG_ARTICLES: BlogArticle[] = [
         ]
       },
       {
-        heading: "Tez yozish o'yinlarining asosiy tualari",
+        heading: "Tez yozish o'yinlarining asosiy turlari",
         paragraphs: [
-          "Tezlik testlari — eng keng tarqalgan format: belgilangan vaqt yoki so'z sonida qanchalik tez va aniq yoza olishingizni o'lchaydi. Xalqaro platformalarda (masalan, Monkeytype kabi) bu format juda mashhur, lekin ko'pchiligi faqat ingliz tilida ishlaydi.",
+          "Tezlik testlari — eng keng tarqalgan format: belgilangan vaqt yoki so'z sonida qanchalik tez va aniq yoza olishingizni o'lchaydi. Vaqtli test natijasini avvalgi natijangiz bilan solishtiring. Solishtirish uchun til, vaqt va murakkablik bir xil bo'lsin.",
           "Bosqichli darslar — harflardan boshlab, so'zlar va murakkab matnlargacha bo'lgan tizimli o'sish, odatda yulduzcha yoki ball bilan baholanadi. Bu format ayniqsa yangi boshlovchilar uchun foydali, chunki tasodifiy emas, rejalashtirilgan tarzda rivojlanish imkonini beradi.",
           "Poyga (racing) formatlari — bir nechta ishtirokchi bir xil matnni bir vaqtda yozib, kim birinchi tugatishini ko'radigan format. Bu — eng raqobatbardosh va ijtimoiy format, chunki real vaqtda boshqalar bilan \"poyga\"ga chiqasiz."
         ]
@@ -147,13 +147,13 @@ export const BLOG_ARTICLES: BlogArticle[] = [
       {
         heading: "O'zbek tilidagi bo'shliq",
         paragraphs: [
-          "Yuqoridagi formatlarning aksariyati ingliz tilida yaratilgan va o'zbek tilini butunlay qo'llab-quvvatlamaydi — yoki bo'lsa ham, sifatsiz tarjima qilingan matnlar bilan. Bu esa o'zbek foydalanuvchilar uchun haqiqiy, tabiiy o'zbek matnlarida mashq qilish imkoniyatini cheklaydi."
+          "O'zingiz ko'p yozadigan tilda mashq qiling. O'zbekcha matnlarda o‘, g‘ va tutuq belgilariga ham e'tibor bering: ular yozayotgan matndagi belgi bilan mos kelishi kerak. Lotin va kirill mashqlarini alohida solishtiring."
         ]
       },
       {
-        heading: "Qalampir qanday yondashadi",
+        heading: "Qalamtype qanday yondashadi",
         paragraphs: [
-          "Qalampir aynan shu bo'shliqni to'ldirish uchun yaratilgan — o'zbek (lotin va kirill), rus va ingliz tillarida tabiiy matnlar bilan tez yozish testi, jonli reyting jadvali (kunlik, haftalik, oylik va umumiy), va harflardan murakkab matnlargacha bosqichma-bosqich Akademiya darslari. Hammasi bepul, hisob yaratib darhol boshlash mumkin."
+          "Qalamtype aynan shu bo'shliqni to'ldirish uchun yaratilgan — o'zbek (lotin va kirill), rus va ingliz tillarida tabiiy matnlar bilan tez yozish testi, jonli reyting jadvali (kunlik, haftalik, oylik va umumiy), va harflardan murakkab matnlargacha bosqichma-bosqich Akademiya darslari. Testni hisob yaratmasdan ham sinab ko'rish mumkin. Natijalarni profilingizda saqlash uchun ro'yxatdan o'ting."
         ]
       }
     ]

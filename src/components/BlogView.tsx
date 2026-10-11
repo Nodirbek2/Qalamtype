@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { BLOG_ARTICLES, BlogArticle } from '../data/blogArticles';
+import React, { useEffect, useState } from 'react';
+import { BLOG_ARTICLES } from '../data/blogArticles';
 import { ArrowLeft, BookOpen, Calendar, Clock, ChevronRight, Keyboard, ArrowRight } from 'lucide-react';
 
 interface BlogViewProps {
@@ -22,40 +22,19 @@ export const BlogView: React.FC<BlogViewProps> = ({
     if (activeArticle) {
       document.title = activeArticle.title;
     } else {
-      document.title = "Qalampir Blog — tez yozish va klaviatura bo'yicha maqolalar";
+      document.title = "Qalamtype Blog — tez yozish va klaviatura bo'yicha maqolalar";
     }
 
     return () => {
-      document.title = "Qalampir — tez yozish mashqi va testi (UZ/RU/EN)";
+      document.title = "Qalamtype — tez yozish mashqi va testi (UZ/RU/EN)";
     };
   }, [activeArticle]);
 
-  // Render paragraph content with bold text and Qalampir homepage link support
+  // Render paragraph content with bold text and Qalamtype homepage link support
   const renderFormattedParagraph = (text: string) => {
-    // Replace [Qalampir](https://www.qalamtype.uz) or Qalampir link references
-    const linkRegex = /\[Qalampir\]\(https?:\/\/(?:www\.)?qalamtype\.uz\/?\)/g;
-
-    // Split text into segments
-    const parts = text.split(linkRegex);
-    const hasLink = linkRegex.test(text);
-
-    if (!hasLink) {
-      // Process bold markers like **bold**
-      return renderBoldText(text);
-    }
-
-    return (
-      <>
-        {renderBoldText(parts[0])}
-        <button
-          type="button"
-          onClick={onNavigateHome}
-          className="text-[#D6F36B] hover:underline font-medium inline-flex items-center cursor-pointer"
-        >
-          Qalampir
-        </button>
-        {parts[1] && renderBoldText(parts[1])}
-      </>
+    // Replace [Qalamtype](https://www.qalamtype.uz) or Qalamtype link references
+    return text.split(/(\[(?:Qalamtype|Qalampir)\]\(https?:\/\/(?:www\.)?qalamtype\.uz\/?\))/g).map((part, index) =>
+      /^\[/.test(part) ? <button key={index} type="button" onClick={onNavigateHome} className="text-[#D6F36B] hover:underline">Qalamtype</button> : <React.Fragment key={index}>{renderBoldText(part)}</React.Fragment>
     );
   };
 
@@ -87,7 +66,7 @@ export const BlogView: React.FC<BlogViewProps> = ({
   // Article detail view
   if (activeArticle) {
     return (
-      <div className="w-full max-w-4xl mx-auto py-6 sm:py-10 px-4 font-sans select-none">
+      <div className="w-full max-w-4xl mx-auto py-6 sm:py-10 px-4 font-sans">
         {/* Navigation bar */}
         <div className="flex items-center justify-between mb-8 pb-4 border-b border-[rgba(240,243,250,0.08)]">
           <button
@@ -116,7 +95,7 @@ export const BlogView: React.FC<BlogViewProps> = ({
         <header className="mb-6">
           <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[#D6F36B]/10 border border-[#D6F36B]/20 text-[#D6F36B] text-xs font-mono mb-4">
             <BookOpen className="w-3.5 h-3.5" />
-            <span>Qalampir Blog</span>
+            <span>Qalamtype Blog</span>
           </div>
           <h1 className="text-2xl sm:text-4xl font-bold text-[#F0F3FA] tracking-tight leading-tight mb-4">
             {activeArticle.title}
@@ -126,7 +105,8 @@ export const BlogView: React.FC<BlogViewProps> = ({
           </p>
         </header>
 
-        {/* Mid-article CTA Card (Before section 1) */}
+        <BlogVisual kind={activeArticle.slug === 'tez-yozish-oyinlari' ? 'race' : 'keyboard'} />
+        {/* Practice invitation */}
         <div className="my-8 p-5 sm:p-6 rounded-2xl bg-[#1E1C1A] border border-[#D6F36B]/30 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center space-x-3.5 text-left w-full sm:w-auto">
             <div className="w-10 h-10 rounded-xl bg-[#D6F36B]/15 border border-[#D6F36B]/30 flex items-center justify-center text-[#D6F36B] shrink-0">
@@ -134,7 +114,7 @@ export const BlogView: React.FC<BlogViewProps> = ({
             </div>
             <div className="space-y-0.5">
               <p className="text-sm sm:text-base font-semibold text-[#F0F3FA] font-sans">
-                Nazariyani bilib oldingizmi? Hoziroq tezligingizni amalda sinab ko'ring!
+                Boshlang‘ich natijangizni bilib oling
               </p>
               <p className="text-xs text-[#A6B1C5] font-sans">
                 O'zbek, rus va ingliz tillarida bepul test va aniq statistika.
@@ -146,7 +126,7 @@ export const BlogView: React.FC<BlogViewProps> = ({
             onClick={onNavigateHome}
             className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#D6F36B] hover:bg-[#D6F36B]/90 active:scale-95 text-[#0D111A] font-mono text-xs font-bold transition-all flex items-center justify-center space-x-1.5 shrink-0 cursor-pointer touch-manipulation"
           >
-            <span>Klaviaturada yozishni boshlash</span>
+            <span>Endi test qilib ko‘ring</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -176,6 +156,8 @@ export const BlogView: React.FC<BlogViewProps> = ({
                   ))}
                 </ol>
               )}
+              {(idx === 0 || idx === 2 || idx === 4) && <BlogVisual kind={idx === 0 ? (activeArticle.slug === 'tez-yozish-oyinlari' ? 'race' : 'keyboard') : idx === 2 ? 'accuracy' : 'progress'} />}
+              {(idx === 1 || idx === 4) && <div className="blog-practice"><div><strong>O‘qiganingizni amalda sinang</strong><p>{idx === 1 ? 'Shoshilmasdan yozing, barmoqlarni asosiy qatorga qaytaring.' : 'Natijadagi tezlik va aniqlikni kuzating. Keyingi mashqda xatolarni kamaytiring.'}</p></div><button type="button" onClick={onNavigateHome}>Endi test qilib ko‘ring <ArrowRight size={16}/></button></div>}
             </div>
           ))}
         </article>
@@ -191,7 +173,7 @@ export const BlogView: React.FC<BlogViewProps> = ({
                 Tez yozish trenajyoriga o'tish
               </h3>
               <p className="text-xs sm:text-sm text-[#A6B1C5] font-sans">
-                Qalampir bilan o'zbek, rus va ingliz tillarida bepul tez yozish mashqini boshlang.
+                Qalamtype bilan o'zbek, rus va ingliz tillarida bepul tez yozish mashqini boshlang.
               </p>
             </div>
           </div>
@@ -200,7 +182,7 @@ export const BlogView: React.FC<BlogViewProps> = ({
             onClick={onNavigateHome}
             className="w-full sm:w-auto px-6 py-3 rounded-xl bg-[#D6F36B] hover:bg-[#D6F36B]/90 active:scale-95 text-[#0D111A] font-mono text-xs font-bold transition-all flex items-center justify-center space-x-2 shrink-0 cursor-pointer touch-manipulation shadow-sm"
           >
-            <span>Klaviaturada yozishni boshlash</span>
+            <span>Endi test qilib ko‘ring</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>
@@ -210,7 +192,7 @@ export const BlogView: React.FC<BlogViewProps> = ({
 
   // Blog Index View (/blog)
   return (
-    <div className="w-full max-w-4xl mx-auto py-6 sm:py-10 px-4 font-sans select-none">
+    <div className="w-full max-w-4xl mx-auto py-6 sm:py-10 px-4 font-sans">
       {/* Index Header */}
       <div className="text-center mb-10 sm:mb-14">
         <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[#D6F36B]/10 border border-[#D6F36B]/20 text-[#D6F36B] text-xs font-mono mb-4">
@@ -218,7 +200,7 @@ export const BlogView: React.FC<BlogViewProps> = ({
           <span>Foydali Maqolalar</span>
         </div>
         <h1 className="text-3xl sm:text-5xl font-bold text-[#F0F3FA] tracking-tight mb-4">
-          Qalampir Blog
+          Qalamtype Blog
         </h1>
         <p className="text-base sm:text-lg text-[#A6B1C5] max-w-2xl mx-auto leading-relaxed">
           Klaviaturada tez yozish, samarali mashqlar, tugmalarni to'g'ri bosish va matn terish o'yinlari haqidagi eng sara qo'llanmalar.
@@ -226,13 +208,15 @@ export const BlogView: React.FC<BlogViewProps> = ({
       </div>
 
       {/* Articles List */}
-      <div className="space-y-6">
+      <div className="grid gap-6">
         {BLOG_ARTICLES.map((article) => (
-          <div
+          <button
+            type="button"
             key={article.slug}
             onClick={() => onNavigateBlog(article.slug)}
-            className="group bg-[#171E2B] border border-[rgba(240,243,250,0.08)] rounded-2xl p-6 sm:p-8 hover:border-[#D6F36B]/40 transition-all cursor-pointer flex flex-col justify-between"
+            className="group bg-[#171E2B] border border-[rgba(240,243,250,0.08)] rounded-2xl p-6 sm:p-8 text-left hover:border-[#D6F36B]/40 transition-all cursor-pointer flex flex-col justify-between"
           >
+            <BlogVisual kind={article.slug === 'tez-yozish-oyinlari' ? 'race' : article.slug === 'eng-yaxshi-mashqlar' ? 'progress' : 'keyboard'} compact />
             <div>
               <div className="flex items-center space-x-3 text-xs font-mono text-[#A6B1C5] mb-3">
                 <span className="flex items-center space-x-1">
@@ -259,9 +243,44 @@ export const BlogView: React.FC<BlogViewProps> = ({
               <span>Batafsil o'qish</span>
               <ChevronRight className="w-4 h-4 ml-1" />
             </div>
-          </div>
+          </button>
         ))}
       </div>
     </div>
   );
 };
+
+type VisualKind = 'keyboard' | 'accuracy' | 'progress' | 'race';
+function BlogVisual({kind, compact = false}: {kind: VisualKind; compact?: boolean}) {
+  const [paused, setPaused] = useState(false);
+  const titles = {keyboard:'Barmoqlarning boshlang‘ich joyi',accuracy:'Avval aniqlik, keyin tezlik',progress:'Harflardan ravon matngacha',race:'Yozish ritmi — poyga harakati'};
+  const captions = {keyboard:'Lotin QWERTY: F va J — ko‘rsatkich barmoqlar. Bosh barmoq — Space. Tugmadan keyin asosiy qatorga qayting.',accuracy:'Xato belgini sezsangiz, shoshilmang. Tezlikni biroz pasaytirib, to‘g‘ri yozishni mashq qiling.',progress:'Birinchi sodda birikmalar, so‘ng so‘zlar, jumlalar va belgilar. Bir bosqichni o‘zlashtirgach, keyingisiga o‘ting.',race:'Bu tushuntiruvchi animatsiya. Har bir to‘g‘ri yozilgan qism oldinga siljishga yordam beradi; natijani aniqlik bilan birga baholang.'};
+  return <figure className={`blog-visual ${compact ? 'blog-visual-compact' : ''} ${paused ? 'blog-paused' : ''}`}>
+    <div className="blog-visual-top"><span>{titles[kind]}</span>{!compact && <button type="button" onClick={()=>setPaused(!paused)} aria-label={paused ? 'Animatsiyani davom ettirish' : 'Animatsiyani to‘xtatish'}>{paused ? 'Davom ettirish' : 'Pauza'}</button>}</div>
+    <svg viewBox="0 0 640 240" role="img" aria-label={titles[kind]}>
+      {kind === 'keyboard' && <>
+        {['QWERTYUIOP','ASDFGHJKL;','ZXCVBNM,. /'.replace(' ','')].map((row,r)=>[...row].map((key,c)=> {
+          const home=r===1; const anchor=key==='F'||key==='J';
+          return <g key={`${r}-${c}`} transform={`translate(${40+c*54+r*14},${22+r*53})`}><rect width="47" height="43" rx="9" fill={anchor?'#D6F36B':home?'#263b43':'#202936'} stroke={home?'#70b8a6':'#435063'}/><text x="23" y="27" textAnchor="middle" fill={anchor?'#101820':'#eef3fa'} fontSize="18">{key}</text>{anchor && <path d="M17 35h12" stroke="#101820" strokeWidth="3"/>}</g>;
+        }))}
+        <rect x="190" y="185" width="265" height="36" rx="9" fill="#263b43" stroke="#70b8a6"/><text x="322" y="208" textAnchor="middle" fill="#eef3fa" fontSize="15">Space · bosh barmoq</text>
+        <circle className="blog-key-pulse" cx="239" cy="75" r="10" fill="#8ed8ff"/><circle className="blog-key-pulse" cx="401" cy="75" r="10" fill="#8ed8ff"/>
+      </>}
+      {kind === 'accuracy' && <>
+        <text x="40" y="58" fill="#a6b1c5" fontSize="16">Shoshilish o‘rniga, to‘g‘ri harfni tanlang</text>
+        <text x="40" y="126" fill="#D6F36B" fontSize="44" fontFamily="monospace">salo</text><text x="146" y="126" fill="#ff9c9c" fontSize="44" fontFamily="monospace" className="blog-error-letter">n</text><text x="146" y="126" fill="#D6F36B" fontSize="44" fontFamily="monospace" className="blog-correct-letter">m</text>
+        <path d="M40 165h550" stroke="#344154" strokeWidth="10" strokeLinecap="round"/><path className="blog-accuracy-line" d="M40 165h500" stroke="#D6F36B" strokeWidth="10" strokeLinecap="round"/>
+        <text x="40" y="210" fill="#eef3fa" fontSize="18">Sekinroq → kamroq xato → barqaror ritm</text>
+      </>}
+      {kind === 'progress' && <>
+        {['f j','salom','Bugun mashq.','2026!'].map((label,i)=><g key={label} transform={`translate(${28+i*154},${120-i*23})`}><rect className="blog-step" style={{animationDelay:`${i*.5}s`}} width="128" height="76" rx="16" fill="#263b43" stroke="#70b8a6"/><text x="64" y="33" textAnchor="middle" fill="#D6F36B" fontSize={i===2?'14':'21'}>{label}</text><text x="64" y="58" textAnchor="middle" fill="#a6b1c5" fontSize="12">{['Harflar','So‘zlar','Jumlalar','Belgilar'][i]}</text></g>)}
+      </>}
+      {kind === 'race' && <>
+        {[70,145].map((y,i)=><g key={y}><rect x="30" y={y} width="575" height="49" rx="14" fill="#202936"/><path d={`M45 ${y+25}h545`} stroke="#526175" strokeDasharray="12 12"/><g className={`blog-racer blog-racer-${i}`}><rect x="48" y={y+9} width="67" height="30" rx="10" fill={i===0?'#D6F36B':'#8ed8ff'}/><circle cx="62" cy={y+39} r="6" fill="#0d111a"/><circle cx="98" cy={y+39} r="6" fill="#0d111a"/></g><path d={`M580 ${y+5}v39`} stroke="#eef3fa" strokeWidth="3"/></g>)}
+        <text x="32" y="35" fill="#a6b1c5" fontSize="16">Bir maromda yozing. Xatolarni ham kuzating.</text>
+        <text x="32" y="223" fill="#eef3fa" fontSize="16">Namuna animatsiyasi · haqiqiy natijalar emas</text>
+      </>}
+    </svg>
+    {!compact && <figcaption>{captions[kind]}</figcaption>}
+  </figure>;
+}

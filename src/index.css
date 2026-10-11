@@ -283,3 +283,28 @@ body:has(.academy-runner) footer { display:none; }
 .donation-card-controls button:focus-visible {outline:2px solid #d6f36b;outline-offset:3px;}
 @media(max-width:500px) {.donation-card-stage .card-chip-row {margin:16px 0;}.donation-card-stage .card-number {margin-bottom:15px;}}
 @media(prefers-reduced-motion:reduce) {.donation-launch,.card-shine {animation:none;}.donation-card-stage {touch-action:auto;cursor:default;}}
+
+/* Article illustrations: vector graphics stay sharp on every screen. */
+.blog-visual{margin:24px 0;padding:20px;border:1px solid #344154;border-radius:22px;background:radial-gradient(ellipse at top right,#233b42,#121a27 70%);overflow:hidden}
+.blog-visual-top{display:flex;align-items:center;justify-content:space-between;gap:12px;color:#eef3fa;font-weight:600;font-size:14px}
+.blog-visual-top button{border:1px solid #526175;border-radius:8px;padding:5px 10px;color:#c4cfdf;font-size:12px;cursor:pointer}
+.blog-visual svg{display:block;width:100%;height:auto;margin:12px 0}
+.blog-visual figcaption{font-size:13px;line-height:1.7;color:#a6b1c5}
+.blog-visual-compact{margin:0 0 22px;pointer-events:none}
+.blog-practice{display:flex;align-items:center;justify-content:space-between;gap:20px;background:#222d30;border:1px solid #566a3c;padding:22px;border-radius:18px}
+.blog-practice strong{color:#eef3fa;font-size:16px}.blog-practice p{color:#a6b1c5;font-size:13px;margin-top:6px}
+.blog-practice button{display:flex;align-items:center;justify-content:center;gap:8px;flex-shrink:0;background:#D6F36B;color:#101820;border-radius:12px;padding:13px 17px;font-size:13px;font-weight:700;cursor:pointer}
+.blog-key-pulse{animation:blog-pulse 3s ease-in-out infinite}.blog-step{animation:blog-pulse 4s ease-in-out infinite}
+.blog-error-letter{animation:blog-error 6s infinite}.blog-correct-letter{animation:blog-correct 6s infinite}
+.blog-accuracy-line{stroke-dasharray:500;animation:blog-line 6s ease-in-out infinite}
+.blog-racer{animation:blog-race 9s ease-in-out infinite}.blog-racer-1{animation-duration:11s}
+.blog-paused *{animation-play-state:paused!important}
+@keyframes blog-pulse{0%,100%{opacity:.45}50%{opacity:1}}
+@keyframes blog-error{0%,40%{opacity:1}50%,100%{opacity:0}}
+@keyframes blog-correct{0%,40%{opacity:0}50%,100%{opacity:1}}
+@keyframes blog-line{0%,30%{stroke-dashoffset:250}70%,100%{stroke-dashoffset:0}}
+@keyframes blog-race{0%,10%{transform:translateX(0)}85%,100%{transform:translateX(450px)}}
+@media(max-width:600px){.blog-visual{padding:14px}.blog-visual-top{font-size:12px}.blog-practice{flex-direction:column;align-items:stretch}.blog-practice button{width:100%}}
+@media(prefers-reduced-motion:reduce){.blog-visual *{animation:none!important}.blog-error-letter{opacity:0}.blog-correct-letter{opacity:1}}
+
+.blog-visual-compact *{animation:none!important}.blog-visual-compact .blog-error-letter{opacity:0}
