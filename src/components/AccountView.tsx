@@ -193,10 +193,10 @@ export const AccountView: React.FC = () => {
   if (!currentUser || !userProfile) {
     return (
       <div className="w-full max-w-md mx-auto py-20 px-4 text-center font-sans">
-        <div className="p-8 bg-[#1A1917] rounded-xl border border-[rgba(232,226,216,0.12)] space-y-4">
-          <User className="w-12 h-12 text-[#E85D3D] mx-auto" />
-          <h2 className="text-xl font-medium text-[#E8E2D8]">{t('acc_login_required')}</h2>
-          <p className="text-xs text-[#9A9488] font-mono">
+        <div className="p-8 bg-[#171E2B] rounded-xl border border-[rgba(240,243,250,0.12)] space-y-4">
+          <User className="w-12 h-12 text-[#D6F36B] mx-auto" />
+          <h2 className="text-xl font-medium text-[#F0F3FA]">{t('acc_login_required')}</h2>
+          <p className="text-xs text-[#A6B1C5] font-mono">
             {t('acc_login_desc')}
           </p>
         </div>
@@ -291,19 +291,19 @@ export const AccountView: React.FC = () => {
   return (
     <div className="w-full max-w-5xl mx-auto py-6 sm:py-10 px-4 font-sans animate-fade-in select-none space-y-8">
       {/* Page Header */}
-      <div className="border-b border-[rgba(232,226,216,0.08)] pb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="border-b border-[rgba(240,243,250,0.08)] pb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-medium text-[#E8E2D8] tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-medium text-[#F0F3FA] tracking-tight">
             {t('acc_title')}
           </h1>
-          <p className="text-xs text-[#9A9488] font-mono mt-1">
+          <p className="text-xs text-[#A6B1C5] font-mono mt-1">
             {t('acc_subtitle')}
           </p>
         </div>
       </div>
 
       {/* Top Section: Profile Card & Edit Form */}
-      <div className="bg-[#1A1917] rounded-xl border border-[rgba(232,226,216,0.08)] p-6 sm:p-8 shadow-lg">
+      <div className="bg-[#171E2B] rounded-xl border border-[rgba(240,243,250,0.08)] p-6 sm:p-8 shadow-lg">
         <div className="flex flex-col lg:flex-row gap-8 items-start">
           {/* Avatar & Photo Upload Section */}
           <div className="flex flex-col items-center space-y-3 shrink-0 mx-auto lg:mx-0">
@@ -314,10 +314,10 @@ export const AccountView: React.FC = () => {
                   src={userProfile.photoURL}
                   alt={userProfile.username}
                   referrerPolicy="no-referrer"
-                  className="w-28 h-28 rounded-full object-cover border-2 border-[rgba(232,226,216,0.12)] shadow-md"
+                  className="w-28 h-28 rounded-full object-cover border-2 border-[rgba(240,243,250,0.12)] shadow-md"
                 />
               ) : (
-                <div className="w-28 h-28 rounded-full bg-[#0F0E0D] border-2 border-[rgba(232,226,216,0.12)] text-[#E85D3D] flex items-center justify-center font-mono font-bold text-3xl shadow-md">
+                <div className="w-28 h-28 rounded-full bg-[#0D111A] border-2 border-[rgba(240,243,250,0.12)] text-[#D6F36B] flex items-center justify-center font-mono font-bold text-3xl shadow-md">
                   {initials}
                 </div>
               )}
@@ -327,14 +327,14 @@ export const AccountView: React.FC = () => {
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploadingAvatar}
-                className="absolute inset-0 rounded-full bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-[#E8E2D8] cursor-pointer"
+                className="absolute inset-0 rounded-full bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-[#F0F3FA] cursor-pointer"
                 title={t('acc_change_photo')}
               >
                 {uploadingAvatar ? (
-                  <Loader2 className="w-6 h-6 animate-spin text-[#E85D3D]" />
+                  <Loader2 className="w-6 h-6 animate-spin text-[#D6F36B]" />
                 ) : (
                   <>
-                    <Camera className="w-6 h-6 mb-1 text-[#E85D3D]" />
+                    <Camera className="w-6 h-6 mb-1 text-[#D6F36B]" />
                     <span className="text-[10px] font-mono">upload</span>
                   </>
                 )}
@@ -354,7 +354,7 @@ export const AccountView: React.FC = () => {
               type="button"
               onClick={() => fileInputRef.current?.click()}
               disabled={uploadingAvatar}
-              className="text-xs font-mono text-[#E85D3D] hover:underline cursor-pointer flex items-center gap-1"
+              className="text-xs font-mono text-[#D6F36B] hover:underline cursor-pointer flex items-center gap-1"
             >
               <Camera className="w-3.5 h-3.5" />
               <span>{uploadingAvatar ? t('acc_saving') : t('acc_change_photo')}</span>
@@ -371,8 +371,8 @@ export const AccountView: React.FC = () => {
           <div className="flex-1 w-full">
             <form onSubmit={handleSaveProfile} className="space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-base font-medium text-[#E8E2D8]">{t('acc_personal_info')}</h2>
-                <span className="text-[11px] text-[#9A9488] font-mono">
+                <h2 className="text-base font-medium text-[#F0F3FA]">{t('acc_personal_info')}</h2>
+                <span className="text-[11px] text-[#A6B1C5] font-mono">
                   {new Date(userProfile.createdAt).toLocaleDateString()}
                 </span>
               </div>
@@ -385,7 +385,7 @@ export const AccountView: React.FC = () => {
               )}
 
               {profileSuccess && (
-                <div className="p-3 bg-[#6FA85C]/10 border border-[#6FA85C]/30 rounded-lg flex items-center space-x-2 text-xs text-[#6FA85C] font-mono">
+                <div className="p-3 bg-[#71D9AF]/10 border border-[#71D9AF]/30 rounded-lg flex items-center space-x-2 text-xs text-[#71D9AF] font-mono">
                   <CheckCircle2 className="w-4 h-4 shrink-0" />
                   <span>{t('acc_saved')}</span>
                 </div>
@@ -394,7 +394,7 @@ export const AccountView: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* First Name */}
                 <div>
-                  <label className="block text-xs text-[#9A9488] mb-1 font-mono">
+                  <label className="block text-xs text-[#A6B1C5] mb-1 font-mono">
                     {t('acc_first_name')}
                   </label>
                   <input
@@ -402,13 +402,13 @@ export const AccountView: React.FC = () => {
                     required
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
-                    className="w-full bg-[#0F0E0D] border border-[rgba(232,226,216,0.12)] rounded-lg px-3.5 py-2 text-sm text-[#E8E2D8] font-mono focus:outline-none focus:border-[#E85D3D] transition-colors"
+                    className="w-full bg-[#0D111A] border border-[rgba(240,243,250,0.12)] rounded-lg px-3.5 py-2 text-sm text-[#F0F3FA] font-mono focus:outline-none focus:border-[#D6F36B] transition-colors"
                   />
                 </div>
 
                 {/* Surname / Last Name */}
                 <div>
-                  <label className="block text-xs text-[#9A9488] mb-1 font-mono">
+                  <label className="block text-xs text-[#A6B1C5] mb-1 font-mono">
                     {t('acc_last_name')}
                   </label>
                   <input
@@ -416,7 +416,7 @@ export const AccountView: React.FC = () => {
                     required
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
-                    className="w-full bg-[#0F0E0D] border border-[rgba(232,226,216,0.12)] rounded-lg px-3.5 py-2 text-sm text-[#E8E2D8] font-mono focus:outline-none focus:border-[#E85D3D] transition-colors"
+                    className="w-full bg-[#0D111A] border border-[rgba(240,243,250,0.12)] rounded-lg px-3.5 py-2 text-sm text-[#F0F3FA] font-mono focus:outline-none focus:border-[#D6F36B] transition-colors"
                   />
                 </div>
               </div>
@@ -425,14 +425,14 @@ export const AccountView: React.FC = () => {
                 {/* Username (Editable) */}
                 <div>
                   <div className="flex justify-between items-center mb-1">
-                    <label className="text-xs text-[#9A9488] font-mono">{t('acc_username')}</label>
+                    <label className="text-xs text-[#A6B1C5] font-mono">{t('acc_username')}</label>
                     {usernameChecking && (
-                      <span className="text-[10px] text-[#5C574C] flex items-center gap-1 font-mono">
+                      <span className="text-[10px] text-[#748199] flex items-center gap-1 font-mono">
                         <Loader2 className="w-3 h-3 animate-spin" /> checking...
                       </span>
                     )}
                     {!usernameChecking && usernameStatus === 'available' && (
-                      <span className="text-[10px] text-[#6FA85C] flex items-center gap-1 font-mono">
+                      <span className="text-[10px] text-[#71D9AF] flex items-center gap-1 font-mono">
                         <CheckCircle2 className="w-3 h-3" /> available
                       </span>
                     )}
@@ -447,20 +447,20 @@ export const AccountView: React.FC = () => {
                     required
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="w-full bg-[#0F0E0D] border border-[rgba(232,226,216,0.12)] rounded-lg px-3.5 py-2 text-sm text-[#E8E2D8] font-mono focus:outline-none focus:border-[#E85D3D] transition-colors"
+                    className="w-full bg-[#0D111A] border border-[rgba(240,243,250,0.12)] rounded-lg px-3.5 py-2 text-sm text-[#F0F3FA] font-mono focus:outline-none focus:border-[#D6F36B] transition-colors"
                   />
                 </div>
 
                 {/* Email Address */}
                 <div>
-                  <label className="block text-xs text-[#9A9488] mb-1 font-mono">
+                  <label className="block text-xs text-[#A6B1C5] mb-1 font-mono">
                     {t('acc_email')}
                   </label>
                   <input
                     type="text"
                     disabled
                     value={userProfile.email}
-                    className="w-full bg-[#0F0E0D]/60 border border-[rgba(232,226,216,0.06)] rounded-lg px-3.5 py-2 text-sm text-[#9A9488] font-mono cursor-not-allowed select-none"
+                    className="w-full bg-[#0D111A]/60 border border-[rgba(240,243,250,0.06)] rounded-lg px-3.5 py-2 text-sm text-[#A6B1C5] font-mono cursor-not-allowed select-none"
                   />
                 </div>
               </div>
@@ -469,10 +469,10 @@ export const AccountView: React.FC = () => {
                 <button
                   type="submit"
                   disabled={savingProfile}
-                  className="bg-[#E85D3D] hover:bg-[#E85D3D]/90 text-[#0F0E0D] font-mono text-xs font-semibold px-5 py-2.5 rounded-lg flex items-center space-x-2 transition-colors cursor-pointer disabled:opacity-50 shadow-sm"
+                  className="bg-[#D6F36B] hover:bg-[#D6F36B]/90 text-[#0D111A] font-mono text-xs font-semibold px-5 py-2.5 rounded-lg flex items-center space-x-2 transition-colors cursor-pointer disabled:opacity-50 shadow-sm"
                 >
                   {savingProfile ? (
-                    <Loader2 className="w-4 h-4 animate-spin text-[#0F0E0D]" />
+                    <Loader2 className="w-4 h-4 animate-spin text-[#0D111A]" />
                   ) : (
                     <>
                       <Save className="w-4 h-4" />
@@ -488,10 +488,10 @@ export const AccountView: React.FC = () => {
 
       {/* Dashboard Section Title */}
       <div className="pt-2">
-        <h2 className="text-xl font-medium text-[#E8E2D8] tracking-tight mb-1">
+        <h2 className="text-xl font-medium text-[#F0F3FA] tracking-tight mb-1">
           {t('acc_stats_title')}
         </h2>
-        <p className="text-xs text-[#9A9488] font-mono">
+        <p className="text-xs text-[#A6B1C5] font-mono">
           {t('acc_stats_subtitle')}
         </p>
       </div>
@@ -499,143 +499,143 @@ export const AccountView: React.FC = () => {
       {/* Summary Stat Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         {/* Best WPM */}
-        <div className="bg-[#1A1917] rounded-xl p-4 border border-[rgba(232,226,216,0.08)] flex flex-col justify-between space-y-2">
-          <div className="flex items-center justify-between text-[#E85D3D]">
+        <div className="bg-[#171E2B] rounded-xl p-4 border border-[rgba(240,243,250,0.08)] flex flex-col justify-between space-y-2">
+          <div className="flex items-center justify-between text-[#D6F36B]">
             <Trophy className="w-4 h-4" />
-            <span className="text-[10px] font-mono uppercase tracking-wider text-[#9A9488]">best</span>
+            <span className="text-[10px] font-mono uppercase tracking-wider text-[#A6B1C5]">best</span>
           </div>
           <div>
-            <div className="text-2xl sm:text-3xl font-mono font-bold text-[#F4A340]">
+            <div className="text-2xl sm:text-3xl font-mono font-bold text-[#63D9DA]">
               {bestWpm}
             </div>
-            <div className="text-[11px] font-mono text-[#9A9488] mt-0.5">{t('acc_best_wpm')}</div>
+            <div className="text-[11px] font-mono text-[#A6B1C5] mt-0.5">{t('acc_best_wpm')}</div>
           </div>
         </div>
 
         {/* Avg WPM */}
-        <div className="bg-[#1A1917] rounded-xl p-4 border border-[rgba(232,226,216,0.08)] flex flex-col justify-between space-y-2">
-          <div className="flex items-center justify-between text-[#F4A340]">
+        <div className="bg-[#171E2B] rounded-xl p-4 border border-[rgba(240,243,250,0.08)] flex flex-col justify-between space-y-2">
+          <div className="flex items-center justify-between text-[#63D9DA]">
             <Zap className="w-4 h-4" />
-            <span className="text-[10px] font-mono uppercase tracking-wider text-[#9A9488]">avg</span>
+            <span className="text-[10px] font-mono uppercase tracking-wider text-[#A6B1C5]">avg</span>
           </div>
           <div>
-            <div className="text-2xl sm:text-3xl font-mono font-bold text-[#E8E2D8]">
+            <div className="text-2xl sm:text-3xl font-mono font-bold text-[#F0F3FA]">
               {avgWpm}
             </div>
-            <div className="text-[11px] font-mono text-[#9A9488] mt-0.5">{t('acc_avg_wpm')}</div>
+            <div className="text-[11px] font-mono text-[#A6B1C5] mt-0.5">{t('acc_avg_wpm')}</div>
           </div>
         </div>
 
         {/* Accuracy */}
-        <div className="bg-[#1A1917] rounded-xl p-4 border border-[rgba(232,226,216,0.08)] flex flex-col justify-between space-y-2">
-          <div className="flex items-center justify-between text-[#6FA85C]">
+        <div className="bg-[#171E2B] rounded-xl p-4 border border-[rgba(240,243,250,0.08)] flex flex-col justify-between space-y-2">
+          <div className="flex items-center justify-between text-[#71D9AF]">
             <Target className="w-4 h-4" />
-            <span className="text-[10px] font-mono uppercase tracking-wider text-[#9A9488]">acc</span>
+            <span className="text-[10px] font-mono uppercase tracking-wider text-[#A6B1C5]">acc</span>
           </div>
           <div>
-            <div className="text-2xl sm:text-3xl font-mono font-bold text-[#6FA85C]">
+            <div className="text-2xl sm:text-3xl font-mono font-bold text-[#71D9AF]">
               {avgAccuracy}%
             </div>
-            <div className="text-[11px] font-mono text-[#9A9488] mt-0.5">{t('acc_avg_acc')}</div>
+            <div className="text-[11px] font-mono text-[#A6B1C5] mt-0.5">{t('acc_avg_acc')}</div>
           </div>
         </div>
 
         {/* Tests Completed */}
-        <div className="bg-[#1A1917] rounded-xl p-4 border border-[rgba(232,226,216,0.08)] flex flex-col justify-between space-y-2">
-          <div className="flex items-center justify-between text-[#E8E2D8]">
-            <FileCheck className="w-4 h-4 text-[#9A9488]" />
-            <span className="text-[10px] font-mono uppercase tracking-wider text-[#9A9488]">runs</span>
+        <div className="bg-[#171E2B] rounded-xl p-4 border border-[rgba(240,243,250,0.08)] flex flex-col justify-between space-y-2">
+          <div className="flex items-center justify-between text-[#F0F3FA]">
+            <FileCheck className="w-4 h-4 text-[#A6B1C5]" />
+            <span className="text-[10px] font-mono uppercase tracking-wider text-[#A6B1C5]">runs</span>
           </div>
           <div>
-            <div className="text-2xl sm:text-3xl font-mono font-bold text-[#E8E2D8]">
+            <div className="text-2xl sm:text-3xl font-mono font-bold text-[#F0F3FA]">
               {totalTests}
             </div>
-            <div className="text-[11px] font-mono text-[#9A9488] mt-0.5">{t('acc_tests_completed')}</div>
+            <div className="text-[11px] font-mono text-[#A6B1C5] mt-0.5">{t('acc_tests_completed')}</div>
           </div>
         </div>
 
         {/* Time Typing */}
-        <div className="bg-[#1A1917] rounded-xl p-4 border border-[rgba(232,226,216,0.08)] flex flex-col justify-between space-y-2 col-span-2 sm:col-span-1">
-          <div className="flex items-center justify-between text-[#9A9488]">
+        <div className="bg-[#171E2B] rounded-xl p-4 border border-[rgba(240,243,250,0.08)] flex flex-col justify-between space-y-2 col-span-2 sm:col-span-1">
+          <div className="flex items-center justify-between text-[#A6B1C5]">
             <Clock className="w-4 h-4" />
-            <span className="text-[10px] font-mono uppercase tracking-wider text-[#9A9488]">time</span>
+            <span className="text-[10px] font-mono uppercase tracking-wider text-[#A6B1C5]">time</span>
           </div>
           <div>
-            <div className="text-2xl sm:text-3xl font-mono font-bold text-[#E8E2D8]">
+            <div className="text-2xl sm:text-3xl font-mono font-bold text-[#F0F3FA]">
               {formatTotalTime(totalTimeSeconds)}
             </div>
-            <div className="text-[11px] font-mono text-[#9A9488] mt-0.5">{t('acc_typing_time')}</div>
+            <div className="text-[11px] font-mono text-[#A6B1C5] mt-0.5">{t('acc_typing_time')}</div>
           </div>
         </div>
       </div>
 
       {/* Main Improvement Chart: WPM & Accuracy over time (Last 50 tests) */}
-      <div className="bg-[#1A1917] rounded-xl border border-[rgba(232,226,216,0.08)] p-6 shadow-lg">
+      <div className="bg-[#171E2B] rounded-xl border border-[rgba(240,243,250,0.08)] p-6 shadow-lg">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-6">
           <div>
-            <h3 className="text-base font-medium text-[#E8E2D8]">{t('acc_progress_title')}</h3>
+            <h3 className="text-base font-medium text-[#F0F3FA]">{t('acc_progress_title')}</h3>
           </div>
 
           <div className="flex items-center space-x-4 font-mono text-xs">
             <div className="flex items-center space-x-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#E85D3D]" />
-              <span className="text-[#E8E2D8]">wpm</span>
+              <span className="w-2.5 h-2.5 rounded-full bg-[#D6F36B]" />
+              <span className="text-[#F0F3FA]">wpm</span>
             </div>
             <div className="flex items-center space-x-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#6FA85C]" />
-              <span className="text-[#9A9488]">accuracy %</span>
+              <span className="w-2.5 h-2.5 rounded-full bg-[#71D9AF]" />
+              <span className="text-[#A6B1C5]">accuracy %</span>
             </div>
           </div>
         </div>
 
         {loadingResults ? (
-          <div className="h-64 flex flex-col items-center justify-center text-[#9A9488] font-mono text-xs space-y-2">
-            <Loader2 className="w-5 h-5 animate-spin text-[#E85D3D]" />
+          <div className="h-64 flex flex-col items-center justify-center text-[#A6B1C5] font-mono text-xs space-y-2">
+            <Loader2 className="w-5 h-5 animate-spin text-[#D6F36B]" />
             <span>{t('lb_loading')}</span>
           </div>
         ) : lineChartData.length === 0 ? (
           <div className="h-64 flex flex-col items-center justify-center text-center p-6 space-y-2">
-            <Activity className="w-8 h-8 text-[#5C574C]" />
-            <p className="text-xs font-mono text-[#E8E2D8]">{t('lb_empty')}</p>
+            <Activity className="w-8 h-8 text-[#748199]" />
+            <p className="text-xs font-mono text-[#F0F3FA]">{t('lb_empty')}</p>
           </div>
         ) : (
           <div className="w-full h-72">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={lineChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(232,226,216,0.05)" />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(240,243,250,0.05)" />
                 <XAxis
                   dataKey="index"
-                  stroke="#9A9488"
+                  stroke="#A6B1C5"
                   fontSize={10}
                   tickLine={false}
-                  axisLine={{ stroke: 'rgba(232,226,216,0.1)' }}
+                  axisLine={{ stroke: 'rgba(240,243,250,0.1)' }}
                 />
                 <YAxis
                   yAxisId="wpm"
-                  stroke="#F4A340"
+                  stroke="#63D9DA"
                   fontSize={10}
                   tickLine={false}
-                  axisLine={{ stroke: 'rgba(232,226,216,0.1)' }}
+                  axisLine={{ stroke: 'rgba(240,243,250,0.1)' }}
                   domain={[0, 'auto']}
                 />
                 <YAxis
                   yAxisId="acc"
                   orientation="right"
-                  stroke="#6FA85C"
+                  stroke="#71D9AF"
                   fontSize={10}
                   tickLine={false}
-                  axisLine={{ stroke: 'rgba(232,226,216,0.1)' }}
+                  axisLine={{ stroke: 'rgba(240,243,250,0.1)' }}
                   domain={[0, 100]}
                   hide
                 />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: '#0F0E0D',
-                    borderColor: 'rgba(232,226,216,0.2)',
+                    backgroundColor: '#0D111A',
+                    borderColor: 'rgba(240,243,250,0.2)',
                     borderRadius: '8px',
                     fontSize: '11px',
                     fontFamily: 'monospace',
-                    color: '#E8E2D8',
+                    color: '#F0F3FA',
                   }}
                   formatter={(value: any, name: any) => {
                     if (name === 'wpm') return [`${value} WPM`, 'WPM'];
@@ -654,16 +654,16 @@ export const AccountView: React.FC = () => {
                   yAxisId="wpm"
                   type="monotone"
                   dataKey="wpm"
-                  stroke="#E85D3D"
+                  stroke="#D6F36B"
                   strokeWidth={2}
-                  dot={{ fill: '#E85D3D', r: 3 }}
-                  activeDot={{ r: 5, fill: '#F4A340' }}
+                  dot={{ fill: '#D6F36B', r: 3 }}
+                  activeDot={{ r: 5, fill: '#63D9DA' }}
                 />
                 <Line
                   yAxisId="acc"
                   type="monotone"
                   dataKey="accuracy"
-                  stroke="#6FA85C"
+                  stroke="#71D9AF"
                   strokeWidth={1.5}
                   strokeDasharray="3 3"
                   dot={false}
@@ -677,33 +677,33 @@ export const AccountView: React.FC = () => {
       {/* Secondary Section: Breakdown by Language & Difficulty */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Breakdown by Typing Language */}
-        <div className="bg-[#1A1917] rounded-xl border border-[rgba(232,226,216,0.08)] p-6 shadow-lg flex flex-col justify-between">
+        <div className="bg-[#171E2B] rounded-xl border border-[rgba(240,243,250,0.08)] p-6 shadow-lg flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-2">
-                <Globe className="w-4 h-4 text-[#E85D3D]" />
-                <h3 className="text-base font-medium text-[#E8E2D8]">{t('acc_by_language')}</h3>
+                <Globe className="w-4 h-4 text-[#D6F36B]" />
+                <h3 className="text-base font-medium text-[#F0F3FA]">{t('acc_by_language')}</h3>
               </div>
-              <span className="text-[11px] font-mono text-[#9A9488]">avg wpm</span>
+              <span className="text-[11px] font-mono text-[#A6B1C5]">avg wpm</span>
             </div>
 
             <div className="space-y-3">
               {languageStats.map((item) => (
                 <div key={item.lang} className="space-y-1">
                   <div className="flex justify-between items-center text-xs font-mono">
-                    <span className="text-[#E8E2D8] font-medium">{item.label}</span>
+                    <span className="text-[#F0F3FA] font-medium">{item.label}</span>
                     <div className="flex items-center space-x-2">
-                      <span className="text-[#9A9488] text-[10px]">
+                      <span className="text-[#A6B1C5] text-[10px]">
                         {item.count} test
                       </span>
-                      <span className="text-[#F4A340] font-bold">{item.avg} wpm</span>
+                      <span className="text-[#63D9DA] font-bold">{item.avg} wpm</span>
                     </div>
                   </div>
 
                   {/* Progress Bar */}
-                  <div className="w-full bg-[#0F0E0D] h-2 rounded-full overflow-hidden border border-[rgba(232,226,216,0.06)]">
+                  <div className="w-full bg-[#0D111A] h-2 rounded-full overflow-hidden border border-[rgba(240,243,250,0.06)]">
                     <div
-                      className="bg-[#E85D3D] h-full rounded-full transition-all duration-500"
+                      className="bg-[#D6F36B] h-full rounded-full transition-all duration-500"
                       style={{
                         width: `${Math.min(100, Math.max(0, (item.avg / (bestWpm || 100)) * 100))}%`,
                       }}
@@ -716,33 +716,33 @@ export const AccountView: React.FC = () => {
         </div>
 
         {/* Breakdown by Difficulty */}
-        <div className="bg-[#1A1917] rounded-xl border border-[rgba(232,226,216,0.08)] p-6 shadow-lg flex flex-col justify-between">
+        <div className="bg-[#171E2B] rounded-xl border border-[rgba(240,243,250,0.08)] p-6 shadow-lg flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-2">
-                <Zap className="w-4 h-4 text-[#F4A340]" />
-                <h3 className="text-base font-medium text-[#E8E2D8]">{t('acc_by_difficulty')}</h3>
+                <Zap className="w-4 h-4 text-[#63D9DA]" />
+                <h3 className="text-base font-medium text-[#F0F3FA]">{t('acc_by_difficulty')}</h3>
               </div>
-              <span className="text-[11px] font-mono text-[#9A9488]">avg wpm</span>
+              <span className="text-[11px] font-mono text-[#A6B1C5]">avg wpm</span>
             </div>
 
             <div className="space-y-3">
               {difficultyStats.map((item) => (
                 <div key={item.diff} className="space-y-1">
                   <div className="flex justify-between items-center text-xs font-mono">
-                    <span className="text-[#E8E2D8] font-medium capitalize">{item.label}</span>
+                    <span className="text-[#F0F3FA] font-medium capitalize">{item.label}</span>
                     <div className="flex items-center space-x-2">
-                      <span className="text-[#9A9488] text-[10px]">
+                      <span className="text-[#A6B1C5] text-[10px]">
                         {item.count} test
                       </span>
-                      <span className="text-[#F4A340] font-bold">{item.avg} wpm</span>
+                      <span className="text-[#63D9DA] font-bold">{item.avg} wpm</span>
                     </div>
                   </div>
 
                   {/* Progress Bar */}
-                  <div className="w-full bg-[#0F0E0D] h-2 rounded-full overflow-hidden border border-[rgba(232,226,216,0.06)]">
+                  <div className="w-full bg-[#0D111A] h-2 rounded-full overflow-hidden border border-[rgba(240,243,250,0.06)]">
                     <div
-                      className="bg-[#F4A340] h-full rounded-full transition-all duration-500"
+                      className="bg-[#63D9DA] h-full rounded-full transition-all duration-500"
                       style={{
                         width: `${Math.min(100, Math.max(0, (item.avg / (bestWpm || 100)) * 100))}%`,
                       }}

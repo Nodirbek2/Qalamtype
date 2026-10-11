@@ -44,30 +44,30 @@ export const ModeSelector: React.FC<ModeSelectorProps> = ({
   ];
 
   return (
-    <div className="flex flex-col items-center justify-center gap-1.5 sm:gap-2 bg-[#1A1917] px-2.5 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-[rgba(232,226,216,0.08)] text-xs font-sans transition-opacity select-none opacity-100 max-w-full overflow-hidden touch-manipulation">
+    <div className="mode-console flex flex-col items-center justify-center gap-1.5 sm:gap-2 bg-[#171E2B] px-2.5 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-[rgba(240,243,250,0.08)] text-xs font-sans transition-opacity select-none opacity-100 max-w-full overflow-hidden touch-manipulation">
       {/* Row 1: Test Mode Toggle + Mode Sub-options (durations / word counts) */}
       <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap max-w-full">
         {/* Test Mode Toggle */}
         <div className="flex items-center gap-1">
           <button
-            type="button"
+            type="button" disabled={disabled}
             onClick={() => onModeChange('time')}
-            className={`flex items-center gap-1.5 px-2.5 py-1 sm:py-1 rounded-md transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#E85D3D] active:scale-95 touch-manipulation ${
+            className={`flex items-center gap-1.5 px-2.5 py-1 sm:py-1 rounded-md transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#D6F36B] active:scale-95 touch-manipulation ${
               mode === 'time'
-                ? 'text-[#E85D3D] font-medium bg-[rgba(232,93,61,0.12)] border border-[rgba(232,93,61,0.2)]'
-                : 'text-[#9A9488] hover:text-[#E8E2D8] hover:bg-[#0F0E0D]'
+                ? 'text-[#D6F36B] font-medium bg-[rgba(214,243,107,0.12)] border border-[rgba(214,243,107,0.2)]'
+                : 'text-[#A6B1C5] hover:text-[#F0F3FA] hover:bg-[#0D111A]'
             }`}
           >
             <Clock className="w-3.5 h-3.5" />
             <span>{t('mode_time')}</span>
           </button>
           <button
-            type="button"
+            type="button" disabled={disabled}
             onClick={() => onModeChange('words')}
-            className={`flex items-center gap-1.5 px-2.5 py-1 sm:py-1 rounded-md transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#E85D3D] active:scale-95 touch-manipulation ${
+            className={`flex items-center gap-1.5 px-2.5 py-1 sm:py-1 rounded-md transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#D6F36B] active:scale-95 touch-manipulation ${
               mode === 'words'
-                ? 'text-[#E85D3D] font-medium bg-[rgba(232,93,61,0.12)] border border-[rgba(232,93,61,0.2)]'
-                : 'text-[#9A9488] hover:text-[#E8E2D8] hover:bg-[#0F0E0D]'
+                ? 'text-[#D6F36B] font-medium bg-[rgba(214,243,107,0.12)] border border-[rgba(214,243,107,0.2)]'
+                : 'text-[#A6B1C5] hover:text-[#F0F3FA] hover:bg-[#0D111A]'
             }`}
           >
             <AlignLeft className="w-3.5 h-3.5" />
@@ -75,7 +75,7 @@ export const ModeSelector: React.FC<ModeSelectorProps> = ({
           </button>
         </div>
 
-        <div className="w-[1px] h-4 bg-[rgba(232,226,216,0.12)] hidden sm:block" />
+        <div className="w-[1px] h-4 bg-[rgba(240,243,250,0.12)] hidden sm:block" />
 
         {/* Mode Sub-options (Time durations or Word counts) */}
         <div className="flex items-center gap-1 font-mono">
@@ -83,12 +83,12 @@ export const ModeSelector: React.FC<ModeSelectorProps> = ({
             ? durations.map((d) => (
                 <button
                   key={d}
-                  type="button"
+                  type="button" disabled={disabled}
                   onClick={() => onDurationChange(d)}
-                  className={`px-2 py-1 rounded-md transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#E85D3D] active:scale-95 touch-manipulation ${
+                  className={`px-2 py-1 rounded-md transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#D6F36B] active:scale-95 touch-manipulation ${
                     duration === d
-                      ? 'text-[#E85D3D] font-medium bg-[rgba(232,93,61,0.12)] border border-[rgba(232,93,61,0.2)]'
-                      : 'text-[#9A9488] hover:text-[#E8E2D8] hover:bg-[#0F0E0D]'
+                      ? 'text-[#D6F36B] font-medium bg-[rgba(214,243,107,0.12)] border border-[rgba(214,243,107,0.2)]'
+                      : 'text-[#A6B1C5] hover:text-[#F0F3FA] hover:bg-[#0D111A]'
                   }`}
                 >
                   <span>{d}s</span>
@@ -97,12 +97,12 @@ export const ModeSelector: React.FC<ModeSelectorProps> = ({
             : wordCounts.map((w) => (
                 <button
                   key={w}
-                  type="button"
+                  type="button" disabled={disabled}
                   onClick={() => onWordCountChange(w)}
-                  className={`px-2 py-1 rounded-md transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#E85D3D] active:scale-95 touch-manipulation ${
+                  className={`px-2 py-1 rounded-md transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#D6F36B] active:scale-95 touch-manipulation ${
                     wordCount === w
-                      ? 'text-[#E85D3D] font-medium bg-[rgba(232,93,61,0.12)] border border-[rgba(232,93,61,0.2)]'
-                      : 'text-[#9A9488] hover:text-[#E8E2D8] hover:bg-[#0F0E0D]'
+                      ? 'text-[#D6F36B] font-medium bg-[rgba(214,243,107,0.12)] border border-[rgba(214,243,107,0.2)]'
+                      : 'text-[#A6B1C5] hover:text-[#F0F3FA] hover:bg-[#0D111A]'
                   }`}
                 >
                   <span>{w}</span>
@@ -115,18 +115,18 @@ export const ModeSelector: React.FC<ModeSelectorProps> = ({
       <div className="flex items-center justify-center gap-1.5 sm:gap-3 flex-wrap max-w-full">
         {/* Difficulty Selection */}
         <div className="flex items-center gap-1">
-          <Zap className="w-3.5 h-3.5 text-[#5C574C] mr-0.5 shrink-0 hidden sm:inline-block" />
+          <Zap className="w-3.5 h-3.5 text-[#748199] mr-0.5 shrink-0 hidden sm:inline-block" />
           {difficulties.map((diff) => {
             const diffKey = diff === 'easy' ? 'diff_easy' : diff === 'medium' ? 'diff_medium' : 'diff_hard';
             return (
               <button
                 key={diff}
-                type="button"
+                type="button" disabled={disabled}
                 onClick={() => onDifficultyChange(diff)}
-                className={`px-2 py-1 rounded-md transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#E85D3D] active:scale-95 touch-manipulation ${
+                className={`px-2 py-1 rounded-md transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#D6F36B] active:scale-95 touch-manipulation ${
                   difficulty === diff
-                    ? 'text-[#E85D3D] font-medium bg-[rgba(232,93,61,0.12)] border border-[rgba(232,93,61,0.2)]'
-                    : 'text-[#9A9488] hover:text-[#E8E2D8] hover:bg-[#0F0E0D]'
+                    ? 'text-[#D6F36B] font-medium bg-[rgba(214,243,107,0.12)] border border-[rgba(214,243,107,0.2)]'
+                    : 'text-[#A6B1C5] hover:text-[#F0F3FA] hover:bg-[#0D111A]'
                 }`}
               >
                 <span>{t(diffKey as any)}</span>
@@ -135,20 +135,20 @@ export const ModeSelector: React.FC<ModeSelectorProps> = ({
           })}
         </div>
 
-        <div className="w-[1px] h-4 bg-[rgba(232,226,216,0.12)] hidden sm:block" />
+        <div className="w-[1px] h-4 bg-[rgba(240,243,250,0.12)] hidden sm:block" />
 
         {/* Language Selector */}
         <div className="flex items-center gap-1 max-w-full overflow-x-auto no-scrollbar py-0.5">
-          <Globe className="w-3.5 h-3.5 text-[#5C574C] mr-0.5 shrink-0 hidden sm:inline-block" />
+          <Globe className="w-3.5 h-3.5 text-[#748199] mr-0.5 shrink-0 hidden sm:inline-block" />
           {languages.map((lang) => (
             <button
               key={lang.id}
-              type="button"
+              type="button" disabled={disabled}
               onClick={() => onLanguageChange(lang.id)}
-              className={`px-2 py-1 rounded-md transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#E85D3D] active:scale-95 whitespace-nowrap touch-manipulation text-[11px] sm:text-xs ${
+              className={`px-2 py-1 rounded-md transition-all cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#D6F36B] active:scale-95 whitespace-nowrap touch-manipulation text-[11px] sm:text-xs ${
                 language === lang.id
-                  ? 'text-[#E85D3D] font-medium bg-[rgba(232,93,61,0.12)] border border-[rgba(232,93,61,0.2)]'
-                  : 'text-[#9A9488] hover:text-[#E8E2D8] hover:bg-[#0F0E0D]'
+                  ? 'text-[#D6F36B] font-medium bg-[rgba(214,243,107,0.12)] border border-[rgba(214,243,107,0.2)]'
+                  : 'text-[#A6B1C5] hover:text-[#F0F3FA] hover:bg-[#0D111A]'
               }`}
             >
               <span>{t(lang.labelKey as any)}</span>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, Suspense, lazy } from 'react';
 import { LayoutGroup } from 'motion/react';
 import { TestMode, Duration, WordCount, Difficulty, Language, TestResult } from './types';
 import { useTypingEngine } from './hooks/useTypingEngine';
@@ -8,36 +8,21 @@ import { saveTestResult } from './lib/resultsService';
 import { Navbar } from './components/Navbar';
 import { ModeSelector } from './components/ModeSelector';
 import { TypingArea } from './components/TypingArea';
-import { GamesView } from './components/GamesView';
-import { ResultsView } from './components/ResultsView';
-import { LeaderboardView } from './components/LeaderboardView';
-import { AccountView } from './components/AccountView';
-import { AcademyView } from './components/AcademyView';
-import { AboutView } from './components/AboutView';
-import { BlogView } from './components/BlogView';
+const GamesView = lazy(() => import('./components/GamesView').then(module => ({ default: module.GamesView })));
+const ResultsView = lazy(() => import('./components/ResultsView').then(module => ({ default: module.ResultsView })));
+const LeaderboardView = lazy(() => import('./components/LeaderboardView').then(module => ({ default: module.LeaderboardView })));
+const AccountView = lazy(() => import('./components/AccountView').then(module => ({ default: module.AccountView })));
+const AcademyView = lazy(() => import('./components/AcademyView').then(module => ({ default: module.AcademyView })));
+const AboutView = lazy(() => import('./components/AboutView').then(module => ({ default: module.AboutView })));
+const BlogView = lazy(() => import('./components/BlogView').then(module => ({ default: module.BlogView })));
 import { SettingsModal } from './components/SettingsModal';
 import { Footer } from './components/Footer';
-import { IntroOverlay } from './components/IntroOverlay';
+import { HomeExperience } from './components/HomeExperience';
 import { PrivacyModal } from './components/PrivacyModal';
 
 export default function App() {
   const { currentUser, userProfile } = useAuth();
   const { typingSound, typingLanguage, setTypingLanguage, siteLanguage } = useSettings();
-
-  // Intro animation state
-  const [introState, setIntroState] = useState<'checking' | 'hero' | 'animating' | 'done'>('checking');
-
-  useEffect(() => {
-    const isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const isAlreadyShown = sessionStorage.getItem('qalampir_intro_shown');
-
-    if (isReducedMotion || isAlreadyShown) {
-      setIntroState('done');
-    } else {
-      sessionStorage.setItem('qalampir_intro_shown', 'true');
-      setIntroState('hero');
-    }
-  }, []);
 
   // Active View ('test' | 'academy' | 'leaderboard' | 'account' | 'about' | 'blog' | 'games') with URL path synchronization
   const [activeView, setActiveView] = useState<'test' | 'academy' | 'leaderboard' | 'account' | 'about' | 'blog' | 'games'>(() => {
@@ -183,46 +168,18 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleGlobalShortcuts);
   }, [activeView, handleNextTest]);
 
-  const handleStartAnimation = useCallback(() => {
-    setIntroState('animating');
-  }, []);
-
-  const handleCompleteAnimation = useCallback(() => {
-    setIntroState('done');
-  }, []);
-
-  const handleSkipIntro = useCallback(() => {
-    setIntroState((prev) => {
-      if (prev === 'hero') return 'animating';
-      return prev;
-    });
-  }, []);
-
   const liveStats = getLiveStats();
   const typingFocus = activeView === 'test' && phase === 'running' && !isPaused && !isSettingsOpen && !isPrivacyOpen;
 
   return (
     <LayoutGroup id="app-intro-group">
-      <div data-typing-focus={typingFocus ? "true" : "false"} className="min-h-screen bg-[#0F0E0D] text-[#E8E2D8] flex flex-col font-sans selection:bg-[#E85D3D] selection:text-[#0F0E0D] relative overflow-x-hidden w-full max-w-full">
+      <div data-typing-focus={typingFocus ? "true" : "false"} className="min-h-screen bg-[#0D111A] text-[#F0F3FA] flex flex-col font-sans selection:bg-[#D6F36B] selection:text-[#0D111A] relative overflow-x-hidden w-full max-w-full">
         <style>{`
           .test-chrome { transition: opacity 180ms ease; }
           [data-typing-focus="true"] .test-chrome { opacity: 0; visibility: hidden; pointer-events: none; }
           [data-typing-focus="true"], [data-typing-focus="true"] * { cursor: none !important; }
           @media (prefers-reduced-motion: reduce) { .test-chrome { transition: none; } }
         `}</style>
-        {/* Intro Fullscreen Overlay */}
-        {introState !== 'done' && introState !== 'checking' && (
-          <IntroOverlay
-            introState={introState}
-            onStartAnimation={handleStartAnimation}
-            onCompleteAnimation={handleCompleteAnimation}
-            onSkip={handleSkipIntro}
-          />
-        )}
-
-        {/* Subtle Focus Ring Overlay */}
-        <div className="fixed inset-0 pointer-events-none border border-[#E85D3D] opacity-10 z-40"></div>
-
         {/* Top Navbar */}
         <div className="test-chrome" aria-hidden={typingFocus}>
         <Navbar
@@ -230,9 +187,16 @@ export default function App() {
           activeView={activeView}
           onNavigate={navigateTo}
           onOpenSettings={() => setIsSettingsOpen(true)}
-          showWordmark={introState !== 'hero'}
-          isIntroDone={introState === 'done'}
+          showWordmark={true}
+          isIntroDone={true}
         >
+        </Navbar>
+        </div>
+
+        {/* Main Container */}
+        <main className="site-main flex-1 flex flex-col px-4 sm:px-6 py-6 sm:py-10 max-w-6xl w-full mx-auto overflow-x-hidden">
+          {activeView === 'test' && phase !== 'completed' && <HomeExperience onGames={() => navigateTo('games')} onAcademy={() => navigateTo('academy')} />}
+          {activeView === 'test' && phase !== 'completed' && <div className="test-chrome">
           <ModeSelector
             mode={mode}
             duration={duration}
@@ -245,11 +209,8 @@ export default function App() {
             onDifficultyChange={setDifficulty}
             onLanguageChange={setTypingLanguage}
           />
-        </Navbar>
-        </div>
-
-        {/* Main Container */}
-        <main className="flex-1 flex flex-col justify-center px-3 sm:px-4 py-4 sm:py-8 max-w-6xl w-full mx-auto overflow-x-hidden">
+          </div>}
+          <Suspense fallback={<div className="py-12 text-center text-[#A6B1C5]" role="status">Qalamtype…</div>}>
           {activeView === 'account' ? (
             <AccountView />
           ) : activeView === 'academy' ? (
@@ -297,6 +258,7 @@ export default function App() {
               liveWpm={liveStats.wpm}
             />
           )}
+          </Suspense>
         </main>
 
         {/* Settings Modal */}

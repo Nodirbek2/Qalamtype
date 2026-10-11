@@ -371,16 +371,16 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
 
   return (
     <div
-      className="w-full max-w-6xl mx-auto flex flex-col items-center justify-center py-3 sm:py-8 select-none touch-manipulation"
+      className="typing-studio w-full max-w-6xl mx-auto flex flex-col items-center justify-center py-3 sm:py-8 select-none touch-manipulation"
       onClick={() => setIsFocused(true)}
     >
       {/* Top Info Bar directly above typing box */}
       <div className="w-full flex items-center justify-between mb-2 sm:mb-4 px-2 font-mono text-xs flex-wrap gap-2">
         <div className="test-chrome flex flex-col">
-          <span className="text-[10px] uppercase tracking-widest text-[#5C574C] font-semibold font-sans">
+          <span className="text-[10px] uppercase tracking-widest text-[#748199] font-semibold font-sans">
             {t('typing_language_label')}
           </span>
-          <span className="text-[#E85D3D] text-xs sm:text-sm font-mono truncate max-w-[180px] sm:max-w-none">
+          <span className="text-[#D6F36B] text-xs sm:text-sm font-mono truncate max-w-[180px] sm:max-w-none">
             {t(`lang_${language}` as any)} / {t(`diff_${difficulty}` as any)}
           </span>
         </div>
@@ -388,11 +388,11 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
         {/* Live Timer or Word Progress indicator */}
         <div className="flex items-center gap-2">
           {mode === 'time' ? (
-            <span className="text-sm sm:text-base font-bold text-[#F4A340] font-mono bg-[#1A1917] px-2.5 py-1 rounded-lg border border-[rgba(232,226,216,0.08)]">
+            <span className="text-sm sm:text-base font-bold text-[#63D9DA] font-mono bg-[#171E2B] px-2.5 py-1 rounded-lg border border-[rgba(240,243,250,0.08)]">
               {timeLeft}s
             </span>
           ) : (
-            <span className="text-xs sm:text-sm font-medium text-[#F4A340] font-mono bg-[#1A1917] px-2.5 py-1 rounded-lg border border-[rgba(232,226,216,0.08)]">
+            <span className="text-xs sm:text-sm font-medium text-[#63D9DA] font-mono bg-[#171E2B] px-2.5 py-1 rounded-lg border border-[rgba(240,243,250,0.08)]">
               {completedWordsCount}/{wordCount}
             </span>
           )}
@@ -403,7 +403,7 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
       <div
         ref={containerRef}
         onClick={focusInput}
-        className="relative w-full min-h-[140px] sm:min-h-[170px] max-h-[220px] sm:max-h-[260px] p-3.5 sm:p-6 md:p-8 bg-[#1A1917] rounded-xl border border-[rgba(232,226,216,0.08)] cursor-text overflow-y-auto focus:outline-none scrollbar-none touch-manipulation"
+        className="typing-paper relative w-full min-h-[140px] sm:min-h-[170px] max-h-[220px] sm:max-h-[260px] p-3.5 sm:p-6 md:p-8 bg-[#171E2B] rounded-xl border border-[rgba(240,243,250,0.08)] cursor-text overflow-y-auto focus:outline-none scrollbar-none touch-manipulation"
       >
         {/* Invisible Input for Mobile & Desktop Typing */}
         <input
@@ -436,7 +436,7 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
         {/* Focus Loss Overlay */}
         {(isPaused || !isFocused) && (
           <div
-            className="absolute inset-0 bg-[#0F0E0D]/40 z-20 flex items-center justify-center rounded-xl transition-all cursor-pointer pointer-events-auto p-3 backdrop-blur-[1px]"
+            className="absolute inset-0 bg-[#0D111A]/40 z-20 flex items-center justify-center rounded-xl transition-all cursor-pointer pointer-events-auto p-3 backdrop-blur-[1px]"
             onClick={(e) => {
               e.stopPropagation();
               focusInput();
@@ -445,8 +445,8 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
               }
             }}
           >
-            <div className="flex items-center space-x-2 font-sans text-xs sm:text-sm text-[#E85D3D] bg-[#1A1917] px-4 py-2.5 rounded-xl border border-[#E85D3D]/40 shadow-xl text-center max-w-full">
-              <KeyboardIcon className="w-4 h-4 shrink-0 animate-pulse text-[#E85D3D]" />
+            <div className="flex items-center space-x-2 font-sans text-xs sm:text-sm text-[#D6F36B] bg-[#171E2B] px-4 py-2.5 rounded-xl border border-[#D6F36B]/40 shadow-xl text-center max-w-full">
+              <KeyboardIcon className="w-4 h-4 shrink-0 animate-pulse text-[#D6F36B]" />
               <span className="font-medium">
                 {isPaused ? t('typing_paused_prompt') : t('typing_focus_prompt')}
               </span>
@@ -474,11 +474,11 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
             return (
               <span key={`word-${wIdx}`} className="inline-flex flex-wrap relative my-0.5">
                 {word.chars.map((charObj) => {
-                  let colorClass = 'text-[#5C574C]';
+                  let colorClass = 'text-[#748199]';
                   let bgClass = '';
 
                   if (charObj.status === 'correct') {
-                    colorClass = 'text-[#E8E2D8]';
+                    colorClass = 'text-[#F0F3FA]';
                   } else if (charObj.status === 'incorrect') {
                     colorClass = 'text-[#D64545] underline decoration-[#D64545] decoration-2';
                     bgClass = 'bg-[#D64545]/15 rounded-sm';
@@ -521,18 +521,18 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
             onRestart();
             focusInput();
           }}
-          className="w-full sm:w-auto min-h-[44px] px-5 py-2.5 rounded-xl bg-[#1A1917] sm:bg-transparent hover:bg-[#1A1917] border border-[rgba(232,226,216,0.1)] sm:border-transparent text-[#E8E2D8] sm:text-[#9A9488] hover:text-[#E85D3D] transition-all flex items-center justify-center space-x-2 group cursor-pointer active:scale-95 touch-manipulation shadow-sm sm:shadow-none"
+          className="w-full sm:w-auto min-h-[44px] px-5 py-2.5 rounded-xl bg-[#171E2B] sm:bg-transparent hover:bg-[#171E2B] border border-[rgba(240,243,250,0.1)] sm:border-transparent text-[#F0F3FA] sm:text-[#A6B1C5] hover:text-[#D6F36B] transition-all flex items-center justify-center space-x-2 group cursor-pointer active:scale-95 touch-manipulation shadow-sm sm:shadow-none"
           title="qayta boshlash"
         >
-          <RotateCcw className="w-4 h-4 text-[#E85D3D] sm:text-inherit transition-transform group-hover:-rotate-90 duration-200" />
+          <RotateCcw className="w-4 h-4 text-[#D6F36B] sm:text-inherit transition-transform group-hover:-rotate-90 duration-200" />
           <span className="sm:hidden text-xs font-mono font-medium">Qayta boshlash</span>
         </button>
 
         {/* Desktop Keyboard Shortcut Prompt */}
-        <div className="hidden sm:flex items-center space-x-2 text-[10px] text-[#5C574C] uppercase tracking-[0.2em] px-4 py-2 rounded-lg border border-[rgba(232,226,216,0.05)] bg-[#141312] select-none">
-          <span className="bg-[#1A1917] px-1.5 py-0.5 rounded border border-[#5C574C] text-[#9A9488]">tab</span>
+        <div className="hidden sm:flex items-center space-x-2 text-[10px] text-[#748199] uppercase tracking-[0.2em] px-4 py-2 rounded-lg border border-[rgba(240,243,250,0.05)] bg-[#141312] select-none">
+          <span className="bg-[#171E2B] px-1.5 py-0.5 rounded border border-[#748199] text-[#A6B1C5]">tab</span>
           <span>+</span>
-          <span className="bg-[#1A1917] px-1.5 py-0.5 rounded border border-[#5C574C] text-[#9A9488]">enter</span>
+          <span className="bg-[#171E2B] px-1.5 py-0.5 rounded border border-[#748199] text-[#A6B1C5]">enter</span>
           <span className="ml-2">{t('typing_restart_hint')}</span>
         </div>
       </div>

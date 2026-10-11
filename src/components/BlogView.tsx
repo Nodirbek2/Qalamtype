@@ -50,7 +50,7 @@ export const BlogView: React.FC<BlogViewProps> = ({
         <button
           type="button"
           onClick={onNavigateHome}
-          className="text-[#E85D3D] hover:underline font-medium inline-flex items-center cursor-pointer"
+          className="text-[#D6F36B] hover:underline font-medium inline-flex items-center cursor-pointer"
         >
           Qalampir
         </button>
@@ -70,7 +70,7 @@ export const BlogView: React.FC<BlogViewProps> = ({
         elements.push(text.substring(lastIndex, match.index));
       }
       elements.push(
-        <strong key={match.index} className="text-[#E8E2D8] font-semibold">
+        <strong key={match.index} className="text-[#F0F3FA] font-semibold">
           {match[1]}
         </strong>
       );
@@ -89,24 +89,24 @@ export const BlogView: React.FC<BlogViewProps> = ({
     return (
       <div className="w-full max-w-4xl mx-auto py-6 sm:py-10 px-4 font-sans select-none">
         {/* Navigation bar */}
-        <div className="flex items-center justify-between mb-8 pb-4 border-b border-[rgba(232,226,216,0.08)]">
+        <div className="flex items-center justify-between mb-8 pb-4 border-b border-[rgba(240,243,250,0.08)]">
           <button
             type="button"
             onClick={() => onNavigateBlog()}
-            className="inline-flex items-center space-x-2 text-xs font-mono text-[#9A9488] hover:text-[#E85D3D] transition-colors cursor-pointer"
+            className="inline-flex items-center space-x-2 text-xs font-mono text-[#A6B1C5] hover:text-[#D6F36B] transition-colors cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Barcha maqolalar</span>
           </button>
 
-          <div className="flex items-center space-x-3 text-xs font-mono text-[#9A9488]">
+          <div className="flex items-center space-x-3 text-xs font-mono text-[#A6B1C5]">
             <span className="flex items-center space-x-1">
-              <Calendar className="w-3.5 h-3.5 text-[#E85D3D]" />
+              <Calendar className="w-3.5 h-3.5 text-[#D6F36B]" />
               <span>{activeArticle.date}</span>
             </span>
             <span>•</span>
             <span className="flex items-center space-x-1">
-              <Clock className="w-3.5 h-3.5 text-[#9A9488]" />
+              <Clock className="w-3.5 h-3.5 text-[#A6B1C5]" />
               <span>{activeArticle.readTime}</span>
             </span>
           </div>
@@ -114,29 +114,29 @@ export const BlogView: React.FC<BlogViewProps> = ({
 
         {/* Article Header */}
         <header className="mb-6">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[#E85D3D]/10 border border-[#E85D3D]/20 text-[#E85D3D] text-xs font-mono mb-4">
+          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[#D6F36B]/10 border border-[#D6F36B]/20 text-[#D6F36B] text-xs font-mono mb-4">
             <BookOpen className="w-3.5 h-3.5" />
             <span>Qalampir Blog</span>
           </div>
-          <h1 className="text-2xl sm:text-4xl font-bold text-[#E8E2D8] tracking-tight leading-tight mb-4">
+          <h1 className="text-2xl sm:text-4xl font-bold text-[#F0F3FA] tracking-tight leading-tight mb-4">
             {activeArticle.title}
           </h1>
-          <p className="text-base sm:text-lg text-[#9A9488] font-sans leading-relaxed">
+          <p className="text-base sm:text-lg text-[#A6B1C5] font-sans leading-relaxed">
             {activeArticle.description}
           </p>
         </header>
 
         {/* Mid-article CTA Card (Before section 1) */}
-        <div className="my-8 p-5 sm:p-6 rounded-2xl bg-[#1E1C1A] border border-[#E85D3D]/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="my-8 p-5 sm:p-6 rounded-2xl bg-[#1E1C1A] border border-[#D6F36B]/30 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center space-x-3.5 text-left w-full sm:w-auto">
-            <div className="w-10 h-10 rounded-xl bg-[#E85D3D]/15 border border-[#E85D3D]/30 flex items-center justify-center text-[#E85D3D] shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-[#D6F36B]/15 border border-[#D6F36B]/30 flex items-center justify-center text-[#D6F36B] shrink-0">
               <Keyboard className="w-5 h-5" />
             </div>
             <div className="space-y-0.5">
-              <p className="text-sm sm:text-base font-semibold text-[#E8E2D8] font-sans">
+              <p className="text-sm sm:text-base font-semibold text-[#F0F3FA] font-sans">
                 Nazariyani bilib oldingizmi? Hoziroq tezligingizni amalda sinab ko'ring!
               </p>
-              <p className="text-xs text-[#9A9488] font-sans">
+              <p className="text-xs text-[#A6B1C5] font-sans">
                 O'zbek, rus va ingliz tillarida bepul test va aniq statistika.
               </p>
             </div>
@@ -144,7 +144,7 @@ export const BlogView: React.FC<BlogViewProps> = ({
           <button
             type="button"
             onClick={onNavigateHome}
-            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#E85D3D] hover:bg-[#E85D3D]/90 active:scale-95 text-[#0F0E0D] font-mono text-xs font-bold transition-all flex items-center justify-center space-x-1.5 shrink-0 cursor-pointer touch-manipulation"
+            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#D6F36B] hover:bg-[#D6F36B]/90 active:scale-95 text-[#0D111A] font-mono text-xs font-bold transition-all flex items-center justify-center space-x-1.5 shrink-0 cursor-pointer touch-manipulation"
           >
             <span>Klaviaturada yozishni boshlash</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -156,7 +156,7 @@ export const BlogView: React.FC<BlogViewProps> = ({
           {activeArticle.sections.map((section, idx) => (
             <div key={idx} className="space-y-4">
               {section.heading && (
-                <h2 className="text-xl sm:text-2xl font-bold text-[#E8E2D8] font-mono pt-4 border-t border-[rgba(232,226,216,0.06)]">
+                <h2 className="text-xl sm:text-2xl font-bold text-[#F0F3FA] font-mono pt-4 border-t border-[rgba(240,243,250,0.06)]">
                   {section.heading}
                 </h2>
               )}
@@ -181,16 +181,16 @@ export const BlogView: React.FC<BlogViewProps> = ({
         </article>
 
         {/* Call to action banner at bottom of article */}
-        <div className="mt-12 p-6 sm:p-8 rounded-2xl bg-[#1E1C1A] border border-[#E85D3D]/30 flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div className="mt-12 p-6 sm:p-8 rounded-2xl bg-[#1E1C1A] border border-[#D6F36B]/30 flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-start sm:items-center space-x-4 text-left w-full sm:w-auto">
-            <div className="w-12 h-12 rounded-xl bg-[#E85D3D]/15 border border-[#E85D3D]/30 flex items-center justify-center text-[#E85D3D] shrink-0 mt-0.5 sm:mt-0">
+            <div className="w-12 h-12 rounded-xl bg-[#D6F36B]/15 border border-[#D6F36B]/30 flex items-center justify-center text-[#D6F36B] shrink-0 mt-0.5 sm:mt-0">
               <Keyboard className="w-6 h-6" />
             </div>
             <div className="space-y-1">
-              <h3 className="text-base sm:text-lg font-bold text-[#E8E2D8] font-mono">
+              <h3 className="text-base sm:text-lg font-bold text-[#F0F3FA] font-mono">
                 Tez yozish trenajyoriga o'tish
               </h3>
-              <p className="text-xs sm:text-sm text-[#9A9488] font-sans">
+              <p className="text-xs sm:text-sm text-[#A6B1C5] font-sans">
                 Qalampir bilan o'zbek, rus va ingliz tillarida bepul tez yozish mashqini boshlang.
               </p>
             </div>
@@ -198,7 +198,7 @@ export const BlogView: React.FC<BlogViewProps> = ({
           <button
             type="button"
             onClick={onNavigateHome}
-            className="w-full sm:w-auto px-6 py-3 rounded-xl bg-[#E85D3D] hover:bg-[#E85D3D]/90 active:scale-95 text-[#0F0E0D] font-mono text-xs font-bold transition-all flex items-center justify-center space-x-2 shrink-0 cursor-pointer touch-manipulation shadow-sm"
+            className="w-full sm:w-auto px-6 py-3 rounded-xl bg-[#D6F36B] hover:bg-[#D6F36B]/90 active:scale-95 text-[#0D111A] font-mono text-xs font-bold transition-all flex items-center justify-center space-x-2 shrink-0 cursor-pointer touch-manipulation shadow-sm"
           >
             <span>Klaviaturada yozishni boshlash</span>
             <ArrowRight className="w-4 h-4" />
@@ -213,14 +213,14 @@ export const BlogView: React.FC<BlogViewProps> = ({
     <div className="w-full max-w-4xl mx-auto py-6 sm:py-10 px-4 font-sans select-none">
       {/* Index Header */}
       <div className="text-center mb-10 sm:mb-14">
-        <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[#E85D3D]/10 border border-[#E85D3D]/20 text-[#E85D3D] text-xs font-mono mb-4">
+        <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[#D6F36B]/10 border border-[#D6F36B]/20 text-[#D6F36B] text-xs font-mono mb-4">
           <BookOpen className="w-3.5 h-3.5" />
           <span>Foydali Maqolalar</span>
         </div>
-        <h1 className="text-3xl sm:text-5xl font-bold text-[#E8E2D8] tracking-tight mb-4">
+        <h1 className="text-3xl sm:text-5xl font-bold text-[#F0F3FA] tracking-tight mb-4">
           Qalampir Blog
         </h1>
-        <p className="text-base sm:text-lg text-[#9A9488] max-w-2xl mx-auto leading-relaxed">
+        <p className="text-base sm:text-lg text-[#A6B1C5] max-w-2xl mx-auto leading-relaxed">
           Klaviaturada tez yozish, samarali mashqlar, tugmalarni to'g'ri bosish va matn terish o'yinlari haqidagi eng sara qo'llanmalar.
         </p>
       </div>
@@ -231,12 +231,12 @@ export const BlogView: React.FC<BlogViewProps> = ({
           <div
             key={article.slug}
             onClick={() => onNavigateBlog(article.slug)}
-            className="group bg-[#1A1917] border border-[rgba(232,226,216,0.08)] rounded-2xl p-6 sm:p-8 hover:border-[#E85D3D]/40 transition-all cursor-pointer flex flex-col justify-between"
+            className="group bg-[#171E2B] border border-[rgba(240,243,250,0.08)] rounded-2xl p-6 sm:p-8 hover:border-[#D6F36B]/40 transition-all cursor-pointer flex flex-col justify-between"
           >
             <div>
-              <div className="flex items-center space-x-3 text-xs font-mono text-[#9A9488] mb-3">
+              <div className="flex items-center space-x-3 text-xs font-mono text-[#A6B1C5] mb-3">
                 <span className="flex items-center space-x-1">
-                  <Calendar className="w-3.5 h-3.5 text-[#E85D3D]" />
+                  <Calendar className="w-3.5 h-3.5 text-[#D6F36B]" />
                   <span>{article.date}</span>
                 </span>
                 <span>•</span>
@@ -246,16 +246,16 @@ export const BlogView: React.FC<BlogViewProps> = ({
                 </span>
               </div>
 
-              <h2 className="text-xl sm:text-2xl font-bold text-[#E8E2D8] group-hover:text-[#E85D3D] transition-colors mb-3 font-mono">
+              <h2 className="text-xl sm:text-2xl font-bold text-[#F0F3FA] group-hover:text-[#D6F36B] transition-colors mb-3 font-mono">
                 {article.title}
               </h2>
 
-              <p className="text-sm sm:text-base text-[#9A9488] leading-relaxed mb-4">
+              <p className="text-sm sm:text-base text-[#A6B1C5] leading-relaxed mb-4">
                 {article.description}
               </p>
             </div>
 
-            <div className="flex items-center text-xs font-mono text-[#E85D3D] font-medium pt-2 border-t border-[rgba(232,226,216,0.06)] group-hover:translate-x-1 transition-transform w-fit">
+            <div className="flex items-center text-xs font-mono text-[#D6F36B] font-medium pt-2 border-t border-[rgba(240,243,250,0.06)] group-hover:translate-x-1 transition-transform w-fit">
               <span>Batafsil o'qish</span>
               <ChevronRight className="w-4 h-4 ml-1" />
             </div>
