@@ -556,7 +556,8 @@ export function useTypingEngine({
       0,
       now - startTimeRef.current - pausedTotalRef.current
     );
-    const elapsedMinutes = elapsedMs / 60000;
+    // Avoid misleading speed spikes during the first milliseconds of a drill.
+    const elapsedMinutes = Math.max(1000, elapsedMs) / 60000;
     if (elapsedMinutes <= 0) return { wpm: 0, rawWpm: 0, accuracy: 100, progress: 0 };
 
     const { correctChars } = computeStatsFromWords(wordsDisplayRef.current);

@@ -445,6 +445,13 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
   const starsEarned = result && !practiceText ? calculateTierStars(lesson.tierNumber, result.wpm, academyAccuracy(result)) : 0;
   const [isNewRecord, setIsNewRecord] = useState<boolean>(false);
   const [processed, setProcessed] = useState<boolean>(false);
+  const [, refreshLiveStats] = useState(0);
+
+  useEffect(() => {
+    if (phase !== 'running' || isPaused) return;
+    const timer = window.setInterval(() => refreshLiveStats(value => value + 1), 500);
+    return () => window.clearInterval(timer);
+  }, [phase, isPaused]);
 
   useEffect(() => {
     if (phase === 'idle') {
