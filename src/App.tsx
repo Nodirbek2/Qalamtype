@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { LayoutGroup } from 'motion/react';
-import { TestMode, Duration, WordCount, Difficulty, Language } from './types';
+import { TestMode, Duration, WordCount, Difficulty, Language, TestResult } from './types';
 import { useTypingEngine } from './hooks/useTypingEngine';
 import { useAuth } from './context/AuthContext';
 import { useSettings } from './context/SettingsContext';
@@ -70,8 +70,9 @@ export default function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
 
-  // Track if current test result has been saved to Firestore
-  const [savedResultKey, setSavedResultKey] = useState<string | null>(null);
+  // Save each completed test once and report confirmed database persistence.
+  const savedResultRef = useRef<TestResult | null>(null);
+  const [savedToLeaderboard, setSavedToLeaderboard] = useState(false);
 
   const {
     wordsDisplay,
@@ -149,24 +150,21 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  // Save result automatically on test completion (for logged in users and guests)
   useEffect(() => {
-    if (phase === 'completed' && result) {
-      // Unique key for current result based on WPM, accuracy, and timestamp
-      const resultKey = `${result.wpm}_${result.rawWpm}_${result.accuracy}_${result.timeSec}`;
-
-      if (savedResultKey !== resultKey) {
-        setSavedResultKey(resultKey);
-        saveTestResult(result, userProfile || null).catch((err) => {
-          console.error('Failed to save test result:', err);
-        });
+    if (phase !== 'completed' || !result || savedResultRef.current === result || (currentUser && !userProfile)) return;
+    savedResultRef.current = result;
+    setSavedToLeaderboard(false);
+    saveTestResult(result, currentUser ? userProfile : null).then((id) => {
+      if (savedResultRef.current === result) {
+        setSavedToLeaderboard(Boolean(id && !id.startsWith('result_')));
       }
-    }
-  }, [phase, result, userProfile, savedResultKey]);
+    }).catch((error) => console.error('Failed to save test result:', error));
+  }, [phase, result, currentUser, userProfile]);
 
   // Reset test and navigate back to test view on logo click or next test
   const handleNextTest = useCallback(() => {
-    setSavedResultKey(null);
+    savedResultRef.current = null;
+    setSavedToLeaderboard(false);
     resetTest();
     if (activeView !== 'test') {
       navigateTo('test');
@@ -275,7 +273,7 @@ export default function App() {
           ) : phase === 'completed' && result ? (
             <ResultsView
               result={result}
-              savedToLeaderboard={Boolean(savedResultKey && currentUser)}
+              savedToLeaderboard={savedToLeaderboard}
               onViewLeaderboard={() => navigateTo('leaderboard')}
               onNextTest={handleNextTest}
               onRestart={handleNextTest}

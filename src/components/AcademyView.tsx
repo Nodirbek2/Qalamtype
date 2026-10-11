@@ -88,6 +88,9 @@ export const AcademyView: React.FC = () => {
 
   // Fetch / load progress from LocalStorage + Supabase
   useEffect(() => {
+    let active = true;
+    setProgressMap({});
+    setActiveLesson(null);
     if (!currentUser) return;
 
     const loadProgress = async () => {
@@ -99,7 +102,7 @@ export const AcademyView: React.FC = () => {
         const saved = localStorage.getItem(storageKey);
         if (saved) {
           initialMap = JSON.parse(saved);
-          setProgressMap(initialMap);
+          if (active) setProgressMap(initialMap);
         }
       } catch (e) {
         console.warn('LocalStorage load error:', e);
@@ -126,6 +129,7 @@ export const AcademyView: React.FC = () => {
                 bestAccuracy: Math.max(row.best_accuracy || 0, existing?.bestAccuracy || 0),
               };
             });
+            if (!active) return;
             setProgressMap(mergedMap);
             localStorage.setItem(storageKey, JSON.stringify(mergedMap));
           }
@@ -136,6 +140,7 @@ export const AcademyView: React.FC = () => {
     };
 
     loadProgress();
+    return () => { active = false; };
   }, [currentUser, academyLang]);
 
   // Function to save progress to LocalStorage and Supabase
@@ -145,40 +150,26 @@ export const AcademyView: React.FC = () => {
 
       const stars = calculateTierStars(lesson.tierNumber, wpm, accuracy);
 
-      let isNewRecord = false;
-      let updatedStars = stars;
-      let updatedWpm = wpm;
-      let updatedAccuracy = accuracy;
-
-      setProgressMap((prev) => {
-        const existing = prev[lesson.id];
-        const prevBestWpm = existing?.bestWpm || 0;
-        const prevStars = existing?.stars || 0;
-
-        if (stars > 0) {
-          if (wpm > prevBestWpm || stars > prevStars) {
-            isNewRecord = true;
-          }
-        }
-
-        updatedStars = Math.max(prevStars, stars);
-        updatedWpm = Math.max(prevBestWpm, wpm);
-        updatedAccuracy = Math.max(existing?.bestAccuracy || 0, accuracy);
-
-        const nextMap = {
-          ...prev,
-          [lesson.id]: {
-            completed: updatedStars > 0 || Boolean(existing?.completed),
-            stars: updatedStars,
-            bestWpm: updatedWpm,
-            bestAccuracy: updatedAccuracy,
-          },
-        };
-
-        const storageKey = `qalampir_academy_progress_${currentUser.id}_${academyLang}`;
-        localStorage.setItem(storageKey, JSON.stringify(nextMap));
-        return nextMap;
-      });
+      const existing = progressMap[lesson.id];
+      const updatedStars = Math.max(existing?.stars || 0, stars);
+      const updatedWpm = Math.max(existing?.bestWpm || 0, wpm);
+      const updatedAccuracy = Math.max(existing?.bestAccuracy || 0, accuracy);
+      const isNewRecord = stars > 0 && (wpm > (existing?.bestWpm || 0) || stars > (existing?.stars || 0));
+      const nextMap = {
+        ...progressMap,
+        [lesson.id]: {
+          completed: updatedStars > 0 || Boolean(existing?.completed),
+          stars: updatedStars,
+          bestWpm: updatedWpm,
+          bestAccuracy: updatedAccuracy,
+        },
+      };
+      setProgressMap(nextMap);
+      try {
+        localStorage.setItem(`qalampir_academy_progress_${currentUser.id}_${academyLang}`, JSON.stringify(nextMap));
+      } catch (error) {
+        console.warn('Academy local storage unavailable:', error);
+      }
 
       // Upsert to Supabase table `academy_progress`
       if (isSupabaseConfigured && currentUser && stars > 0) {
@@ -208,7 +199,7 @@ export const AcademyView: React.FC = () => {
 
       return { stars, isNewRecord };
     },
-    [currentUser, academyLang]
+    [currentUser, academyLang, progressMap]
   );
 
   // Check if a lesson is unlocked
@@ -534,10 +525,12 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
   const [processed, setProcessed] = useState<boolean>(false);
 
   useEffect(() => {
-    setProcessed(false);
-    setStarsEarned(0);
-    setIsNewRecord(false);
-  }, [lesson.id]);
+    if (phase === 'idle') {
+      setProcessed(false);
+      setStarsEarned(0);
+      setIsNewRecord(false);
+    }
+  }, [lesson.id, phase]);
 
   useEffect(() => {
     if (phase === 'completed' && result && !processed) {
@@ -700,7 +693,7 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
             timeLeft={timeLeft}
             mode="words"
             duration={60}
-            wordCount={100}
+            wordCount={lessonText.trim().split(/\s+/).length}
             difficulty="easy"
             language={language}
             onRestart={resetTest}

@@ -176,7 +176,7 @@ export async function uploadAvatarImage(uid: string, file: File): Promise<string
   if (isSupabaseConfigured) {
     try {
       const fileExt = file.name.split('.').pop() || 'jpg';
-      const filePath = `avatars/${uid}_${Date.now()}.${fileExt}`;
+      const filePath = `${uid}/avatar.${fileExt.toLowerCase()}`;
       const { error: uploadError } = await supabase.storage
         .from('avatars')
         .upload(filePath, file, { upsert: true });
@@ -187,7 +187,7 @@ export async function uploadAvatarImage(uid: string, file: File): Promise<string
           .getPublicUrl(filePath);
 
         if (publicUrlData?.publicUrl) {
-          return publicUrlData.publicUrl;
+          return `${publicUrlData.publicUrl}?v=${Date.now()}`;
         }
       }
     } catch (err) {
@@ -243,10 +243,12 @@ export function subscribeToUserResults(
   onData: (results: LeaderboardResult[]) => void,
   onError?: (err: Error) => void
 ) {
+  let active = true;
   const loadLocalUserResults = () => {
+    if (!active) return;
     const allLocal = getLocalResults();
     const userLocal = allLocal.filter((r) => r.uid === uid);
-    onData(userLocal);
+    onData(userLocal.sort((a, b) => a.date.getTime() - b.date.getTime()));
   };
 
   if (!isSupabaseConfigured) {
@@ -263,6 +265,7 @@ export function subscribeToUserResults(
         .order('created_at', { ascending: true });
 
       if (error || !data) {
+        if (active && error && onError) onError(new Error(error.message));
         loadLocalUserResults();
         return;
       }
@@ -300,6 +303,9 @@ export function subscribeToUserResults(
             sr.accuracy === r.accuracy &&
             sr.mode === r.mode &&
             sr.modeValue === r.modeValue &&
+            sr.typingLanguage === r.typingLanguage &&
+            sr.difficulty === r.difficulty &&
+            sr.rawWpm === r.rawWpm &&
             Math.abs(new Date(sr.date).getTime() - new Date(r.date).getTime()) < 30000
         );
 
@@ -308,10 +314,11 @@ export function subscribeToUserResults(
         }
       });
 
-      onData(Array.from(combinedMap.values()));
+      if (!active) return;
+      onData(Array.from(combinedMap.values()).sort((a, b) => a.date.getTime() - b.date.getTime()));
     } catch (err: any) {
       loadLocalUserResults();
-      if (onError) onError(err);
+      if (active && onError) onError(err);
     }
   };
 
@@ -321,7 +328,7 @@ export function subscribeToUserResults(
     .channel(`user-results-${uid}`)
     .on(
       'postgres_changes',
-      { event: '*', schema: 'public', table: 'results' },
+      { event: '*', schema: 'public', table: 'results', filter: `user_id=eq.${uid}` },
       () => {
         fetchUserResults();
       }
@@ -329,6 +336,7 @@ export function subscribeToUserResults(
     .subscribe();
 
   return () => {
+    active = false;
     supabase.removeChannel(channel);
   };
 }
@@ -433,9 +441,10 @@ export function subscribeToLeaderboard(
   onData: (results: LeaderboardResult[]) => void,
   onError?: (err: Error) => void
 ) {
+  let active = true;
   const emitLocalFallback = () => {
-    const local = getLocalResults();
-    const processed = filterAndSortResults(local, filters);
+    if (!active) return;
+    const processed: LeaderboardResult[] = [];
     onData(processed);
   };
 
@@ -448,7 +457,7 @@ export function subscribeToLeaderboard(
     try {
       let query = supabase
         .from('results')
-        .select('id, user_id, username, photo_url, wpm, raw_wpm, accuracy, mode, mode_value, difficulty, typing_language, created_at')
+        .select('id, user_id, username, photo_url, wpm, raw_wpm, accuracy, mode, mode_value, difficulty, typing_language, created_at, profiles!results_user_id_fkey(username, avatar_url)')
         .order('wpm', { ascending: false })
         .limit(1000);
 
@@ -490,7 +499,7 @@ export function subscribeToLeaderboard(
 
       if (error) {
         emitLocalFallback();
-        if (onError) {
+        if (active && onError) {
           const errMsg = error.message || '';
           if (
             errMsg.includes('Could not find the table') ||
@@ -511,8 +520,8 @@ export function subscribeToLeaderboard(
       const parsedDocs: LeaderboardResult[] = (data || []).map((row: any) => ({
         id: String(row.id),
         uid: String(row.user_id),
-        username: row.username || 'mehmon',
-        photoURL: row.photo_url || '',
+        username: row.profiles?.username || row.username || 'mehmon',
+        photoURL: row.profiles?.avatar_url || row.photo_url || '',
         wpm: Number(row.wpm || 0),
         rawWpm: Number(row.raw_wpm || 0),
         accuracy: Number(row.accuracy || 0),
@@ -523,39 +532,13 @@ export function subscribeToLeaderboard(
         date: new Date(row.created_at || Date.now()),
       }));
 
-      // Combine with local user results to make sure user's freshly completed local test appears
-      const localResults = getLocalResults();
-      const combinedMap = new Map<string, LeaderboardResult>();
-
-      // Put Supabase results first
-      parsedDocs.forEach((r) => combinedMap.set(r.id, r));
-
-      // Add only non-duplicate local results
-      localResults.forEach((r) => {
-        if (combinedMap.has(r.id)) return;
-
-        // Semantic duplicate check: if there is a Supabase result with the exact same stats and close time for the same user
-        const isDuplicate = parsedDocs.some(
-          (sr) =>
-            sr.uid === r.uid &&
-            sr.wpm === r.wpm &&
-            sr.accuracy === r.accuracy &&
-            sr.mode === r.mode &&
-            sr.modeValue === r.modeValue &&
-            Math.abs(new Date(sr.date).getTime() - new Date(r.date).getTime()) < 30000
-        );
-
-        if (!isDuplicate) {
-          combinedMap.set(r.id, r);
-        }
-      });
-
-      const combinedList = Array.from(combinedMap.values());
+      // Public rankings contain only results confirmed by the database.
+      const combinedList = parsedDocs;
       const processed = filterAndSortResults(combinedList, filters);
-      onData(processed);
+      if (active) onData(processed);
     } catch (err: any) {
       emitLocalFallback();
-      if (onError) onError(err);
+      if (active && onError) onError(err);
     }
   };
 
@@ -569,6 +552,7 @@ export function subscribeToLeaderboard(
     .subscribe();
 
   return () => {
+    active = false;
     supabase.removeChannel(channel);
   };
 }

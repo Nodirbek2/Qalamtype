@@ -120,7 +120,7 @@ CREATE POLICY "Users insert own result" ON public.results FOR INSERT WITH CHECK 
     if (diffHours < 24) return `${diffHours} ${t('lb_ago_hours')}`;
     if (diffDays < 7) return `${diffDays} ${t('lb_ago_days')}`;
 
-    const locale = siteLanguage === 'uzbek' ? 'uz-UZ' : siteLanguage === 'russian' ? 'ru-RU' : 'en-US';
+    const locale = siteLanguage === 'uzbek_latin' ? 'uz-UZ' : siteLanguage === 'russian' ? 'ru-RU' : 'en-US';
     return date.toLocaleDateString(locale, {
       month: 'short',
       day: 'numeric',
@@ -197,8 +197,11 @@ CREATE POLICY "Users insert own result" ON public.results FOR INSERT WITH CHECK 
               <option value="all" className="bg-[#1A1917] text-[#E8E2D8]">
                 {t('lb_all_languages')}
               </option>
-              <option value="uzbek" className="bg-[#1A1917] text-[#E8E2D8]">
-                {t('lang_uzbek')}
+              <option value="uzbek_latin" className="bg-[#1A1917] text-[#E8E2D8]">
+                {t('lang_uzbek_latin')}
+              </option>
+              <option value="uzbek_cyrillic" className="bg-[#1A1917] text-[#E8E2D8]">
+                {t('lang_uzbek_cyrillic')}
               </option>
               <option value="russian" className="bg-[#1A1917] text-[#E8E2D8]">
                 {t('lang_russian')}
@@ -343,7 +346,7 @@ CREATE POLICY "Users insert own result" ON public.results FOR INSERT WITH CHECK 
                   const isTop1 = rank === 1;
                   const isTop2 = rank === 2;
                   const isTop3 = rank === 3;
-                  const isCurrentUser = currentUser && row.uid === currentUser.uid;
+                  const isCurrentUser = currentUser && row.uid === currentUser.id;
 
                   let rowBorderClass = '';
                   let rankColorClass = 'text-[#9A9488]';

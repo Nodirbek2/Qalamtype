@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { UserProfile } from '../types';
@@ -27,11 +27,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const userIdRef = useRef<string | null>(null);
 
   // Check if username is available in Supabase profiles table
-  const checkUsernameAvailability = async (username: string): Promise<boolean> => {
+  const checkUsernameAvailability = useCallback(async (username: string): Promise<boolean> => {
     const cleanUsername = username.trim().toLowerCase();
-    if (!cleanUsername || cleanUsername.length < 3) return false;
+    if (!cleanUsername || cleanUsername.length < 3 || !/^[a-z0-9_]+$/.test(cleanUsername)) return false;
 
     if (!isSupabaseConfigured) return true;
 
@@ -39,11 +40,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { data, error } = await supabase
         .from('profiles')
         .select('id')
-        .ilike('username', cleanUsername);
+        .ilike('username', cleanUsername.replace(/_/g, '\\_'));
 
       if (error) {
         console.warn('Username check Supabase table error:', error.message);
-        return true;
+        throw error;
       }
 
       if (!data || data.length === 0) return true;
@@ -52,10 +53,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       return false;
     } catch (err) {
-      console.warn('Username availability check fallback:', err);
-      return true;
+      throw err;
     }
-  };
+  }, [currentUser?.id]);
 
   // Helper to fetch or create user profile
   const fetchOrCreateProfile = async (user: User): Promise<UserProfile> => {
@@ -76,11 +76,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     try {
       // Query 'profiles' table
-      const { data } = await supabase
+      const { data, error: lookupError } = await supabase
         .from('profiles')
         .select('id, username, first_name, last_name, avatar_url, updated_at, is_profile_complete')
         .eq('id', user.id)
         .maybeSingle();
+
+      if (lookupError) throw lookupError;
 
       if (data) {
         return {
@@ -135,7 +137,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
 
       // Upsert into 'profiles' table with is_profile_complete = false
-      await supabase.from('profiles').upsert({
+      const { error: createError } = await supabase.from('profiles').upsert({
         id: user.id,
         username: candidateUsername,
         first_name: firstName,
@@ -145,6 +147,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updated_at: new Date().toISOString(),
       });
 
+      if (createError) throw createError;
       return newProfile;
     } catch (err) {
       console.error('Error in fetchOrCreateProfile:', err);
@@ -190,9 +193,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       throw error;
     }
 
+    if (data.user && !data.session) {
+      throw new Error('EMAIL_CONFIRMATION_REQUIRED');
+    }
+
     if (data.user) {
       const profile = await fetchOrCreateProfile(data.user);
-      setUserProfile(profile);
       return {
         isNewUser: !profile.isProfileComplete,
         profile,
@@ -217,10 +223,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       throw error;
     }
 
-    if (data.user) {
-      const profile = await fetchOrCreateProfile(data.user);
-      setUserProfile(profile);
-    }
+    // The auth listener loads the profile after releasing the auth lock.
   };
 
   // Login with Google via Supabase OAuth
@@ -259,15 +262,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Logout via Supabase
   const logout = async () => {
     if (isSupabaseConfigured) {
-      await supabase.auth.signOut();
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
     }
+    userIdRef.current = null;
     setCurrentUser(null);
     setUserProfile(null);
   };
 
   // Update user profile
   const updateUserProfile = async (data: Partial<UserProfile>) => {
-    if (!currentUser) return;
+    if (!currentUser) throw new Error('Sign in before updating your profile.');
 
     if (isSupabaseConfigured) {
       // Map to profiles table column names
@@ -280,26 +285,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (data.photoURL !== undefined) profileUpdates.avatar_url = data.photoURL;
       if (data.isProfileComplete !== undefined) profileUpdates.is_profile_complete = data.isProfileComplete;
 
-      const { error: profileErr } = await supabase
+      const { error: profileErr, data: savedProfile } = await supabase
         .from('profiles')
-        .update(profileUpdates)
-        .eq('id', currentUser.id);
+        .upsert({ ...profileUpdates, id: currentUser.id, username: profileUpdates.username ?? userProfile?.username }, { onConflict: 'id' })
+        .select('id')
+        .single();
 
-      if (profileErr) {
-        console.warn('Supabase profiles update warning:', profileErr.message);
-      }
-
-      // Sync results table with the new username if username changed
-      if (data.username) {
-        try {
-          await supabase
-            .from('results')
-            .update({ username: data.username })
-            .eq('user_id', currentUser.id);
-        } catch (resErr) {
-          console.warn('Results username sync warning:', resErr);
-        }
-      }
+      if (profileErr) throw profileErr;
+      if (!savedProfile) throw new Error('Profile was not saved.');
     }
 
     setUserProfile((prev) => (prev ? { ...prev, ...data } : null));
@@ -311,33 +304,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      const user = session?.user ?? null;
+    let active = true;
+    let version = 0;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const applyUser = (user: User | null) => {
+      if (user && userIdRef.current === user.id) return;
+      userIdRef.current = user?.id ?? null;
+      const requestVersion = ++version;
       setCurrentUser(user);
-      if (user) {
-        fetchOrCreateProfile(user).then((profile) => {
-          setUserProfile(profile);
-          setLoading(false);
-        });
-      } else {
-        setUserProfile(null);
+      setUserProfile(null);
+      if (timer) clearTimeout(timer);
+      if (!user) {
         setLoading(false);
+        return;
       }
+      // Leave the auth callback before making requests with the same client.
+      timer = setTimeout(() => {
+        fetchOrCreateProfile(user).then((profile) => {
+          if (active && requestVersion === version) setUserProfile(profile);
+        }).finally(() => {
+          if (active && requestVersion === version) setLoading(false);
+        });
+      }, 0);
+    };
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (active) applyUser(session?.user ?? null);
     });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      const user = session?.user ?? null;
-      setCurrentUser(user);
-      if (user) {
-        const profile = await fetchOrCreateProfile(user);
-        setUserProfile(profile);
-      } else {
-        setUserProfile(null);
-      }
-      setLoading(false);
-    });
-
     return () => {
+      active = false;
+      version++;
+      if (timer) clearTimeout(timer);
       subscription.unsubscribe();
     };
   }, []);
