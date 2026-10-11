@@ -205,3 +205,62 @@ footer {padding-bottom:70px!important; }
 .academy-runner .coach-key { height:34px; }
 .academy-runner .coach-hands > div { max-width:90px; }
 @media(max-width:600px){.academy-lesson-shell{padding:14px}.academy-runner .coach-key{height:28px}.academy-runner .coach-hands>div{max-width:70px}}
+
+/* Academy lesson workspace: keep the exercise and coaching in the same view. */
+.site-main:has(.academy-runner) { max-width:1120px; padding:16px 20px; }
+body:has(.academy-runner) header > div { padding-top:12px; padding-bottom:12px; }
+body:has(.academy-runner) footer { display:none; }
+.academy-runner { max-width:1040px; padding:0; }
+.academy-runner > :not(:last-child) { margin-bottom:12px; }
+.academy-lesson-header { min-height:45px; }
+.academy-reset { display:grid; place-items:center; width:32px; height:32px; border:1px solid #ffffff18; border-radius:9px; color:#a6b1c5; background:#171e2b; }
+.academy-reset:hover { color:#d6f36b; border-color:#d6f36b66; }
+.academy-lesson-shell { padding:14px 18px; border-radius:18px; }
+.academy-lesson-shell > .academy-tip:first-child { display:none; }
+.academy-goals { gap:8px; margin:0 0 12px; }
+.academy-goals span { display:flex; align-items:center; gap:8px; padding:8px 10px; min-width:0; font-size:11px; }
+.academy-goals b { display:inline; margin:0; white-space:nowrap; }
+.academy-lesson-shell .typing-studio { padding:0 !important; }
+.academy-lesson-shell .typing-studio > div:first-child,
+.academy-lesson-shell .typing-studio > div:last-child { display:none; }
+.academy-lesson-shell .typing-paper { min-height:100px; max-height:140px; padding:14px 18px; }
+.academy-progress-track { margin:8px 0 12px; height:4px; }
+.academy-runner .keyboard-coach { display:grid; grid-template-columns:minmax(0,1fr) 200px; gap:0 20px; padding:16px 18px; border-radius:18px; }
+.academy-runner .coach-heading,.academy-runner .coach-instruction { grid-column:1/-1; }
+.academy-runner .coach-instruction { margin:10px 0 14px; }
+.academy-runner .coach-instruction > kbd { width:40px; height:40px; font-size:22px; }
+.academy-runner .coach-keys { align-self:center; }
+.academy-runner .coach-row { margin-top:5px; gap:4px; }
+.academy-runner .coach-key { height:34px; }
+.academy-runner .coach-hands { display:grid; grid-template-columns:1fr 1fr; align-self:center; gap:6px 8px; margin:0; padding-left:16px; border-left:1px solid #ffffff12; }
+.academy-runner .coach-hands > div { width:100%; max-width:82px; justify-self:center; }
+.academy-runner .coach-hands > p { grid-column:1/-1; grid-row:2; font-size:10px; line-height:1.5; }
+.academy-runner .coach-hands small { margin-top:5px; font-size:9px; }
+@media(min-width:761px) and (max-height:750px){
+  .site-main:has(.academy-runner){padding-top:10px;padding-bottom:10px}
+  .academy-runner .coach-key{height:29px}
+  .academy-runner .coach-instruction{margin:8px 0 10px}
+  .academy-runner .keyboard-coach{padding:12px 16px}
+  .academy-lesson-shell .typing-paper{min-height:86px;max-height:116px}
+}
+@media(max-width:760px){
+  .site-main:has(.academy-runner){padding:12px}
+  .academy-lesson-header h2{font-size:13px}
+  .academy-lesson-header >div:first-child button:first-child span{display:none}
+  .academy-runner .keyboard-coach{grid-template-columns:minmax(0,1fr);padding:12px;gap:0}
+  .academy-runner .coach-hands{grid-template-columns:65px minmax(0,1fr) 65px;border:0;padding:0;margin-top:10px;gap:10px}
+  .academy-runner .coach-hands>p{grid-column:2;grid-row:1;font-size:9px}
+  .academy-runner .coach-hands>div{max-width:60px}
+  .academy-runner .coach-hands small{display:none}
+  .academy-runner .coach-key{height:29px;font-size:10px}
+  .academy-runner .coach-wide{font-size:7px}
+  .academy-runner .coach-instruction{gap:10px;margin:8px 0 12px;flex-wrap:nowrap}
+  .academy-runner .coach-instruction strong{font-size:12px}
+  .academy-runner .coach-instruction p{font-size:10px}
+  .academy-runner .coach-layout{width:auto;margin-left:auto}
+  .academy-runner .coach-layout select{max-width:115px;font-size:9px;padding:6px}
+  .academy-goals{gap:4px;margin-bottom:8px}
+  .academy-goals span{padding:6px;font-size:9px;gap:4px;flex-wrap:wrap}
+  .academy-lesson-shell{padding:12px}
+  .academy-lesson-shell .typing-paper{min-height:90px;max-height:116px;padding:12px}
+}

@@ -492,7 +492,8 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
   return (
     <div className="academy-runner w-full max-w-4xl mx-auto py-2 px-4 font-sans animate-fade-in space-y-4">
       {/* Top Header Controls */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[rgba(240,243,250,0.08)] pb-4">
+      <div className="academy-lesson-header flex items-center justify-between gap-3 border-b border-[rgba(240,243,250,0.08)] pb-3">
+        <div className="flex items-center gap-2">
         <button
           type="button"
           onClick={onBack}
@@ -501,6 +502,8 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>{t('academy_back_to_map')}</span>
         </button>
+        <button type="button" onClick={resetTest} aria-label={t('academy_retry_lesson')} title={t('academy_retry_lesson')} className="academy-reset"><RotateCcw size={16}/></button>
+        </div>
 
         <div className="text-center sm:text-right">
           <span className="text-[10px] font-mono uppercase tracking-wider text-[#D6F36B]">
