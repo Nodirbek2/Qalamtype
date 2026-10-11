@@ -1,3 +1,4 @@
+import { applyPageSeo } from './lib/seo';
 import React, { useState, useEffect, useCallback, useRef, Suspense, lazy } from 'react';
 import { LayoutGroup } from 'motion/react';
 import { TestMode, Duration, WordCount, Difficulty, Language, TestResult } from './types';
@@ -48,6 +49,8 @@ export default function App() {
     }
     return null;
   });
+
+  useEffect(() => { applyPageSeo(window.location.pathname); }, [activeView, blogSlug]);
 
   const [mode, setMode] = useState<TestMode>('time');
   const [duration, setDuration] = useState<Duration>(30);

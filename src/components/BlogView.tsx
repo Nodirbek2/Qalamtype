@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { BLOG_ARTICLES } from '../data/blogArticles';
 import { ArrowLeft, BookOpen, Calendar, Clock, ChevronRight, Keyboard, ArrowRight } from 'lucide-react';
 
@@ -16,19 +16,6 @@ export const BlogView: React.FC<BlogViewProps> = ({
   const activeArticle = currentSlug
     ? BLOG_ARTICLES.find((a) => a.slug === currentSlug)
     : null;
-
-  // Set document title dynamically according to SEO requirements
-  useEffect(() => {
-    if (activeArticle) {
-      document.title = activeArticle.title;
-    } else {
-      document.title = "Qalamtype Blog — tez yozish va klaviatura bo'yicha maqolalar";
-    }
-
-    return () => {
-      document.title = "Qalamtype — tez yozish mashqi va testi (UZ/RU/EN)";
-    };
-  }, [activeArticle]);
 
   // Render paragraph content with bold text and Qalamtype homepage link support
   const renderFormattedParagraph = (text: string) => {
@@ -210,10 +197,10 @@ export const BlogView: React.FC<BlogViewProps> = ({
       {/* Articles List */}
       <div className="grid gap-6">
         {BLOG_ARTICLES.map((article) => (
-          <button
-            type="button"
+          <a
+            href={`/blog/${article.slug}`}
             key={article.slug}
-            onClick={() => onNavigateBlog(article.slug)}
+            onClick={(event) => { if (!event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey) { event.preventDefault(); onNavigateBlog(article.slug); } }}
             className="group bg-[#171E2B] border border-[rgba(240,243,250,0.08)] rounded-2xl p-6 sm:p-8 text-left hover:border-[#D6F36B]/40 transition-all cursor-pointer flex flex-col justify-between"
           >
             <BlogVisual kind={article.slug === 'tez-yozish-oyinlari' ? 'race' : article.slug === 'eng-yaxshi-mashqlar' ? 'progress' : 'keyboard'} compact />
@@ -243,7 +230,7 @@ export const BlogView: React.FC<BlogViewProps> = ({
               <span>Batafsil o'qish</span>
               <ChevronRight className="w-4 h-4 ml-1" />
             </div>
-          </button>
+          </a>
         ))}
       </div>
     </div>

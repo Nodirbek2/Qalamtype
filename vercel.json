@@ -1,11 +1,62 @@
 {
   "rewrites": [
     {
+      "source": "/",
+      "destination": "/seo/home.html"
+    },
+    {
+      "source": "/academy",
+      "destination": "/seo/academy.html"
+    },
+    {
+      "source": "/games",
+      "destination": "/seo/games.html"
+    },
+    {
+      "source": "/leaderboard",
+      "destination": "/seo/leaderboard.html"
+    },
+    {
+      "source": "/about",
+      "destination": "/seo/about.html"
+    },
+    {
+      "source": "/blog",
+      "destination": "/seo/blog.html"
+    },
+    {
+      "source": "/blog/klaviaturada-tez-yozish",
+      "destination": "/seo/blog--klaviaturada-tez-yozish.html"
+    },
+    {
+      "source": "/blog/eng-yaxshi-mashqlar",
+      "destination": "/seo/blog--eng-yaxshi-mashqlar.html"
+    },
+    {
+      "source": "/blog/tez-yozish-oyinlari",
+      "destination": "/seo/blog--tez-yozish-oyinlari.html"
+    },
+    {
+      "source": "/account",
+      "destination": "/seo/account.html"
+    },
+    {
       "source": "/((?!sitemap\\.xml|robots\\.txt|manifest\\.json|favicon\\.ico|.*\\.(?:ico|png|svg|jpg|jpeg|webp|gif|xml|txt|json)).*)",
       "destination": "/index.html"
     }
   ],
   "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "qalamtype.uz"
+        }
+      ],
+      "destination": "https://www.qalamtype.uz/:path*",
+      "permanent": true
+    },
     {
       "source": "/",
       "has": [
