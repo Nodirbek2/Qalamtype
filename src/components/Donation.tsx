@@ -26,10 +26,10 @@ export function Donation({onClose}:{onClose:()=>void}) {
   const drag = useRef<{id:number;x:number;yaw:number}|null>(null);
   const [back, setBack] = useState(false);
   const cardText = {
-    uzbek_latin: {flip:'Kartani o‘girish',spin:'360° aylantirish',hint:'Sichqoncha bilan burang · aylantirish uchun ushlab torting',creator:'Qalamtype yaratuvchisi'},
-    uzbek_cyrillic: {flip:'Картани ўгириш',spin:'360° айлантириш',hint:'Сичқонча билан буринг · айлантириш учун ушлаб тортинг',creator:'Qalamtype яратувчиси'},
-    russian: {flip:'Перевернуть карту',spin:'Повернуть на 360°',hint:'Наведите мышь · удерживайте и тяните для вращения',creator:'Создатель Qalamtype'},
-    english: {flip:'Flip card',spin:'Rotate 360°',hint:'Move to tilt · hold and drag to rotate',creator:'Creator of Qalamtype'},
+    uzbek_latin: {flip:'Kartani o‘girish',hint:'Sichqoncha bilan burang · aylantirish uchun ushlab torting',creator:'Qalamtype yaratuvchisi'},
+    uzbek_cyrillic: {flip:'Картани ўгириш',hint:'Сичқонча билан буринг · айлантириш учун ушлаб тортинг',creator:'Qalamtype яратувчиси'},
+    russian: {flip:'Перевернуть карту',hint:'Наведите мышь · удерживайте и тяните для вращения',creator:'Создатель Qalamtype'},
+    english: {flip:'Flip card',hint:'Move to tilt · hold and drag to rotate',creator:'Creator of Qalamtype'},
   }[siteLanguage];
   function rotate(degrees:number) {const next=yaw.get()+degrees;yaw.set(next);setBack(Math.cos(next*Math.PI/180)<0);}
   function move(event:React.PointerEvent<HTMLDivElement>) {
@@ -77,7 +77,7 @@ export function Donation({onClose}:{onClose:()=>void}) {
       </motion.div></motion.div>
     </div>
     <p className="donation-card-hint">{cardText.hint}</p>
-    <div className="donation-card-controls"><button type="button" onClick={()=>rotate(180)}>{cardText.flip} ↻</button>{!reducedMotion&&<button type="button" onClick={()=>rotate(360)}>{cardText.spin} ⟳</button>}</div>
+    <div className="donation-card-controls"><button type="button" onClick={()=>rotate(180)}>{cardText.flip} ↻</button></div>
     <button className="donation-copy" type="button" onClick={()=>void copy()}>{status==='copied'?<Check size={17}/>:<Copy size={17}/>} {status==='copied'?t.copied:t.copy}</button>
     <div role="status" className="donation-status">{status==='failed'?t.failed:status==='copied'?t.copied:''}</div>
   </dialog>;
