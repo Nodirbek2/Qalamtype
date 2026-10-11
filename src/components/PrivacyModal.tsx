@@ -31,7 +31,7 @@ export const PrivacyModal: React.FC<PrivacyModalProps> = ({ isOpen, onClose, def
             </div>
             <div>
               <h2 className="text-base font-semibold text-[#E8E2D8] tracking-tight">
-                {activeTab === 'uzbek' && 'Maxfiylik siyosati'}
+                {activeTab.startsWith('uzbek') && 'Maxfiylik siyosati'}
                 {activeTab === 'russian' && 'Политика конфиденциальности'}
                 {activeTab === 'english' && 'Privacy Policy'}
               </h2>

@@ -56,7 +56,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, initialMode = 'log
 
     // If user is already logged in, close the modal directly
     if (currentUser && userProfile) {
-      onClose();
+      if (userProfile.isProfileComplete) {
+        onClose();
+      } else {
+        setStep('profile');
+        setFirstName(userProfile.firstName || '');
+        setLastName(userProfile.lastName || '');
+        setUsername(userProfile.username || '');
+      }
     } else {
       setStep('auth');
     }
@@ -201,7 +208,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, initialMode = 'log
       }
     } catch (err: any) {
       console.error('Email Signup Error:', err);
-      if (err.message?.includes('User already registered')) {
+      if (err.message === 'EMAIL_CONFIRMATION_REQUIRED') {
+        setInfo(t("account created successfully! if email confirmation is required, please check your inbox."));
+      } else if (err.message?.includes('User already registered')) {
         setError(t("an account with this email already exists. please sign in instead."));
       } else {
         setError(t("failed to create account."));

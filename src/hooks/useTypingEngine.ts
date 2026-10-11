@@ -14,7 +14,7 @@ import { TypingSound, playTypingSound } from '../lib/soundSynthesizer';
 export interface UseTypingEngineOptions {
   mode: TestMode;
   duration: Duration;
-  wordCount: WordCount;
+  wordCount: number;
   difficulty: Difficulty;
   language: Language;
   typingSound?: TypingSound;
@@ -66,6 +66,8 @@ export function useTypingEngine({
   const pauseStartRef = useRef<number | null>(null);
   const pausedTotalRef = useRef<number>(0);
   const timerIntervalRef = useRef<number | null>(null);
+  const finishTimeoutRef = useRef<number | null>(null);
+  const completedRef = useRef(false);
   const snapshotsRef = useRef<TimeSnapshot[]>([]);
   const totalTypedCountRef = useRef<number>(0);
   const errorCountRef = useRef<number>(0);
@@ -203,6 +205,9 @@ export function useTypingEngine({
     });
   }, [targetText, typedWords, currentWordIndex]);
 
+  const wordsDisplayRef = useRef(wordsDisplay);
+  wordsDisplayRef.current = wordsDisplay;
+
   // Compute stats from wordsDisplay
   const computeStatsFromWords = useCallback((words: WordDisplayInfo[]) => {
     let correctChars = 0;
@@ -211,11 +216,11 @@ export function useTypingEngine({
     let missedChars = 0;
 
     words.forEach((w) => {
-      w.chars.forEach((c) => {
+      w.chars.forEach((c, index) => {
         if (c.status === 'correct') {
           correctChars++;
         } else if (c.status === 'incorrect') {
-          if (w.wordIndex < currentWordIndexRef.current) {
+          if (index >= w.typedWord.length) {
             missedChars++;
           } else {
             incorrectChars++;
@@ -240,7 +245,7 @@ export function useTypingEngine({
 
     if (elapsedSec > 0) {
       const minutes = elapsedMs / 60000;
-      const { correctChars } = computeStatsFromWords(wordsDisplay);
+      const { correctChars } = computeStatsFromWords(wordsDisplayRef.current);
       const currentWpm = minutes > 0 ? Math.round((correctChars / 5) / minutes) : 0;
       const currentRawWpm = minutes > 0 ? Math.round((totalTypedCountRef.current / 5) / minutes) : 0;
 
@@ -257,8 +262,8 @@ export function useTypingEngine({
 
   // Reset test
   const resetTest = useCallback(() => {
-    const text = customText
-      ? customText
+    const text = customText?.trim()
+      ? customText.trim().replace(/\s+/g, ' ')
       : generateTestText(
           mode,
           mode === 'time' ? 100 : wordCount,
@@ -269,6 +274,11 @@ export function useTypingEngine({
     setTypedWords(['']);
     setCurrentWordIndex(0);
     setPhase('idle');
+    completedRef.current = false;
+    if (finishTimeoutRef.current !== null) {
+      clearTimeout(finishTimeoutRef.current);
+      finishTimeoutRef.current = null;
+    }
     setIsPaused(false);
     setTimeLeft(mode === 'time' ? duration : 0);
     setResult(null);
@@ -302,7 +312,7 @@ export function useTypingEngine({
       const minutes = timeSec / 60;
 
       const { correctChars, incorrectChars, extraChars, missedChars } =
-        computeStatsFromWords(wordsDisplay);
+        computeStatsFromWords(wordsDisplayRef.current);
 
       const totalTyped = totalTypedCountRef.current || correctChars;
 
@@ -341,7 +351,7 @@ export function useTypingEngine({
         timeSec: Math.round(timeSec * 10) / 10,
         mode,
         duration: mode === 'time' ? duration : undefined,
-        wordCount: mode === 'words' ? wordCount : undefined,
+        wordCount: mode === 'words' ? targetTextRef.current.split(' ').length : undefined,
         difficulty,
         language,
         history,
@@ -351,6 +361,8 @@ export function useTypingEngine({
   );
 
   const finishTest = useCallback(() => {
+    if (completedRef.current) return;
+    completedRef.current = true;
     if (timerIntervalRef.current) {
       clearInterval(timerIntervalRef.current);
       timerIntervalRef.current = null;
@@ -361,6 +373,18 @@ export function useTypingEngine({
     const finalResult = calculateFinalStats(now);
     setResult(finalResult);
   }, [calculateFinalStats]);
+
+  const scheduleFinish = useCallback(() => {
+    if (finishTimeoutRef.current !== null) return;
+    finishTimeoutRef.current = window.setTimeout(() => {
+      finishTimeoutRef.current = null;
+      finishTest();
+    }, 10);
+  }, [finishTest]);
+
+  useEffect(() => () => {
+    if (finishTimeoutRef.current !== null) clearTimeout(finishTimeoutRef.current);
+  }, []);
 
   // Timer interval
   useEffect(() => {
@@ -413,7 +437,7 @@ export function useTypingEngine({
         return;
       }
 
-      if (e.key === 'Tab' || e.key === 'Escape') return;
+      if (e.key === 'Tab' || e.key === 'Escape' || e.ctrlKey || e.metaKey || e.altKey || e.isComposing) return;
 
       if (isPaused) {
         if (pauseStartRef.current) {
@@ -483,11 +507,11 @@ export function useTypingEngine({
               setTargetText((t) => t + moreText);
             }
           } else if (mode === 'words') {
-            if (nextIdx >= wordCount) {
-              setTimeout(() => finishTest(), 10);
+            if (nextIdx >= rawWords.length) {
+              scheduleFinish();
             }
           } else if (nextIdx >= rawWords.length) {
-            setTimeout(() => finishTest(), 10);
+            scheduleFinish();
           }
 
           return;
@@ -509,9 +533,9 @@ export function useTypingEngine({
           copy[currIdx] = (copy[currIdx] || '') + inputChar;
 
           // Word mode completion check if on last word and reached full word length
-          if (mode === 'words' && currIdx === wordCount - 1) {
+          if (mode === 'words' && currIdx === rawWords.length - 1) {
             if (copy[currIdx].length >= targetWord.length) {
-              setTimeout(() => finishTest(), 10);
+              scheduleFinish();
             }
           }
 
@@ -519,7 +543,7 @@ export function useTypingEngine({
         });
       }
     },
-    [phase, isPaused, typingSound, mode, wordCount, difficulty, language, finishTest]
+    [phase, isPaused, typingSound, mode, wordCount, difficulty, language, scheduleFinish]
   );
 
   // Live stats getter
@@ -535,7 +559,7 @@ export function useTypingEngine({
     const elapsedMinutes = elapsedMs / 60000;
     if (elapsedMinutes <= 0) return { wpm: 0, rawWpm: 0, accuracy: 100, progress: 0 };
 
-    const { correctChars } = computeStatsFromWords(wordsDisplay);
+    const { correctChars } = computeStatsFromWords(wordsDisplayRef.current);
     const wpm = Math.max(0, Math.round((correctChars / 5) / elapsedMinutes));
     const rawWpm = Math.max(0, Math.round((totalTypedCountRef.current / 5) / elapsedMinutes));
     const accuracy =
@@ -548,7 +572,7 @@ export function useTypingEngine({
       const elapsedSec = Math.floor(elapsedMs / 1000);
       progress = Math.min(100, Math.round((elapsedSec / duration) * 100));
     } else {
-      progress = Math.min(100, Math.round((currentWordIndex / wordCount) * 100));
+      progress = Math.min(100, Math.round((currentWordIndex / (targetTextRef.current.split(' ').length || wordCount)) * 100));
     }
 
     return { wpm, rawWpm, accuracy, progress };

@@ -131,14 +131,14 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
 
   // Find user index in leaderboard data
   const userRankIndex = currentUser
-    ? lbData.findIndex((r) => r.uid === currentUser.uid)
+    ? lbData.findIndex((r) => r.uid === currentUser.id)
     : lbData.findIndex((r) => r.wpm === wpm && r.accuracy === accuracy);
 
   const isUserInTop5 = userRankIndex >= 0 && userRankIndex < 5;
 
   const currentUserRow: LeaderboardResult = (userRankIndex >= 0 ? lbData[userRankIndex] : null) || {
     id: 'current_run',
-    uid: currentUser ? currentUser.uid : 'guest',
+    uid: currentUser ? currentUser.id : 'guest',
     username: userProfile?.username || 'mehmon',
     photoURL: userProfile?.photoURL || '',
     wpm,
@@ -322,7 +322,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
                   const isTop1 = rank === 1;
                   const isTop2 = rank === 2;
                   const isTop3 = rank === 3;
-                  const isCurrUser = currentUser && row.uid === currentUser.uid;
+                  const isCurrUser = currentUser && row.uid === currentUser.id;
 
                   let rowStyle = 'bg-[#0F0E0D]/40 text-[#9A9488]';
                   if (isTop1) {

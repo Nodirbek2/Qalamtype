@@ -53,7 +53,7 @@ export interface TestResult {
   timeSec: number;
   mode: TestMode;
   duration?: Duration;
-  wordCount?: WordCount;
+  wordCount?: number;
   difficulty: Difficulty;
   language: Language;
   history: TimeSnapshot[];

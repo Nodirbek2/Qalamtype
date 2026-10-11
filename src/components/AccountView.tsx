@@ -56,6 +56,19 @@ export const AccountView: React.FC = () => {
   const [userResults, setUserResults] = useState<LeaderboardResult[]>([]);
   const [loadingResults, setLoadingResults] = useState(true);
 
+  useEffect(() => {
+    setUserResults([]);
+    if (!currentUser) {
+      setLoadingResults(false);
+      return;
+    }
+    setLoadingResults(true);
+    return subscribeToUserResults(currentUser.id, (results) => {
+      setUserResults(results);
+      setLoadingResults(false);
+    }, () => setLoadingResults(false));
+  }, [currentUser?.id]);
+
   // Populate form fields from userProfile
   useEffect(() => {
     if (userProfile) {
@@ -206,7 +219,7 @@ export const AccountView: React.FC = () => {
   // Calculate total time spent typing in seconds
   const totalTimeSeconds = userResults.reduce((acc, r) => {
     if (r.mode === 'time') return acc + (r.modeValue || 30);
-    const approxSec = r.wpm > 0 ? Math.round(((r.modeValue || 25) / (r.wpm / 5)) * 60) : 30;
+    const approxSec = r.wpm > 0 ? Math.round(((r.modeValue || 25) / r.wpm) * 60) : 30;
     return acc + Math.min(approxSec, 300);
   }, 0);
 

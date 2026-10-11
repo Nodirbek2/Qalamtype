@@ -9,11 +9,12 @@
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
-    "test:games": "tsx --test tests/arcade.test.ts && node tests/arcade-network.test.cjs"
+    "test:games": "node --import tsx --test tests/arcade.test.ts && node tests/arcade-network.test.cjs",
+    "test": "node --import tsx --test tests/*.test.ts tests/*.test.tsx && node tests/arcade-network.test.cjs"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
-    "@supabase/supabase-js": "^2.111.0",
+    "@supabase/supabase-js": "2.117.3",
     "@tailwindcss/vite": "^4.1.14",
     "@types/express": "^4.17.21",
     "@types/node": "^22.14.0",
@@ -33,6 +34,10 @@
     "vite": "^6.2.3"
   },
   "devDependencies": {
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@types/react-test-renderer": "19.3.0",
+    "react-test-renderer": "19.3.0",
     "sharp": "^0.35.3"
   }
 }

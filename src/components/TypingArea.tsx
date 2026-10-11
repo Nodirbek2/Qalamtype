@@ -13,7 +13,7 @@ interface TypingAreaProps {
   timeLeft: number;
   mode: TestMode;
   duration: Duration;
-  wordCount: WordCount;
+  wordCount: number;
   difficulty: Difficulty;
   language: Language;
   onRestart: () => void;
