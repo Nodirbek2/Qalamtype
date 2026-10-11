@@ -141,3 +141,29 @@ footer { border-top:1px solid #ffffff0d;margin-top:auto; }
 
 /* Preserve both opponents and the full illustration on narrow game cards too. */
 .game-cover { height:auto;aspect-ratio:1600 / 265;object-fit:contain; }
+
+/* A visible support entry, quiet while a typing test is running. */
+.donation-launch { position:fixed;right:24px;bottom:24px;z-index:45;display:flex;align-items:center;gap:10px;padding:14px 22px;border:1px solid #ffffff30;border-radius:999px;background:linear-gradient(120deg,#d6f36b,#63d9da);color:#0d111a;font-size:14px;font-weight:750;box-shadow:0 6px 30px #63d9da33;animation:donation-glow 3s ease-in-out infinite; }
+.donation-launch:hover { filter:brightness(1.08); }
+@keyframes donation-glow { 50% {box-shadow:0 8px 35px #d6f36b55;transform:translateY(-3px);} }
+.donation-dialog { margin:auto;width:min(480px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow-y:auto;border:1px solid #ffffff20;border-radius:28px;padding:32px;background:#171e2b;color:#f0f3fa;box-shadow:0 35px 100px #0009; }
+.donation-dialog::backdrop { background:#050811cc;backdrop-filter:blur(8px); }
+.donation-close { position:absolute;right:16px;top:16px;padding:8px;border-radius:50%;color:#a6b1c5; }
+.donation-close:hover {background:#ffffff0d;color:white; }
+.donation-heart {width:52px;height:52px;display:grid;place-items:center;border-radius:16px;background:#d6f36b15;color:#d6f36b;margin-bottom:18px; }
+.donation-dialog h2 {font-size:25px;font-weight:700;line-height:1.2;padding-right:10px; }
+.donation-dialog > p {font-size:13px;color:#a6b1c5;line-height:1.8;margin:12px 0 24px; }
+.donation-card {position:relative;isolation:isolate;overflow:hidden;padding:24px;border-radius:20px;background:radial-gradient(ellipse at 90% 20%,#53acae77,transparent 60%),linear-gradient(130deg,#334153,#111826);border:1px solid #a7dce955;box-shadow:0 18px 30px #0005;animation:card-float 5s ease-in-out infinite; }
+.donation-card::before {content:'';position:absolute;width:240px;height:240px;right:-90px;bottom:-130px;border:1px solid #d6f36b55;border-radius:50%;box-shadow:0 0 0 22px #d6f36b06,0 0 0 45px #d6f36b06;z-index:-1; }
+.card-top {display:flex;align-items:center;justify-content:space-between;font:600 19px monospace; }.card-top > span > span {color:#d6f36b; }.card-top svg {color:#63d9da; }
+.card-chip-row {display:flex;align-items:center;gap:14px;margin:23px 0;color:#b6c9da; }
+.card-chip {width:40px;height:30px;background:repeating-linear-gradient(90deg,transparent 0 12px,#756d4e66 13px 14px),repeating-linear-gradient(0deg,#decda0 0 9px,#756d4e66 10px 11px);border-radius:6px;border:1px solid #e7d29a; }
+.donation-card .card-number {position:relative;font:500 clamp(16px,4.2vw,23px) monospace;letter-spacing:.035em;color:#f0f3fa;white-space:nowrap;user-select:all;margin:0 0 23px;text-shadow:0 2px 2px #0005; }
+.card-bottom {display:flex;align-items:center;justify-content:space-between;font:9px monospace;letter-spacing:.15em;color:#bac8d8; }
+.card-shine {position:absolute;inset:0;background:linear-gradient(110deg,transparent 25%,#ffffff10 45%,#ffffff20 50%,transparent 70%);transform:translateX(-110%);animation:card-shine 6s ease-in-out infinite;pointer-events:none; }
+@keyframes card-float {50% {transform:translateY(-5px) rotate(-.6deg);} }
+@keyframes card-shine {40%,100% {transform:translateX(110%);} }
+.donation-copy {display:flex;align-items:center;justify-content:center;gap:9px;width:100%;padding:13px;margin-top:26px;border-radius:12px;background:#d6f36b;color:#0d111a;font-size:12px;font-weight:700; }
+.donation-status {min-height:20px;font-size:11px;color:#a6b1c5;margin-top:10px;text-align:center; }
+footer {padding-bottom:70px!important; }
+@media(max-width:500px) {.donation-launch {right:16px;bottom:16px;padding:12px 18px;font-size:13px; }.donation-dialog {padding:25px 20px; }.donation-card {padding:20px; }}

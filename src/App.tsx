@@ -17,6 +17,7 @@ const AboutView = lazy(() => import('./components/AboutView').then(module => ({ 
 const BlogView = lazy(() => import('./components/BlogView').then(module => ({ default: module.BlogView })));
 import { SettingsModal } from './components/SettingsModal';
 import { Footer } from './components/Footer';
+import { Donation, DonationButton } from './components/Donation';
 import { HomeExperience } from './components/HomeExperience';
 import { PrivacyModal } from './components/PrivacyModal';
 
@@ -54,6 +55,7 @@ export default function App() {
   const [difficulty, setDifficulty] = useState<Difficulty>('easy');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
+  const [isDonationOpen, setIsDonationOpen] = useState(false);
 
   // Save each completed test once and report confirmed database persistence.
   const savedResultRef = useRef<TestResult | null>(null);
@@ -169,7 +171,7 @@ export default function App() {
   }, [activeView, handleNextTest]);
 
   const liveStats = getLiveStats();
-  const typingFocus = activeView === 'test' && phase === 'running' && !isPaused && !isSettingsOpen && !isPrivacyOpen;
+  const typingFocus = activeView === 'test' && phase === 'running' && !isPaused && !isSettingsOpen && !isPrivacyOpen && !isDonationOpen;
 
   return (
     <LayoutGroup id="app-intro-group">
@@ -260,6 +262,11 @@ export default function App() {
           )}
           </Suspense>
         </main>
+
+        <div className="test-chrome" aria-hidden={typingFocus}>
+          <DonationButton onClick={() => setIsDonationOpen(true)} />
+        </div>
+        {isDonationOpen && <Donation onClose={() => setIsDonationOpen(false)} />}
 
         {/* Settings Modal */}
         <SettingsModal
