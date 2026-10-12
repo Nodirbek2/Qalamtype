@@ -11,6 +11,14 @@
       }
     </script>
     <meta charset="UTF-8" />
+    <script>document.documentElement.dataset.appLoading = 'true';</script>
+    <style>
+      html { background: #0D111A; }
+      #app-loading { display: none; }
+      html[data-app-loading="true"] #root { visibility: hidden; }
+      html[data-app-loading="true"] #app-loading { position: fixed; inset: 0; z-index: 100; display: grid; place-content: center; gap: 16px; text-align: center; background: #0D111A; color: #D6F36B; font: 600 24px ui-monospace, monospace; }
+      #app-loading span { color: #A6B1C5; font: 14px system-ui, sans-serif; }
+    </style>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Qalamtype — Tez yozish testi mashqi (UZ/RU/EN)</title>
     <meta name="description" content="Qalamtype bilan klaviaturada tez yozishni mashq qiling. O'zbek, rus va ingliz tilida tez yozish testi, mashqlari va o'yini — bepul, reyting jadvali va shaxsiy statistika bilan." />
@@ -116,6 +124,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500;700&family=Roboto+Mono:wght@400;500;700&family=Fira+Code:wght@400;500;700&family=Source+Code+Pro:wght@400;500;700&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
   </head>
   <body>
+    <div id="app-loading" role="status" aria-live="polite"><div>qalamtype</div><span>Yuklanmoqda…</span></div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
