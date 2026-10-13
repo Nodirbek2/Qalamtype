@@ -1,3 +1,4 @@
+import {BombDefuse, BombDevice} from './BombDefuse';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Swords, Flag, Users, Bot, RotateCcw, Wifi, WifiOff, Trophy, Zap } from 'lucide-react';
 import { AuthModal } from './AuthModal';
@@ -10,7 +11,7 @@ import { gameText, GameKey } from '../data/gameI18n';
 import { useArcadeRecords } from '../hooks/useArcadeRecords';
 import { supabase } from '../lib/supabase';
 
-type GameMode = 'race' | 'boss';
+type GameMode = 'race' | 'boss' | 'bomb';
 type RacePhase = 'ready' | 'matching' | 'countdown' | 'racing' | 'finished';
 type Player = { id: string; name: string; progress: number; wpm: number; isBot?: boolean; finishedAt?: number };
 type PresencePlayer = { id: string; name: string; joinedAt: number };
@@ -462,7 +463,7 @@ export const GamesView: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-7">
         <div>
           <div className="flex items-center gap-2 text-[#D6F36B] font-mono text-xs uppercase tracking-[0.2em] mb-2"><Zap className="w-4 h-4" /> {g('arcade')}</div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-[#F0F3FA]">{gameMode === 'boss' ? g('bossTitle') : g('raceTitle')}</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold text-[#F0F3FA]">{gameMode === 'bomb' ? 'Bomba zararsizlantirish' : gameMode === 'boss' ? g('bossTitle') : g('raceTitle')}</h1>
           <p className="text-sm text-[#A6B1C5] mt-2">{g('subtitle')}</p>
         </div>
       </div>
@@ -472,16 +473,19 @@ export const GamesView: React.FC = () => {
         <label className="flex flex-col gap-2 text-xs text-[#b7afa1]">{g('language')}<select aria-label={g('language')} disabled={bossBusy || (phase!=='ready' && phase!=='finished')} value={typingLanguage} onChange={e=>{reset();setTypingLanguage(e.target.value as typeof typingLanguage)}} className="bg-[#222D40] rounded-lg px-3 py-2 text-[#F0F3FA]">{(['uzbek_latin','uzbek_cyrillic','russian','english'] as const).map(v=><option key={v} value={v}>{g(v)}</option>)}</select></label>
         {currentUser ? (<div className="flex-1 text-xs min-w-48"><b>{g('record')}</b><div className="flex flex-wrap gap-4 mt-2 text-[#e8c186]"><span>{g('bestRace')}: {records.bestWpm} WPM</span><span>{g('wins')}: {records.wins+records.bossWins}</span><span>{g('bestCombo')}: ×{records.bestCombo}</span></div><p className="text-[#A6B1C5] mt-2">{g('localRecord')}</p></div>) : <div className="flex-1 text-sm"><p className="text-[#A6B1C5] mb-2">{authText(siteLanguage,"guestResults")}</p><button onClick={()=>setSignupOpen(true)} className="rounded-xl bg-[#D6F36B] px-4 py-3 font-semibold text-[#0D111A]">{authText(siteLanguage,"saveResults")}</button></div>}
       </div>
-      <div className="game-library grid sm:grid-cols-2 gap-5 mb-7">
+      <div className="game-library grid sm:grid-cols-3 gap-5 mb-7">
         <button disabled={bossBusy || (phase !== 'ready' && phase !== 'finished')} aria-pressed={gameMode === 'race'} onClick={() => { reset(); setGameMode('race'); }} className={`game-card rounded-2xl text-left border transition-colors ${gameMode === 'race' ? 'border-[#D6F36B]/60 bg-[#D6F36B]/10' : 'border-white/10 bg-[#171E2B]'}`}>
           <img className="game-cover" src="/images/sprint-race.webp" alt="" width="1200" height="600" /><div className="game-card-copy"><span className="game-tag">01 · GRAND PRIX</span><div className="flex items-center gap-2 font-bold"><Flag className="w-4 h-4 text-[#D6F36B]" /> {g('race')}</div><p className="text-xs text-[#A6B1C5] mt-1">{g('raceDesc')}</p><span className="game-launch">{g('race')} <span aria-hidden="true">↗</span></span></div>
         </button>
         <button disabled={bossBusy || (phase !== 'ready' && phase !== 'finished')} aria-pressed={gameMode === 'boss'} onClick={() => { reset(); setGameMode('boss'); }} className={`game-card rounded-2xl text-left border transition-colors ${gameMode === 'boss' ? 'border-[#D6F36B]/60 bg-[#D6F36B]/10' : 'border-white/10 bg-[#171E2B]'}`}>
           <img className="game-cover" src="/images/word-boss.webp" alt="" width="1200" height="600" /><div className="game-card-copy"><span className="game-tag">02 · SPELL ARENA</span><div className="flex items-center gap-2 font-bold"><Swords className="w-4 h-4 text-[#D6F36B]" /> {g('boss')}</div><p className="text-xs text-[#A6B1C5] mt-1">{g('bossDesc')}</p><span className="game-launch">{g('boss')} <span aria-hidden="true">↗</span></span></div>
         </button>
+        <button disabled={bossBusy || (phase !== 'ready' && phase !== 'finished')} aria-pressed={gameMode === 'bomb'} onClick={()=>{reset();setGameMode('bomb')}} className={`game-card rounded-2xl text-left border ${gameMode==='bomb'?'border-orange-400/60 bg-orange-400/10':'border-white/10 bg-[#171E2B]'}`}>
+          <div className="bomb-cover"><BombDevice remaining={30}/></div><div className="game-card-copy"><span className="game-tag">03 · DEFUSE LAB</span><div className="font-bold">Bomba zararsizlantirish</div><p className="text-xs text-[#A6B1C5] mt-1">3 ta signal · ortga sanoq · aniqlik sinovi</p><span className="game-launch">Bombani zararsizlantirish ↗</span></div>
+        </button>
       </div>
 
-      {gameMode === 'boss' ? <WordBoss key={bossSession + typingLanguage} language={typingLanguage} difficulty={difficulty} onResult={save} onBusy={setBossBusy}/> : phase === 'ready' || phase === 'matching' ? (
+      {gameMode === 'bomb' ? <BombDefuse key={typingLanguage+difficulty} language={typingLanguage} difficulty={difficulty} onBusy={setBossBusy}/> : gameMode === 'boss' ? <WordBoss key={bossSession + typingLanguage} language={typingLanguage} difficulty={difficulty} onResult={save} onBusy={setBossBusy}/> : phase === 'ready' || phase === 'matching' ? (
         <div className="rounded-3xl border border-white/10 bg-[#171E2B] p-6 sm:p-10 text-center">
           <div className="mx-auto mb-4 w-14 h-14 rounded-2xl bg-[#D6F36B]/10 flex items-center justify-center text-[#D6F36B]">{gameMode === 'race' ? <Flag /> : <Swords />}</div>
           <h2 className="text-xl font-bold">{g(phase === 'matching' ? 'searching' : 'ready')}</h2>
