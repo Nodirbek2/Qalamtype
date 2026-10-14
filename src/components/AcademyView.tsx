@@ -6,6 +6,7 @@ import { ACADEMY_TIERS } from '../data/academyData';
 import { AcademyLesson, Language, LessonProgress } from '../types';
 import { academyAccuracy, academyCopy, calculateTierStars, lessonUnlocked, starGoals } from '../lib/academyLearning';
 import { KeyboardCoach } from './KeyboardCoach';
+import { AcademyResultActions } from './AcademyResultActions';
 import { AcademyGuideModal, academyGuideLabels } from './AcademyGuideModal';
 import { useAcademyGuide } from '../hooks/useAcademyGuide';
 export { calculateTierStars } from '../lib/academyLearning';
@@ -524,7 +525,7 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
 
       {/* Lesson Complete / Results View */}
       {phase === 'completed' && result ? (
-        <div className="bg-[#171E2B] rounded-2xl border border-[rgba(240,243,250,0.12)] p-6 sm:p-8 shadow-2xl text-center space-y-6 animate-fade-in max-w-xl mx-auto">
+        <div className="academy-completion bg-[#171E2B] rounded-2xl border border-[rgba(240,243,250,0.12)] p-6 sm:p-8 shadow-2xl text-center space-y-6 animate-fade-in max-w-xl mx-auto">
           {/* New Record Banner if applicable */}
           {isNewRecord && (
             <div className="inline-flex items-center space-x-1.5 bg-[#63D9DA]/15 text-[#63D9DA] border border-[#63D9DA]/30 px-3 py-1 rounded-full text-xs font-mono font-bold animate-bounce-slow">
@@ -562,6 +563,13 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
               {lesson.title[language]}
             </p>
           </div>
+
+          <AcademyResultActions
+            nextLabel={t('academy_next_lesson')}
+            retryLabel={t('academy_retry_lesson')}
+            onNext={nextLesson && (starsEarned > 0 || (practiceText && (progressMap[lesson.id]?.stars || 0) > 0)) ? () => onNextLesson(nextLesson) : undefined}
+            onRetry={resetTest}
+          />
 
           {/* Animated Star Rating Display */}
           {!practiceText && <div className="flex items-center justify-center space-x-3 py-2">
@@ -611,30 +619,9 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
           </div>
 
           <p className="academy-tip">{practiceText ? c[30] : starsEarned >= 2 ? c[25] : c[26]}</p>
-          {!practiceText && weakKeys.length > 0 && <div className="academy-guest"><div>{c[29]}<small>{weakKeys.join(' · ')}</small></div><button type="button" onClick={startPractice}>{c[28]}</button></div>}
+          {!practiceText && weakKeys.length > 0 && <div className="academy-guest academy-practice-option"><div>{c[29]}<small>{weakKeys.join(' · ')}</small></div><button type="button" onClick={startPractice}>{c[28]}</button></div>}
           {practiceText && <button type="button" className="academy-start" onClick={() => setPracticeText(null)}>{t('academy_retry_lesson')}</button>}
-          {/* Action Buttons */}
-          <div className="pt-4 flex flex-col sm:flex-row gap-3">
-            <button
-              type="button"
-              onClick={resetTest}
-              className="flex-1 py-2.5 px-4 rounded-xl bg-[#0D111A] hover:bg-[#0D111A]/80 border border-[rgba(240,243,250,0.12)] text-[#F0F3FA] font-mono text-xs font-medium flex items-center justify-center space-x-2 transition-colors cursor-pointer"
-            >
-              <RotateCcw className="w-4 h-4" />
-              <span>{t('academy_retry_lesson')}</span>
-            </button>
 
-            {!practiceText && starsEarned > 0 && nextLesson && (
-              <button
-                type="button"
-                onClick={() => onNextLesson(nextLesson)}
-                className="flex-1 py-2.5 px-4 rounded-xl bg-[#D6F36B] hover:bg-[#D6F36B]/90 text-[#0D111A] font-mono text-xs font-semibold flex items-center justify-center space-x-2 transition-colors cursor-pointer shadow-md"
-              >
-                <span>{t('academy_next_lesson')}</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            )}
-          </div>
         </div>
       ) : (
         /* Typing Engine Area */

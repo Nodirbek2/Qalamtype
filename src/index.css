@@ -446,3 +446,19 @@ body:has(.academy-runner) footer { display:none; }
   .donation-launch { bottom:max(12px,env(safe-area-inset-bottom)); right:max(12px,env(safe-area-inset-right)); }
   body:has(.site-main input:focus) .donation-launch, body:has(.site-main textarea:focus) .donation-launch { display:none; }
 }
+
+/* Make the next lesson the first, unmistakable action after a completed drill. */
+.academy-completion { scroll-margin-top:12px; width:100%; }
+.academy-result-actions { display:flex; flex-direction:column; gap:10px; position:sticky; top:8px; z-index:5; padding:12px; border-radius:14px; background:#171e2b; border:1px solid #d6f36b25; box-shadow:0 8px 24px #0003; }
+.academy-result-actions button { display:flex; justify-content:center; align-items:center; gap:10px; min-height:48px; padding:12px 16px; border-radius:10px; cursor:pointer; }
+.academy-next-action { background:#d6f36b; color:#0d111a; font-weight:750; font-size:15px; }
+.academy-next-action kbd { margin-left:auto; white-space:nowrap; font:11px monospace; border:1px solid #0d111a35; border-radius:5px; padding:4px 6px; }
+.academy-retry-action { color:#a6b1c5; background:#0d111a; border:1px solid #ffffff15; font-size:12px; }
+.academy-practice-option { margin-top:24px; background:#0d111a; border-color:#ffffff15; text-align:left; }
+.academy-practice-option button { background:transparent; color:#a6b1c5; border:1px solid #ffffff25; font-weight:500; }
+@media(max-width:639px){
+  .academy-completion { padding:16px; }
+  .academy-completion > * + * { margin-top:16px; }
+  .academy-next-action { font-size:13px; }
+  .academy-result-actions { padding:8px; }
+}
