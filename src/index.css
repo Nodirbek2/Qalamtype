@@ -320,3 +320,20 @@ body:has(.academy-runner) footer { display:none; }
 @keyframes bomb-hover{0%,100%{transform:rotateX(3deg) rotateY(-3deg) translateY(0)}50%{transform:rotateX(1deg) rotateY(3deg) translateY(-6px)}}@keyframes bomb-tension{0%,100%{transform:translateY(0) rotate(-.4deg)}50%{transform:translateY(-2px) rotate(.4deg)}}@keyframes bomb-sparks{50%{transform:scale(1.3);opacity:.6}}@keyframes bomb-scan{from{transform:translateY(0)}to{transform:translateY(78px)}}@keyframes bomb-shockwave{from{transform:translate(-50%,-50%) scale(.2);opacity:1}to{transform:translate(-50%,-50%) scale(11);opacity:0}}@keyframes bomb-smoke{0%{transform:scale(.3);opacity:0}20%{opacity:.8}100%{transform:translateY(-70px) scale(2.8);opacity:0}}
 @media(max-width:600px){.bomb-settings{gap:10px;padding:12px}.bomb-settings select{font-size:13px;padding:9px}.bomb-stage{max-width:400px}.bomb-large .bomb-stage{max-width:310px}}
 @media(prefers-reduced-motion:reduce){.bomb-lab *{animation:none!important;transition:none!important}.bomb-spark,.bomb-shockwave,.bomb-smoke,.bomb-display-scan{display:none}}
+.game-stage{min-width:0;background:#0d111a;color:#f0f3fa;border-radius:20px}
+.game-stage-toolbar{display:flex;justify-content:flex-end;padding:0 0 12px}
+.game-stage-toolbar button,.race-save-retry{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid #ffffff25;border-radius:10px;background:#171e2b;font-size:13px;cursor:pointer}
+.game-stage-large,.game-stage:fullscreen{position:fixed;inset:0;z-index:1000;width:100%;height:100dvh;overflow:auto;padding:24px clamp(16px,5vw,80px);border-radius:0;background:#0d111a}
+.game-stage-large>*{max-width:1400px;margin-left:auto;margin-right:auto}
+.game-stage-large .race-lane{height:clamp(87px,12vh,130px)}
+.game-stage-large .wb-arena{min-height:300px}
+.race-top-ten{margin-top:28px;padding:24px;border:1px solid #ffffff18;border-radius:20px;background:#171e2b}
+.race-top-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px}
+.race-top-heading h2{display:flex;align-items:center;gap:10px;font-size:19px;font-weight:700;color:#d6f36b}
+.race-top-heading p,.race-top-note{color:#a6b1c5;font-size:12px;margin-top:8px}
+.race-top-heading button{padding:10px;border:1px solid #ffffff20;border-radius:10px;cursor:pointer}
+.race-top-scroll{overflow-x:auto}.race-top-ten table{width:100%;border-collapse:collapse;font-size:14px;text-align:left}
+.race-top-ten th{font-size:11px;color:#a6b1c5;font-weight:500}.race-top-ten td,.race-top-ten th{padding:12px;border-bottom:1px solid #ffffff0d}
+.race-top-ten td:nth-child(n+3),.race-top-ten th:nth-child(n+3){text-align:right;font-variant-numeric:tabular-nums}
+.race-top-ten td:nth-child(2){max-width:240px;overflow-wrap:anywhere}.race-top-self{background:#d6f36b12;color:#d6f36b}
+@media(max-width:600px){.race-top-ten{padding:16px}.race-top-ten td,.race-top-ten th{padding:10px 6px}.game-stage-large{padding:12px}.race-top-heading h2{font-size:16px}}

@@ -1,3 +1,5 @@
+import {GameStage} from './GameStage';
+import {RaceLeaderboard, raceCopy} from './RaceLeaderboard';
 import {BombDefuse, BombDevice} from './BombDefuse';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Swords, Flag, Users, Bot, RotateCcw, Wifi, WifiOff, Trophy, Zap } from 'lucide-react';
@@ -142,7 +144,26 @@ export const GamesView: React.FC = () => {
   const closeSignup=useCallback(()=>setSignupOpen(false),[]);
   const { typingLanguage, setTypingLanguage, siteLanguage } = useSettings();
   const g = (key: GameKey, vars: Record<string,string|number> = {}) => gameText(siteLanguage,key,vars);
-  const [difficulty,setDifficulty]=useState<'easy'|'medium'|'hard'>('medium');
+  const [selectedDifficulty,setDifficulty]=useState<'easy'|'medium'|'hard'>('medium');
+  const [gameMode, setGameMode] = useState<GameMode>('race');
+  const difficulty = gameMode==='race' ? 'medium' : selectedDifficulty;
+  const c=raceCopy[siteLanguage];
+  const [rankRevision,setRankRevision]=useState(0);
+  const [scoreError,setScoreError]=useState(false);
+  const pendingScores=useRef<{id:string;user_id:string;words:number;wpm:number}[]>([]);
+  const savingScore=useRef(false);
+  const persistScore=useCallback(async()=>{
+    if(savingScore.current)return;
+    savingScore.current=true;
+    try {
+      while(pendingScores.current.length){
+        const score=pendingScores.current[0];
+        const {error}=await supabase.from('race_finishes').upsert(score,{onConflict:'id',ignoreDuplicates:true});
+        if(error){setScoreError(true);return}
+        pendingScores.current.shift();setScoreError(false);setRankRevision(value=>value+1);
+      }
+    } catch {setScoreError(true)} finally {savingScore.current=false}
+  },[]);
   const [bossBusy,setBossBusy]=useState(false);
   const {records,save}=useArcadeRecords(typingLanguage+'.'+difficulty, currentUser?.id);
   const [paused,setPaused]=useState(false);
@@ -156,7 +177,6 @@ export const GamesView: React.FC = () => {
   const generation=useRef(0);
   const playerState=useRef<Player[]>([]);
   const [bossSession, setBossSession] = useState(0);
-  const [gameMode, setGameMode] = useState<GameMode>('race');
   const [phase, setPhase] = useState<RacePhase>('ready');
   const [online, setOnline] = useState(false);
   const [raceText, setRaceText] = useState('');
@@ -210,6 +230,10 @@ export const GamesView: React.FC = () => {
     finishedRef.current=true;
     setElapsed(Math.max(0,(finishTime-startedAtRef.current)/1000));
     save({kind:'race',won:!playerState.current.some(p=>p.id!==CLIENT_ID && p.finishedAt && p.finishedAt<=finishTime),wpm:finalWpm});
+    if(currentUser && finalWpm>0 && finalWpm<=400){
+      pendingScores.current.push({id:crypto.randomUUID(),user_id:currentUser.id,words:raceText.trim().split(/\s+/).length,wpm:finalWpm});
+      void persistScore();
+    }
     setPhase('finished');
     setPlayers((current) => current.map((player) =>
       player.id === CLIENT_ID ? { ...player, progress: 100, wpm: finalWpm, finishedAt: finishTime } : player
@@ -217,7 +241,7 @@ export const GamesView: React.FC = () => {
     if (raceRef.current && online) {
       raceRef.current.send({ type: 'broadcast', event: 'race-finish', payload: { id: CLIENT_ID, progress: 100, wpm: finalWpm, finishedAt: finishTime } });
     }
-  }, [online, wpm, save]);
+  }, [online, wpm, save, currentUser, raceText, persistScore]);
 
   const beginCountdown = useCallback((text: string, participants: Player[], startAt = Date.now() + 4000) => {
     finishedRef.current=false;
@@ -469,7 +493,7 @@ export const GamesView: React.FC = () => {
       </div>
 
       {gameMode!=='bomb' && <div className="flex flex-wrap gap-4 mb-5 rounded-2xl border border-white/10 bg-[#171E2B] p-4">
-        <label className="flex flex-col gap-2 text-xs text-[#b7afa1]">{g('difficulty')}<select aria-label={g('difficulty')} disabled={bossBusy || (phase!=='ready' && phase!=='finished')} value={difficulty} onChange={e=>{reset();setDifficulty(e.target.value as typeof difficulty)}} className="bg-[#222D40] rounded-lg px-3 py-2 text-[#F0F3FA]">{(['easy','medium','hard'] as const).map(v=><option key={v} value={v}>{g(v)}</option>)}</select></label>
+        {gameMode==='boss' && <label className="flex flex-col gap-2 text-xs text-[#b7afa1]">{g('difficulty')}<select aria-label={g('difficulty')} disabled={bossBusy || (phase!=='ready' && phase!=='finished')} value={difficulty} onChange={e=>{reset();setDifficulty(e.target.value as typeof difficulty)}} className="bg-[#222D40] rounded-lg px-3 py-2 text-[#F0F3FA]">{(['easy','medium','hard'] as const).map(v=><option key={v} value={v}>{g(v)}</option>)}</select></label>}
         <label className="flex flex-col gap-2 text-xs text-[#b7afa1]">{g('language')}<select aria-label={g('language')} disabled={bossBusy || (phase!=='ready' && phase!=='finished')} value={typingLanguage} onChange={e=>{reset();setTypingLanguage(e.target.value as typeof typingLanguage)}} className="bg-[#222D40] rounded-lg px-3 py-2 text-[#F0F3FA]">{(['uzbek_latin','uzbek_cyrillic','russian','english'] as const).map(v=><option key={v} value={v}>{g(v)}</option>)}</select></label>
         {currentUser ? (<div className="flex-1 text-xs min-w-48"><b>{g('record')}</b><div className="flex flex-wrap gap-4 mt-2 text-[#e8c186]"><span>{g('bestRace')}: {records.bestWpm} WPM</span><span>{g('wins')}: {records.wins+records.bossWins}</span><span>{g('bestCombo')}: ×{records.bestCombo}</span></div><p className="text-[#A6B1C5] mt-2">{g('localRecord')}</p></div>) : <div className="flex-1 text-sm"><p className="text-[#A6B1C5] mb-2">{authText(siteLanguage,"guestResults")}</p><button onClick={()=>setSignupOpen(true)} className="rounded-xl bg-[#D6F36B] px-4 py-3 font-semibold text-[#0D111A]">{authText(siteLanguage,"saveResults")}</button></div>}
       </div>}
@@ -485,6 +509,7 @@ export const GamesView: React.FC = () => {
         </button>
       </div>
 
+      <GameStage key={gameMode} enabled={gameMode!=='bomb'} expandLabel={c[0]} shrinkLabel={c[1]}>
       {gameMode === 'bomb' ? <BombDefuse key={typingLanguage+difficulty} language={typingLanguage} difficulty={difficulty} onBusy={setBossBusy}/> : gameMode === 'boss' ? <WordBoss key={bossSession + typingLanguage} language={typingLanguage} difficulty={difficulty} onResult={save} onBusy={setBossBusy}/> : phase === 'ready' || phase === 'matching' ? (
         <div className="rounded-3xl border border-white/10 bg-[#171E2B] p-6 sm:p-10 text-center">
           <div className="mx-auto mb-4 w-14 h-14 rounded-2xl bg-[#D6F36B]/10 flex items-center justify-center text-[#D6F36B]">{gameMode === 'race' ? <Flag /> : <Swords />}</div>
@@ -527,6 +552,11 @@ export const GamesView: React.FC = () => {
         </>
       )}
       {gameMode === 'race' && <p className="mt-4 flex items-center justify-center gap-2 text-[11px] text-[#748199]"><WifiOff className="w-3 h-3" /> {g('rules')}</p>}
+      {gameMode==='race' && <>
+        {scoreError && <button type="button" role="alert" className="race-save-retry" onClick={()=>void persistScore()}>{c[11]}</button>}
+        <RaceLeaderboard language={siteLanguage} userId={currentUser?.id} revision={rankRevision}/>
+      </>}
+      </GameStage>
       <AuthModal isOpen={signupOpen} initialMode="signup" onClose={closeSignup} />
     </section>
   );
