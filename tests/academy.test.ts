@@ -16,7 +16,7 @@ test('beginner rewards prioritize accuracy, not typing speed; later goals remain
   assert.equal(calculateTierStars(1,NaN,100),0);
   assert.equal(academyAccuracy({correctChars:4,totalTyped:4,missedChars:6}),40);
 });
-test('curriculum moves from short letters to numbers and words, with stable unique lesson IDs',()=>{
+test('curriculum moves from letters to numbers and words, with stable unique lesson IDs',()=>{
   const lessons=ACADEMY_TIERS.flatMap(t=>t.lessons);
   assert.deepEqual(ACADEMY_TIERS.slice(0,3).map(t=>t.number),[1,5,2]);
   assert.equal(new Set(lessons.map(l=>l.id)).size,lessons.length);
@@ -25,7 +25,15 @@ test('curriculum moves from short letters to numbers and words, with stable uniq
     assert.equal(l.lessonNumber,i+1);
     for(const text of Object.values(l.content)) assert.ok(typeof text==='string'&&text.trim().length>0);
   }
-  assert.ok(lessons[0].content.english.length<50);
+  assert.equal(lessons.length,160);
+  for (const tier of ACADEMY_TIERS) {
+    assert.equal(tier.lessons.length,20);
+    for (const language of ['uzbek_latin','uzbek_cyrillic','russian','english'] as const) {
+      const texts=tier.lessons.map(l=>l.content[language]);
+      assert.equal(new Set(texts).size,20);
+      assert.ok(texts.every(text=>text.length >= (tier.number===1?240:tier.number===5?300:400)));
+    }
+  }
   assert.match(lessons[0].content.english,/^[fj ]+$/);
   const progress={ [lessons[0].id]:{completed:true,stars:1,bestWpm:1,bestAccuracy:65} };
   assert.equal(lessonUnlocked(lessons[0],lessons,{}),true);

@@ -1,5 +1,18 @@
 import { AcademyTier, Language } from '../types';
 import uzLiterature from './uz_literature.json';
+import uzEasy from './uz_easy.json';
+import uzMedium from './uz_medium.json';
+import uzHard from './uz_hard.json';
+import cyEasy from './uz_cyrillic_easy.json';
+import cyMedium from './uz_cyrillic_medium.json';
+import cyHard from './uz_cyrillic_hard.json';
+import ruEasy from './ru_easy.json';
+import ruMedium from './ru_medium.json';
+import ruHard from './ru_hard.json';
+import enEasy from './en_easy.json';
+import enMedium from './en_medium.json';
+import enHard from './en_hard.json';
+
 
 const LEGACY_TIERS: AcademyTier[] = [
   // TIER 1: Harflar (Letters)
@@ -522,10 +535,91 @@ const simpleSentences = [
   localized('men kitob olaman sen ham yoz biz birga mashq qilamiz har kuni ozgina yoz', 'мен китоб оламан сен ҳам ёз биз бирга машқ қиламиз ҳар куни озгина ёз', 'я читаю книгу мы учимся вместе ты пишешь слова каждый день', 'i can type you can learn we practise together a little every day'),
   localized('Bugun havo yaxshi. Men yangi kitob o‘qidim. Har kuni mashq qilaman.', 'Бугун ҳаво яхши. Мен янги китоб ўқидим. Ҳар куни машқ қиламан.', 'Сегодня хорошая погода. Я читаю новую книгу. Мы учимся каждый день.', 'Today is a good day. I read a new book. We learn a little every day.'),
 ];
-export const ACADEMY_TIERS: AcademyTier[] = [
+const BASE_TIERS: AcademyTier[] = [
   { ...LEGACY_TIERS[0], lessons: letters },
   { ...LEGACY_TIERS.find(t => t.number === 5)!, lessons: numbers },
   { ...easy, lessons: easy.lessons.map((l, i) => ({ ...l, tierNumber: 2, content: shortWords[i] })) },
   { ...sentenceTier, lessons: sentenceTier.lessons.map((l, i) => ({ ...l, content: simpleSentences[i] })) },
   ...[4, 6, 7, 8].map(n => LEGACY_TIERS.find(t => t.number === n)!),
 ];
+
+
+const languages: Language[] = ['uzbek_latin', 'uzbek_cyrillic', 'russian', 'english'];
+const wordBanks = { uzbek_latin: uzEasy.words, uzbek_cyrillic: cyEasy.words, russian: ruEasy.words, english: enEasy.words };
+const sentenceBanks = { uzbek_latin: uzMedium.sentences, uzbek_cyrillic: cyMedium.sentences, russian: ruMedium.sentences, english: enMedium.sentences };
+const complexBanks = { uzbek_latin: uzHard.sentences, uzbek_cyrillic: cyHard.sentences, russian: ruHard.sentences, english: enHard.sentences };
+
+// Deterministic practice keeps a lesson stable across devices. Rotate whole tokens
+// or sentences; never truncate a word or introduce future keys in beginner drills.
+function practiceText(units: string[], minimum: number, offset: number): string {
+  const selected: string[] = [];
+  let length = 0;
+  for (let i = 0; length < minimum; i++) {
+    const unit = units[(offset + i) % units.length].trim();
+    selected.push(unit);
+    length += unit.length + (i > 0 ? 1 : 0);
+  }
+  return selected.join(' ');
+}
+
+const minimumLength: Record<number, number> = { 1: 240, 5: 300, 2: 400, 3: 550, 4: 650, 6: 650, 7: 850, 8: 1000 };
+
+export const ACADEMY_TIERS: AcademyTier[] = BASE_TIERS.map(tier => {
+  const usedTexts = Object.fromEntries(languages.map(language => [language, new Set<string>()])) as Record<Language, Set<string>>;
+  return ({
+  ...tier,
+  lessons: Array.from({ length: 20 }, (_, index) => {
+    const existing = tier.lessons[index];
+    const seed = existing || tier.lessons[(index - tier.lessons.length) % tier.lessons.length];
+    const content = {} as Record<Language, string>;
+    for (const language of languages) {
+      let units: string[];
+      if (tier.number === 1 || tier.number === 5) {
+        units = seed.content[language].split(/\s+/);
+        if (!existing) {
+          // Consolidation includes only keys already introduced in this section.
+          const learned = tier.lessons.flatMap(l => l.content[language].split(/\s+/));
+          units = Array.from(new Set(learned));
+        }
+      } else if (tier.number === 2) {
+        units = [...seed.content[language].split(/\s+/), ...wordBanks[language]];
+      } else if (tier.number === 3 || tier.number === 4) {
+        units = [seed.content[language], ...sentenceBanks[language].map(text => text[0].toUpperCase() + text.slice(1))];
+      } else if (tier.number === 6 || tier.number === 7) {
+        units = [seed.content[language], ...complexBanks[language]];
+      } else {
+        // Retain literary material instead of mixing in unrelated typing phrases.
+        units = language === 'uzbek_latin'
+          ? uzLiterature.entries.map(entry => entry.text)
+          : tier.lessons.flatMap(l => l.content[language].match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [l.content[language]]);
+      }
+      const minimum = minimumLength[tier.number] + index * (tier.number === 1 || tier.number === 5 ? 12 : 25);
+      const offset = existing ? 0 : index * 7;
+      content[language] = practiceText(units, minimum, offset);
+      // Keep the original exercise opening and the IDs used by saved progress.
+      if (existing && !content[language].startsWith(existing.content[language])) {
+        content[language] = existing.content[language] + ' ' + content[language];
+      }
+      let extra = 0;
+      while (usedTexts[language].has(content[language])) {
+        content[language] += ' ' + units[(offset + extra++) % units.length].trim();
+      }
+      usedTexts[language].add(content[language]);
+    }
+    const number = index + 1;
+    return {
+      ...seed,
+      id: existing?.id || `t${tier.number}_l${number}`,
+      tierNumber: tier.number,
+      lessonNumber: number,
+      title: existing?.title || localized(
+        `${number}-dars: ${tier.name.uzbek_latin} — mustahkamlash ${number - tier.lessons.length}`,
+        `${number}-дарс: ${tier.name.uzbek_cyrillic} — мустаҳкамлаш ${number - tier.lessons.length}`,
+        `Урок ${number}: ${tier.name.russian} — практика ${number - tier.lessons.length}`,
+        `Lesson ${number}: ${tier.name.english} — practice ${number - tier.lessons.length}`,
+      ),
+      content,
+    };
+  }),
+});
+});
