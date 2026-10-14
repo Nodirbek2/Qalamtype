@@ -337,3 +337,22 @@ body:has(.academy-runner) footer { display:none; }
 .race-top-ten td:nth-child(n+3),.race-top-ten th:nth-child(n+3){text-align:right;font-variant-numeric:tabular-nums}
 .race-top-ten td:nth-child(2){max-width:240px;overflow-wrap:anywhere}.race-top-self{background:#d6f36b12;color:#d6f36b}
 @media(max-width:600px){.race-top-ten{padding:16px}.race-top-ten td,.race-top-ten th{padding:10px 6px}.game-stage-large{padding:12px}.race-top-heading h2{font-size:16px}}
+
+.academy-guide-launch { display:flex; align-items:center; justify-content:center; gap:10px; width:100%; border:1px solid #d6f36b55; border-radius:16px; background:#d6f36b0c; color:#d6f36b; padding:16px 20px; font-weight:600; cursor:pointer; }
+.academy-guide-launch:hover { background:#d6f36b18; }
+.academy-guide-dialog { width:min(1050px,calc(100vw - 24px)); max-height:calc(100dvh - 24px); padding:0; margin:auto; overflow:auto; border:1px solid #ffffff20; border-radius:20px; background:#171e2b; color:#f0f3fa; box-shadow:0 24px 100px #0008; }
+.academy-guide-dialog::backdrop { background:#080c13e8; backdrop-filter:blur(5px); }
+.academy-guide-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; padding:20px; }
+.academy-guide-heading h2 { display:flex; align-items:center; gap:10px; font-size:clamp(16px,3vw,22px); font-weight:600; }
+.academy-guide-heading h2 svg { color:#d6f36b; flex-shrink:0; }
+.academy-guide-heading p { color:#a6b1c5; font-size:13px; margin-top:7px; }
+.academy-guide-close { padding:8px; border-radius:10px; color:#a6b1c5; cursor:pointer; }
+.academy-guide-close:hover { background:#ffffff10; color:#f0f3fa; }
+.academy-guide-player { position:relative; background:#000; }
+.academy-guide-player video { display:block; width:100%; aspect-ratio:16/9; }
+.academy-guide-skip { position:absolute; z-index:1; top:12px; right:12px; display:flex; align-items:center; gap:10px; padding:10px 14px; border:1px solid #ffffff45; border-radius:10px; background:#0d111ae8; color:#f0f3fa; font-size:13px; cursor:pointer; }
+.academy-guide-skip:hover { border-color:#d6f36b; color:#d6f36b; }
+.academy-guide-error { padding:16px 20px; color:#a6b1c5; font-size:14px; }
+.academy-guide-error button { margin-top:10px; color:#d6f36b; cursor:pointer; }
+.academy-guide-launch:focus-visible,.academy-guide-skip:focus-visible,.academy-guide-close:focus-visible { outline:2px solid #d6f36b; outline-offset:3px; }
+@media (max-width:520px) { .academy-guide-heading { padding:14px; } .academy-guide-skip { top:8px; right:8px; padding:8px 10px; font-size:12px; } }

@@ -41,7 +41,7 @@
       "destination": "/seo/account.html"
     },
     {
-      "source": "/((?!sitemap\\.xml|robots\\.txt|manifest\\.json|favicon\\.ico|.*\\.(?:ico|png|svg|jpg|jpeg|webp|gif|xml|txt|json)).*)",
+      "source": "/((?!sitemap\\.xml|robots\\.txt|manifest\\.json|favicon\\.ico|.*\\.(?:ico|png|svg|jpg|jpeg|webp|gif|mp4|webm|vtt|xml|txt|json)).*)",
       "destination": "/index.html"
     }
   ],

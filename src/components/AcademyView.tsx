@@ -6,12 +6,15 @@ import { ACADEMY_TIERS } from '../data/academyData';
 import { AcademyLesson, Language, LessonProgress } from '../types';
 import { academyAccuracy, academyCopy, calculateTierStars, lessonUnlocked, starGoals } from '../lib/academyLearning';
 import { KeyboardCoach } from './KeyboardCoach';
+import { AcademyGuideModal, academyGuideLabels } from './AcademyGuideModal';
+import { useAcademyGuide } from '../hooks/useAcademyGuide';
 export { calculateTierStars } from '../lib/academyLearning';
 import { TypingArea } from './TypingArea';
 import { AuthModal } from './AuthModal';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import {
   GraduationCap,
+  PlayCircle,
   Lock,
   Unlock,
   Star,
@@ -31,6 +34,7 @@ export const AcademyView: React.FC = () => {
   const { t, typingSound, setTypingLanguage, siteLanguage } = useSettings();
 
   const c = academyCopy[siteLanguage];
+  const { guideOpen, dismissGuide, replayGuide } = useAcademyGuide();
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
   // Selected language for Academy lessons
@@ -211,6 +215,8 @@ export const AcademyView: React.FC = () => {
 
   return (
     <div className="w-full max-w-5xl mx-auto py-6 sm:py-8 px-4 font-sans animate-fade-in select-none space-y-8">
+      {guideOpen && <AcademyGuideModal language={siteLanguage} onDismiss={dismissGuide} />}
+      <button type="button" className="academy-guide-launch" onClick={replayGuide}><PlayCircle size={20} aria-hidden="true" />{academyGuideLabels[siteLanguage].title}</button>
       <section className="academy-intro">
         <span className="academy-eyebrow">QALAMTYPE / ACADEMY</span>
         <h2>{c[0]}</h2><p>{c[1]}</p>
