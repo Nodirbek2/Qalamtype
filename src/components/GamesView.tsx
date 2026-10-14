@@ -1,3 +1,4 @@
+import {BattleArena} from './BattleArena';
 import {GameStage} from './GameStage';
 import {RaceLeaderboard, raceCopy} from './RaceLeaderboard';
 import {BombDefuse, BombDevice} from './BombDefuse';
@@ -120,12 +121,7 @@ function WordBoss({language, difficulty, onResult, onBusy}: {language:keyof type
     `}</style>
     <div className="wb-top"><span>{g('boss')} · {g('stage',{wave:wave+1})}</span><b>{names[wave]}</b></div>
     <div className="wb-meter" role="progressbar" aria-label={g('bossHealth')} aria-valuenow={Math.round(hp)} aria-valuemin={0} aria-valuemax={100}><i style={{width:hp+'%'}}/></div>
-    <div className="wb-arena" aria-label={g('arena')}>
-      <img className="wb-arena-art" src="/images/word-boss.webp" alt="" /><div className="wb-moon"/><div className="wb-floor"/>
-      <svg className="wb-hero" viewBox="0 0 100 155" aria-label={g('wizard')} role="img"><path d="M15 145L36 67H65L88 145Z" fill="#3aa9ad"/><path d="M36 70L50 140L65 70" fill="#123c68"/><circle cx="51" cy="49" r="19" fill="#f3c6a0"/><path d="M15 40L55 0L75 40Z" fill="#56cfcc"/><path d="M12 41H88" stroke="#b6fff0" strokeWidth="6"/><path d="M67 85L86 75" stroke="#f3c6a0" strokeWidth="10"/><path d="M88 130V33" stroke="#b49d67" strokeWidth="5"/><circle cx="88" cy="25" r="10" fill="#9fffff"/></svg>
-      <svg className={'wb-monster '+(battle.status==='won'?'wb-defeated':'')} viewBox="0 0 180 190" aria-label={names[wave]} role="img"><path d="M35 65L9 8L65 40M115 40L170 8L147 70" fill="#dcc4a4"/><path d="M25 80Q15 35 90 30Q165 35 158 83L172 165L126 151L110 185L80 159L44 181L36 145L8 157Z" fill={['#7855a7','#547d9f','#ae4678'][wave]}/><path d="M38 81L72 91L60 105L34 93M140 81L104 91L118 105L146 93" fill="#ffdf7a"/><path d="M57 128L90 146L126 126" fill="none" stroke="#29122e" strokeWidth="10"/><path d="M68 128L73 145L85 135M102 134L114 144L118 125" fill="#fff0cf"/></svg>
-      {battle.serial>0 && battle.effect!=='miss' && <React.Fragment key={battle.serial}><div className={'wb-bolt '+(battle.effect==='hurt'?'wb-enemy':'')}/>{battle.effect!=='hurt' && <div className="wb-damage">{battle.effect==='shield'?g('shield'):g('hit')}</div>}{battle.effect==='shield' && <div className="wb-shield"/>}</React.Fragment>}
-    </div>
+    <BattleArena battle={battle} wave={wave} heroLabel={g('wizard')} enemyLabel={names[wave]} arenaLabel={g('arena')} hitLabel={g('hit')} shieldLabel={g('shield')}/>
     <div className="wb-top" style={{marginTop:16}}><span>{g('yourHealth')} · {battle.health}/100</span><span>{active?g('nextAttack',{seconds:remaining.toFixed(1)}):g('bossInfo')}</span></div>
     <div className="wb-meter" role="progressbar" aria-label={g('yourHealth')} aria-valuenow={battle.health} aria-valuemin={0} aria-valuemax={100}><i style={{width:battle.health+'%',background:'#52cbb3'}}/></div>
     {battle.status==='ready' ? <div className="wb-result"><h2>{g('fightWords')}</h2><p className="wb-instructions">{g('bossRules',{interval:interval/1000})}</p><button className="wb-button" onClick={start}>{g('startBattle')}</button></div> : battle.paused ? <div className="wb-result" role="status"><h2>{g('paused')}</h2><button className="wb-button" onClick={()=>dispatch({type:'resume',now:Date.now()})}>{g('resume')}</button></div> : active ? <>
