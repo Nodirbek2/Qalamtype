@@ -1,5 +1,6 @@
 import { AcademyTier, Language } from '../types';
 import uzLiterature from './uz_literature.json';
+import { LITERARY_PASSAGES } from './textCorpus';
 import uzEasy from './uz_easy.json';
 import uzMedium from './uz_medium.json';
 import uzHard from './uz_hard.json';
@@ -589,9 +590,12 @@ export const ACADEMY_TIERS: AcademyTier[] = BASE_TIERS.map(tier => {
         units = [seed.content[language], ...complexBanks[language]];
       } else {
         // Retain literary material instead of mixing in unrelated typing phrases.
-        units = language === 'uzbek_latin'
-          ? uzLiterature.entries.map(entry => entry.text)
-          : tier.lessons.flatMap(l => l.content[language].match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [l.content[language]]);
+        units = [
+          ...LITERARY_PASSAGES[language],
+          ...(language === 'uzbek_latin'
+            ? uzLiterature.entries.map(entry => entry.text)
+            : tier.lessons.flatMap(l => l.content[language].match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [l.content[language]])),
+        ];
       }
       const minimum = minimumLength[tier.number] + index * (tier.number === 1 || tier.number === 5 ? 12 : 25);
       const offset = existing ? 0 : index * 7;

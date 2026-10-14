@@ -11,6 +11,8 @@ import { useSettings } from '../context/SettingsContext';
 
 import { normalize, correctPrefix, initialBattle, battleReducer } from '../lib/arcadeRules';
 import { gameText, GameKey } from '../data/gameI18n';
+import { ARCADE_PASSAGES } from '../data/textCorpus';
+import { WORD_BANKS } from '../data/wordBanks';
 import { useArcadeRecords } from '../hooks/useArcadeRecords';
 import { supabase } from '../lib/supabase';
 
@@ -21,12 +23,7 @@ type PresencePlayer = { id: string; name: string; joinedAt: number };
 type StartPayload = { text: string; startsAt: number; roomId: string };
 
 
-const PASSAGES = {
-  uzbek_latin: ["Bog‘ ustida rangli varrak uchmoqda. Bolalar daryo bo‘yidagi yo‘lakdan yugurib o‘tishdi. Iliq kun quvonchli xotiralarga boy bo‘ldi.", "Kutubxona ertalab ochiladi. Men uzoq sayyoralar haqida kitob tanladim. Har bir sahifa menga yangi bilim berdi.", "Tongda shahar ko'chalari quyosh nuriga to'ldi. Biz yangi yo'llarni kashf etish uchun sayohatga chiqdik. Oldinda bizni go'zal manzaralar kutmoqda.", "Tog'lar orasidan keng yo'l o'tadi. Yengil shamol daraxt barglarini asta silkitadi. Har bir burilish bizni yangi manzilga yaqinlashtiradi."],
-  uzbek_cyrillic: ["Боғ устида рангли варрак учмоқда. Болалар дарё бўйидаги йўлакдан югуриб ўтишди. Илиқ кун қувончли хотираларга бой бўлди.", "Кутубхона эрталаб очилади. Мен узоқ сайёралар ҳақида китоб танладим. Ҳар бир саҳифа менга янги билим берди.", "Тонгда шаҳар кўчалари қуёш нурига тўлди. Биз янги йўлларни кашф этиш учун саёҳатга чиқдик. Олдинда бизни гўзал манзаралар кутмоқда."],
-  english: ["A bright kite rises above the park. Children run along the path beside the river. The warm afternoon is full of laughter.", "The library opens early in the morning. I choose a book about distant planets. Each page reveals something new about the universe.", "The sun rises over the quiet city. We follow the winding road toward the mountains. Every turn brings us closer to a new adventure.", "The lights turn green and the engines roar. Keep your eyes on the road and find your rhythm. A steady pace will take you to the finish."],
-  russian: ["Над парком взлетает яркий воздушный змей. Дети бегут по дорожке вдоль реки. Тёплый день наполнен смехом.", "Библиотека открывается рано утром. Я выбираю книгу о далёких планетах. Каждая страница открывает что-то новое.", "Солнце поднимается над тихим городом. Мы едем по извилистой дороге к горам. Каждый поворот приближает нас к новому приключению."],
-};
+const PASSAGES = ARCADE_PASSAGES;
 
 function botPerformance(id: string, raceSeed: number, elapsed: number, difficulty: 'easy'|'medium'|'hard') {
   // Both online players share the round seed; every new race has a new profile.
@@ -98,10 +95,11 @@ function WordBoss({language, difficulty, onResult, onBusy}: {language:keyof type
   useEffect(()=>{const hide=()=>{if(document.hidden)dispatch({type:'pause',now:Date.now()})};document.addEventListener('visibilitychange',hide);return()=>document.removeEventListener('visibilitychange',hide)},[]);
   const start=()=>{
     saved.current=false;
-    const bank=PASSAGES[language]||PASSAGES.uzbek_latin;
-    const pool=bank[Math.floor(Math.random()*bank.length)].replace(/[.,!?]/g,'').split(/\s+/).filter(Boolean);
-    const offset=Math.floor(Math.random()*pool.length);
-    setWords(Array.from({length:18},(_,i)=>pool[(offset+i)%pool.length]));setInput('');dispatch({type:'start',now:Date.now(),interval});
+    const bank=WORD_BANKS[language].easy.words || [];
+    const candidates=bank.filter(word => difficulty==='easy' ? word.length<=7 : difficulty==='medium' ? word.length>=4 && word.length<=11 : word.length>=8);
+    const pool=[...(candidates.length>=18 ? candidates : bank)];
+    for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
+    setWords(pool.slice(0,18));setInput('');dispatch({type:'start',now:Date.now(),interval});
   };
   const attack=(value:string)=>{
     if(!active || !value.trim())return;
