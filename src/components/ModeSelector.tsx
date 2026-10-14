@@ -46,9 +46,9 @@ export const ModeSelector: React.FC<ModeSelectorProps> = ({
   return (
     <div className="mode-console flex flex-col items-center justify-center gap-1.5 sm:gap-2 bg-[#171E2B] px-2.5 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-[rgba(240,243,250,0.08)] text-xs font-sans transition-opacity select-none opacity-100 max-w-full overflow-hidden touch-manipulation">
       {/* Row 1: Test Mode Toggle + Mode Sub-options (durations / word counts) */}
-      <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap max-w-full">
+      <div className="mode-row flex items-center justify-center gap-2 sm:gap-3 flex-wrap max-w-full">
         {/* Test Mode Toggle */}
-        <div className="flex items-center gap-1">
+        <div className="mode-choices flex items-center gap-1">
           <button
             type="button" disabled={disabled}
             onClick={() => onModeChange('time')}
@@ -78,7 +78,7 @@ export const ModeSelector: React.FC<ModeSelectorProps> = ({
         <div className="w-[1px] h-4 bg-[rgba(240,243,250,0.12)] hidden sm:block" />
 
         {/* Mode Sub-options (Time durations or Word counts) */}
-        <div className="flex items-center gap-1 font-mono">
+        <div className="mode-options flex items-center gap-1 font-mono">
           {mode === 'time'
             ? durations.map((d) => (
                 <button
@@ -112,9 +112,9 @@ export const ModeSelector: React.FC<ModeSelectorProps> = ({
       </div>
 
       {/* Row 2: Difficulty Selection + Language Selector */}
-      <div className="flex items-center justify-center gap-1.5 sm:gap-3 flex-wrap max-w-full">
+      <div className="mode-row flex items-center justify-center gap-1.5 sm:gap-3 flex-wrap max-w-full">
         {/* Difficulty Selection */}
-        <div className="flex items-center gap-1">
+        <div className="mode-choices flex items-center gap-1">
           <Zap className="w-3.5 h-3.5 text-[#748199] mr-0.5 shrink-0 hidden sm:inline-block" />
           {difficulties.map((diff) => {
             const diffKey = diff === 'easy' ? 'diff_easy' : diff === 'medium' ? 'diff_medium' : 'diff_hard';
@@ -137,8 +137,16 @@ export const ModeSelector: React.FC<ModeSelectorProps> = ({
 
         <div className="w-[1px] h-4 bg-[rgba(240,243,250,0.12)] hidden sm:block" />
 
+        {/* Compact native picker keeps every language reachable on narrow screens. */}
+        <label className="mobile-language sm:hidden">
+          <Globe className="w-4 h-4 shrink-0" aria-hidden="true" />
+          <select aria-label={t('typing_language_label')} value={language} disabled={disabled}
+            onChange={event => onLanguageChange(event.target.value as Language)}>
+            {languages.map(lang => <option key={lang.id} value={lang.id}>{t(lang.labelKey as any)}</option>)}
+          </select>
+        </label>
         {/* Language Selector */}
-        <div className="flex items-center gap-1 max-w-full overflow-x-auto no-scrollbar py-0.5">
+        <div className="hidden sm:flex items-center gap-1 max-w-full overflow-x-auto no-scrollbar py-0.5">
           <Globe className="w-3.5 h-3.5 text-[#748199] mr-0.5 shrink-0 hidden sm:inline-block" />
           {languages.map((lang) => (
             <button

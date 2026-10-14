@@ -356,3 +356,93 @@ body:has(.academy-runner) footer { display:none; }
 .academy-guide-error button { margin-top:10px; color:#d6f36b; cursor:pointer; }
 .academy-guide-launch:focus-visible,.academy-guide-skip:focus-visible,.academy-guide-close:focus-visible { outline:2px solid #d6f36b; outline-offset:3px; }
 @media (max-width:520px) { .academy-guide-heading { padding:14px; } .academy-guide-skip { top:8px; right:8px; padding:8px 10px; font-size:12px; } }
+
+/* Small screens: intrinsic sizing, reachable controls and keyboard-friendly spacing. */
+.settings-panel { display:flex; flex-direction:column; max-height:calc(100dvh - 32px); }
+.settings-panel > :first-child { flex-shrink:0; }
+.settings-panel .settings-body { min-height:0; max-height:none; overflow-y:auto; overscroll-behavior:contain; }
+.site-main > *, .mode-row, .arcade-controls > *, .game-card-copy { min-width:0; }
+@media (max-width:1023px) {
+  .site-header > div { padding-top:0; padding-bottom:0; }
+  .mobile-nav button { min-width:0; min-height:56px; padding:8px 2px; flex-direction:column; justify-content:center; gap:5px; font-size:10px; line-height:1.25; }
+  .mobile-nav button > span { margin:0; max-width:100%; overflow-wrap:anywhere; }
+  .mobile-nav button > svg { flex-shrink:0; width:18px; height:18px; }
+  .site-actions > button { min-height:44px; min-width:44px; }
+}
+@media (max-width:639px) {
+  .site-main { padding:16px 12px 24px; }
+  .site-header { gap:10px; }
+  .site-actions { gap:6px; }
+  .site-actions button { min-height:40px; }
+  .site-actions [title="Go to account page"] { max-width:80px; }
+  .site-actions [title="Go to account page"] span { max-width:36px; }
+  .site-header > div > button > div { gap:6px; }
+  .site-header > div > button > div > span { font-size:18px; }
+  .home-hero { padding:6px 0 20px; }
+  .hero-copy h1 { font-size:clamp(29px,8vw,39px); margin:12px 0; }
+  .hero-copy p { font-size:13px; }
+  .hero-pills { margin-top:14px; }
+  .mode-console { width:100%; gap:6px; }
+  .mode-console .mode-row { width:100%; gap:6px; }
+  .mode-choices, .mode-options { display:flex; width:100%; }
+  .mode-choices button, .mode-options button { flex:1; min-width:0; min-height:40px; justify-content:center; }
+  .mobile-language { display:flex; align-items:center; gap:8px; width:100%; color:#a6b1c5; }
+  .mobile-language select { min-width:0; width:100%; min-height:44px; padding:8px; border-radius:8px; background:#0d111a; color:#f0f3fa; font-size:16px; }
+  .typing-studio { padding:12px 0 18px!important; }
+  .typing-paper { border-radius:16px!important; scroll-margin-block:12px; }
+  [data-typing-focus="true"] .test-chrome { display:none; }
+  [data-typing-focus="true"] main { justify-content:flex-start; padding-top:12px; }
+  .discovery-grid { gap:12px; margin:12px 0 24px; }
+  .discovery-card { padding:18px; min-height:156px; }
+  .discovery-card > div:last-child { max-width:80%; }
+  .lesson-art { right:10px; opacity:.4; }
+  .settings-panel { max-height:calc(100dvh - 24px); }
+  .settings-panel > :first-child, .settings-panel .settings-body { padding:16px; }
+  .settings-panel input, .settings-panel select, .site-main input:not([type=checkbox]):not([type=range]), .site-main select { font-size:16px; }
+  .arcade-page { padding:4px 0 16px; }
+  .arcade-page h1 { font-size:28px; overflow-wrap:anywhere; }
+  .arcade-controls { padding:12px; gap:12px; }
+  .arcade-controls > label { flex:1 1 110px; }
+  .arcade-controls > div { flex-basis:100%; min-width:0; }
+  .arcade-controls select { width:100%; min-width:0; min-height:44px; }
+  .game-library { grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; margin-bottom:16px; }
+  .game-library .game-cover, .game-library .bomb-cover, .game-library .game-tag, .game-library .game-launch, .game-library .game-card-copy > p { display:none; }
+  .game-library .game-card { border-radius:12px; }
+  .game-library .game-card-copy { padding:12px 6px; }
+  .game-library .game-card-copy > div { flex-direction:column; gap:6px; font-size:11px; line-height:1.4; text-align:center; overflow-wrap:anywhere; }
+  .game-library .game-card:hover { transform:none; }
+  .arcade-page .race-world { margin-bottom:14px; }
+  .arcade-page .race-sky { height:64px; padding:10px 12px; gap:4px; letter-spacing:1px; }
+  .arcade-page .race-sky b { font-size:16px; }
+  .arcade-page .race-lane { height:64px; margin:0 10px; }
+  .arcade-page .race-car { width:64px; }
+  .arcade-page .race-car-space { right:64px; top:26px; }
+  .arcade-page .race-exhaust { top:18px; }
+  .arcade-page .race-name { max-width:90%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .arcade-page .wb-shell { padding:12px; }
+  .arcade-page .wb-word { font-size:24px; }
+  .race-top-heading { align-items:flex-start; gap:8px; }
+  .race-top-heading > div { min-width:0; }
+  .race-top-heading button { flex-shrink:0; min-height:44px; }
+  .race-top-ten { padding:12px; }
+  .race-top-scroll { overscroll-behavior-x:contain; }
+  .bomb-toolbar { flex-wrap:wrap; gap:10px; }
+  .bomb-toolbar h2 { overflow-wrap:anywhere; }
+  .bomb-tools button { min-width:44px; min-height:44px; justify-content:center; }
+  .bomb-settings { grid-template-columns:minmax(0,1fr) minmax(0,1fr); }
+  .bomb-lab .bomb-settings select { font-size:16px; }
+  .bomb-playing .bomb-stage { max-width:260px; }
+  .game-stage-large, .bomb-large { padding: max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left)); }
+  .academy-goals { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; }
+  .academy-goals span { font-size:10px; padding:8px; }
+  .academy-runner .coach-instruction { flex-wrap:wrap; }
+  .academy-runner .coach-layout { width:100%; margin-left:0; }
+  .academy-runner .coach-layout select { width:100%; max-width:none; min-height:44px; font-size:16px; }
+  .academy-reset { min-width:44px; min-height:44px; }
+  .academy-guest { padding:14px; }
+  .academy-guest > div { min-width:0; overflow-wrap:anywhere; }
+  footer { padding-bottom:88px!important; }
+  footer button, footer a { min-height:36px; display:inline-flex; align-items:center; }
+  .donation-launch { bottom:max(12px,env(safe-area-inset-bottom)); right:max(12px,env(safe-area-inset-right)); }
+  body:has(.site-main input:focus) .donation-launch, body:has(.site-main textarea:focus) .donation-launch { display:none; }
+}

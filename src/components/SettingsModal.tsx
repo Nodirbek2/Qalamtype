@@ -146,7 +146,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-fade-in select-none">
-      <div className="relative w-full max-w-xl bg-[#171E2B] border border-[rgba(240,243,250,0.12)] rounded-2xl shadow-2xl overflow-hidden font-sans">
+      <div className="settings-panel relative w-full max-w-xl bg-[#171E2B] border border-[rgba(240,243,250,0.12)] rounded-2xl shadow-2xl overflow-hidden font-sans">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[rgba(240,243,250,0.08)] bg-[#0D111A]/50">
           <div>
@@ -167,7 +167,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         </div>
 
         {/* Settings Body */}
-        <div className="p-6 space-y-6 max-h-[80vh] overflow-y-auto font-mono text-xs">
+        <div className="settings-body p-6 space-y-6 max-h-[80vh] overflow-y-auto font-mono text-xs">
           {/* 1. Typing Sound Setting */}
           <div className="space-y-2">
             <label className="text-[#F0F3FA] font-medium flex items-center space-x-2">

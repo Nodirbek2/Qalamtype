@@ -59,7 +59,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <>
-      <header className="w-full max-w-6xl mx-auto px-3 sm:px-4 py-3 sm:py-4 flex flex-col items-center gap-3 sm:gap-4 border-b border-[rgba(240,243,250,0.06)] select-none">
+      <header className="site-header w-full max-w-6xl mx-auto px-3 sm:px-4 py-3 sm:py-4 flex flex-col items-center gap-3 sm:gap-4 border-b border-[rgba(240,243,250,0.06)] select-none">
         {/* ROW 1: Logo + Desktop Nav Links + Right Actions (Settings & Auth) */}
         <div className="w-full flex items-center justify-between gap-2 sm:gap-4 min-w-0">
           {/* Logo */}
@@ -73,7 +73,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
 
           {/* Desktop Nav Links (>= md) - Always renders all 4 links */}
-          <nav className="hidden md:flex items-center gap-1.5 font-mono text-[11px] lg:text-xs min-w-0">
+          <nav className="hidden lg:flex items-center gap-1.5 font-mono text-[11px] lg:text-xs min-w-0">
             {NAV_ITEMS.map((item) => {
               const Icon = item.icon;
               const label = item.id === 'games' ? gameText(siteLanguage, 'games') : t(item.labelKey as any);
@@ -84,6 +84,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 return (
                   <button
                     key={item.id}
+                  aria-current={isActive ? 'page' : undefined}
                     type="button"
                     onClick={() => {
                       if (onNavigate) {
@@ -105,6 +106,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               return (
                 <button
                   key={item.id}
+                  aria-current={isActive ? 'page' : undefined}
                   type="button"
                   onClick={() => {
                     if (item.requiresAuth && !currentUser) {
@@ -128,13 +130,14 @@ export const Navbar: React.FC<NavbarProps> = ({
           </nav>
 
           {/* Right Actions: Settings & Account / Auth */}
-          <div className="flex items-center gap-2 sm:gap-3 text-[#A6B1C5] shrink-0">
+          <div className="site-actions flex items-center gap-2 sm:gap-3 text-[#A6B1C5] shrink-0">
             {/* Settings Button */}
             <button
               type="button"
               onClick={onOpenSettings}
               className="p-1.5 sm:p-2 rounded-lg bg-[#171E2B] hover:bg-[#171E2B]/80 border border-[rgba(240,243,250,0.1)] text-[#A6B1C5] hover:text-[#D6F36B] transition-colors cursor-pointer flex items-center justify-center shrink-0"
               title={t('settings_title')}
+              aria-label={t('settings_title')}
             >
               <Settings className="w-4 h-4" />
             </button>
@@ -245,7 +248,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* Mobile Nav Links Row (< md) - Always renders all 4 links */}
-        <nav className="flex md:hidden items-center justify-center gap-1.5 font-mono text-xs w-full overflow-x-auto no-scrollbar py-1 touch-manipulation">
+        <nav className="mobile-nav grid grid-cols-5 lg:hidden gap-1 font-mono w-full touch-manipulation">
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
               const label = item.id === 'games' ? gameText(siteLanguage, 'games') : t(item.labelKey as any);
@@ -256,6 +259,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               return (
                 <button
                   key={item.id}
+                  aria-current={isActive ? 'page' : undefined}
                   type="button"
                   onClick={() => {
                     if (onNavigate) {
@@ -277,6 +281,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             return (
               <button
                 key={item.id}
+                  aria-current={isActive ? 'page' : undefined}
                 type="button"
                 onClick={() => {
                   if (item.requiresAuth && !currentUser) {

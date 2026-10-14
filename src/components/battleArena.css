@@ -23,3 +23,11 @@
 .action-hit .wizard-leg-front,.action-shield .wizard-leg-front{animation:step-forward .65s ease-out}.action-hit .wizard-leg-back,.action-shield .wizard-leg-back{animation:step-brace .65s ease-out}
 .action-hurt .enemy-leg-front{animation:step-forward .7s ease-out}.action-hurt .enemy-leg-back{animation:step-brace .7s ease-out}
 @keyframes step-forward{25%{transform:rotate(-11deg)}65%{transform:rotate(-4deg)}}@keyframes step-brace{25%{transform:rotate(9deg)}65%{transform:rotate(3deg)}}
+
+@media(max-width:600px){
+  .battle-scene,.game-stage-large .battle-scene{height:240px}
+  .battle-wizard,.game-stage-large .battle-fighter{width:42%;max-width:155px;left:2%}
+  .battle-enemy,.game-stage-large .battle-enemy{width:47%;max-width:175px;left:auto;right:1%}
+  .battle-barrier{width:44%}
+  .battle-rune{width:40%}
+}

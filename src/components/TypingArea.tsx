@@ -46,7 +46,7 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const activeCharRef = useRef<HTMLSpanElement>(null);
 
-  const [isFocused, setIsFocused] = useState(true);
+  const [isFocused, setIsFocused] = useState(() => typeof window !== 'undefined' && window.matchMedia('(hover: hover) and (pointer: fine)').matches);
   const lastMousePosRef = useRef<{ x: number; y: number } | null>(null);
   
   const handledInputTimeRef = useRef<number>(0);
@@ -56,7 +56,7 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
 
   const focusInput = () => {
     if (inputRef.current) {
-      inputRef.current.focus();
+      inputRef.current.focus({ preventScroll: true });
       inputRef.current.value = '  ';
     }
   };
@@ -73,8 +73,8 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
     if (!vv) return;
 
     const handleVvResize = () => {
-      if (isFocused && containerRef.current) {
-        containerRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if (document.activeElement === inputRef.current && vv.height < window.innerHeight * 0.8 && containerRef.current) {
+        containerRef.current.scrollIntoView({ behavior: 'instant', block: 'nearest' });
       }
     };
 
@@ -84,7 +84,7 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
 
   // Reveal controls and pause on intentional mouse movement; ignore tiny jitter.
   useEffect(() => {
-    if (phase !== 'running' || isPaused) {
+    if (phase !== 'running' || isPaused || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
       lastMousePosRef.current = null;
       return;
     }
