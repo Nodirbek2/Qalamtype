@@ -17,6 +17,10 @@ import enMedium from './en_medium.json';
 import enHard from './en_hard.json';
 
 import uzLiterature from './uz_literature.json';
+import generalVocabulary from './generalVocabulary.json';
+
+// Wider vocabulary remains available to advanced word games.
+export const GENERAL_VOCABULARY: Record<Language, string[]> = generalVocabulary;
 
 export { uzLiterature };
 

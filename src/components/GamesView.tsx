@@ -12,7 +12,7 @@ import { useSettings } from '../context/SettingsContext';
 import { normalize, correctPrefix, initialBattle, battleReducer } from '../lib/arcadeRules';
 import { gameText, GameKey } from '../data/gameI18n';
 import { ARCADE_PASSAGES } from '../data/textCorpus';
-import { WORD_BANKS } from '../data/wordBanks';
+import { WORD_BANKS, GENERAL_VOCABULARY } from '../data/wordBanks';
 import { useArcadeRecords } from '../hooks/useArcadeRecords';
 import { supabase } from '../lib/supabase';
 
@@ -95,7 +95,7 @@ function WordBoss({language, difficulty, onResult, onBusy}: {language:keyof type
   useEffect(()=>{const hide=()=>{if(document.hidden)dispatch({type:'pause',now:Date.now()})};document.addEventListener('visibilitychange',hide);return()=>document.removeEventListener('visibilitychange',hide)},[]);
   const start=()=>{
     saved.current=false;
-    const bank=WORD_BANKS[language].easy.words || [];
+    const bank=difficulty==='easy' ? WORD_BANKS[language].easy.words || [] : GENERAL_VOCABULARY[language];
     const candidates=bank.filter(word => difficulty==='easy' ? word.length<=7 : difficulty==='medium' ? word.length>=4 && word.length<=11 : word.length>=8);
     const pool=[...(candidates.length>=18 ? candidates : bank)];
     for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
