@@ -1,4 +1,4 @@
-export const normalize = (text: string) => text.replace(/[’ʻʼ`‘]/g, "'");
+export const normalize = (text: string) => text.replace(/[’ʻʼ`‘]/g, "'").replace(/[‐‑‒–—−]/g, '-');
 export function correctPrefix(value: string, target: string) {
   let i = 0;
   while (i < value.length && normalize(value[i]) === normalize(target[i] || '')) i++;

@@ -62,3 +62,12 @@ test('all literal game labels resolve and both navbar layouts use the translated
   const nav=readFileSync(new URL('../src/components/Navbar.tsx',import.meta.url),'utf8');
   assert.equal((nav.match(/<span>\{label\}<\/span>/g)||[]).length,4);
 });
+
+// Keyboard hyphens must advance across typographic dashes in race passages.
+test('race accepts keyboard hyphens for dash variants but keeps underscores distinct',()=>{
+  for (const dash of ['-','‐','‑','‒','–','—','−']) {
+    assert.equal(correctPrefix('yoz - sinov',`yoz ${dash} sinov`),11);
+    assert.equal(correctPrefix(`yoz ${dash} sinov`,'yoz - sinov'),11);
+  }
+  assert.equal(correctPrefix('yoz _ sinov','yoz - sinov'),4);
+});
