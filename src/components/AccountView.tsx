@@ -1,3 +1,5 @@
+import { authText } from '../data/authI18n';
+import { interfaceText } from '../data/interfaceCopy';
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
@@ -34,7 +36,8 @@ import {
 
 export const AccountView: React.FC = () => {
   const { currentUser, userProfile, updateUserProfile, checkUsernameAvailability } = useAuth();
-  const { t } = useSettings();
+  const { t, siteLanguage } = useSettings();
+  const u = (key: Parameters<typeof interfaceText>[1]) => interfaceText(siteLanguage, key);
 
   // Profile Form States
   const [firstName, setFirstName] = useState('');
@@ -122,23 +125,23 @@ export const AccountView: React.FC = () => {
     const cleanUsername = username.trim();
 
     if (!cleanFirst) {
-      setProfileError('first name cannot be empty');
+      setProfileError(u('firstRequired'));
       return;
     }
     if (!cleanLast) {
-      setProfileError('last name cannot be empty');
+      setProfileError(u('lastRequired'));
       return;
     }
     if (!cleanUsername || cleanUsername.length < 3) {
-      setProfileError('username must be at least 3 characters');
+      setProfileError(u('usernameShort'));
       return;
     }
     if (usernameStatus === 'taken') {
-      setProfileError('username is already taken. please choose another.');
+      setProfileError(u('usernameTaken'));
       return;
     }
     if (usernameStatus === 'invalid') {
-      setProfileError('username can only contain letters, numbers, and underscores');
+      setProfileError(u('usernameChars'));
       return;
     }
 
@@ -154,7 +157,7 @@ export const AccountView: React.FC = () => {
       setProfileSuccess(true);
       setTimeout(() => setProfileSuccess(false), 3000);
     } catch (err: any) {
-      setProfileError('failed to save profile: ' + (err.message || ''));
+      setProfileError(u('saveFailed'));
     } finally {
       setSavingProfile(false);
     }
@@ -166,12 +169,12 @@ export const AccountView: React.FC = () => {
     if (!file || !currentUser) return;
 
     if (!file.type.startsWith('image/')) {
-      setAvatarError('please select a valid image file');
+      setAvatarError(u('imageInvalid'));
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      setAvatarError('file size must be less than 5MB');
+      setAvatarError(u('imageSize'));
       return;
     }
 
@@ -183,7 +186,7 @@ export const AccountView: React.FC = () => {
       await updateUserProfile({ photoURL: downloadUrl });
     } catch (err: any) {
       console.error('Avatar upload error:', err);
-      setAvatarError('failed to upload image: ' + (err.message || ''));
+      setAvatarError(u('imageFailed'));
     } finally {
       setUploadingAvatar(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -335,7 +338,7 @@ export const AccountView: React.FC = () => {
                 ) : (
                   <>
                     <Camera className="w-6 h-6 mb-1 text-[#D6F36B]" />
-                    <span className="text-[10px] font-mono">upload</span>
+                    <span className="text-[10px] font-mono">{t('acc_change_photo')}</span>
                   </>
                 )}
               </button>
@@ -428,17 +431,17 @@ export const AccountView: React.FC = () => {
                     <label className="text-xs text-[#A6B1C5] font-mono">{t('acc_username')}</label>
                     {usernameChecking && (
                       <span className="text-[10px] text-[#748199] flex items-center gap-1 font-mono">
-                        <Loader2 className="w-3 h-3 animate-spin" /> checking...
+                        <Loader2 className="w-3 h-3 animate-spin" /> {authText(siteLanguage, 'checking...')}
                       </span>
                     )}
                     {!usernameChecking && usernameStatus === 'available' && (
                       <span className="text-[10px] text-[#71D9AF] flex items-center gap-1 font-mono">
-                        <CheckCircle2 className="w-3 h-3" /> available
+                        <CheckCircle2 className="w-3 h-3" /> {authText(siteLanguage, 'available')}
                       </span>
                     )}
                     {!usernameChecking && usernameStatus === 'taken' && (
                       <span className="text-[10px] text-[#D64545] flex items-center gap-1 font-mono">
-                        <AlertCircle className="w-3 h-3" /> taken
+                        <AlertCircle className="w-3 h-3" /> {authText(siteLanguage, 'taken')}
                       </span>
                     )}
                   </div>
@@ -502,7 +505,7 @@ export const AccountView: React.FC = () => {
         <div className="bg-[#171E2B] rounded-xl p-4 border border-[rgba(240,243,250,0.08)] flex flex-col justify-between space-y-2">
           <div className="flex items-center justify-between text-[#D6F36B]">
             <Trophy className="w-4 h-4" />
-            <span className="text-[10px] font-mono uppercase tracking-wider text-[#A6B1C5]">best</span>
+            <span className="text-[10px] font-mono uppercase tracking-wider text-[#A6B1C5]">{t('acc_best_wpm')}</span>
           </div>
           <div>
             <div className="text-2xl sm:text-3xl font-mono font-bold text-[#63D9DA]">
@@ -516,7 +519,7 @@ export const AccountView: React.FC = () => {
         <div className="bg-[#171E2B] rounded-xl p-4 border border-[rgba(240,243,250,0.08)] flex flex-col justify-between space-y-2">
           <div className="flex items-center justify-between text-[#63D9DA]">
             <Zap className="w-4 h-4" />
-            <span className="text-[10px] font-mono uppercase tracking-wider text-[#A6B1C5]">avg</span>
+            <span className="text-[10px] font-mono uppercase tracking-wider text-[#A6B1C5]">{t('acc_avg_wpm')}</span>
           </div>
           <div>
             <div className="text-2xl sm:text-3xl font-mono font-bold text-[#F0F3FA]">
@@ -530,7 +533,7 @@ export const AccountView: React.FC = () => {
         <div className="bg-[#171E2B] rounded-xl p-4 border border-[rgba(240,243,250,0.08)] flex flex-col justify-between space-y-2">
           <div className="flex items-center justify-between text-[#71D9AF]">
             <Target className="w-4 h-4" />
-            <span className="text-[10px] font-mono uppercase tracking-wider text-[#A6B1C5]">acc</span>
+            <span className="text-[10px] font-mono uppercase tracking-wider text-[#A6B1C5]">{t('results_acc')}</span>
           </div>
           <div>
             <div className="text-2xl sm:text-3xl font-mono font-bold text-[#71D9AF]">
@@ -544,7 +547,7 @@ export const AccountView: React.FC = () => {
         <div className="bg-[#171E2B] rounded-xl p-4 border border-[rgba(240,243,250,0.08)] flex flex-col justify-between space-y-2">
           <div className="flex items-center justify-between text-[#F0F3FA]">
             <FileCheck className="w-4 h-4 text-[#A6B1C5]" />
-            <span className="text-[10px] font-mono uppercase tracking-wider text-[#A6B1C5]">runs</span>
+            <span className="text-[10px] font-mono uppercase tracking-wider text-[#A6B1C5]">{t('acc_tests_completed')}</span>
           </div>
           <div>
             <div className="text-2xl sm:text-3xl font-mono font-bold text-[#F0F3FA]">
@@ -558,7 +561,7 @@ export const AccountView: React.FC = () => {
         <div className="bg-[#171E2B] rounded-xl p-4 border border-[rgba(240,243,250,0.08)] flex flex-col justify-between space-y-2 col-span-2 sm:col-span-1">
           <div className="flex items-center justify-between text-[#A6B1C5]">
             <Clock className="w-4 h-4" />
-            <span className="text-[10px] font-mono uppercase tracking-wider text-[#A6B1C5]">time</span>
+            <span className="text-[10px] font-mono uppercase tracking-wider text-[#A6B1C5]">{t('acc_typing_time')}</span>
           </div>
           <div>
             <div className="text-2xl sm:text-3xl font-mono font-bold text-[#F0F3FA]">
@@ -583,7 +586,7 @@ export const AccountView: React.FC = () => {
             </div>
             <div className="flex items-center space-x-1.5">
               <span className="w-2.5 h-2.5 rounded-full bg-[#71D9AF]" />
-              <span className="text-[#A6B1C5]">accuracy %</span>
+              <span className="text-[#A6B1C5]">{t('results_acc')}</span>
             </div>
           </div>
         </div>
@@ -639,7 +642,7 @@ export const AccountView: React.FC = () => {
                   }}
                   formatter={(value: any, name: any) => {
                     if (name === 'wpm') return [`${value} WPM`, 'WPM'];
-                    if (name === 'accuracy') return [`${value}%`, 'Accuracy'];
+                    if (name === 'accuracy') return [`${value}%`, t('results_acc')];
                     return [value, name];
                   }}
                   labelFormatter={(label, payload) => {
@@ -684,7 +687,7 @@ export const AccountView: React.FC = () => {
                 <Globe className="w-4 h-4 text-[#D6F36B]" />
                 <h3 className="text-base font-medium text-[#F0F3FA]">{t('acc_by_language')}</h3>
               </div>
-              <span className="text-[11px] font-mono text-[#A6B1C5]">avg wpm</span>
+              <span className="text-[11px] font-mono text-[#A6B1C5]">{t('acc_avg_wpm')}</span>
             </div>
 
             <div className="space-y-3">
@@ -723,7 +726,7 @@ export const AccountView: React.FC = () => {
                 <Zap className="w-4 h-4 text-[#63D9DA]" />
                 <h3 className="text-base font-medium text-[#F0F3FA]">{t('acc_by_difficulty')}</h3>
               </div>
-              <span className="text-[11px] font-mono text-[#A6B1C5]">avg wpm</span>
+              <span className="text-[11px] font-mono text-[#A6B1C5]">{t('acc_avg_wpm')}</span>
             </div>
 
             <div className="space-y-3">
