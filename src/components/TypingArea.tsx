@@ -522,10 +522,10 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
             focusInput();
           }}
           className="w-full sm:w-auto min-h-[44px] px-5 py-2.5 rounded-xl bg-[#171E2B] sm:bg-transparent hover:bg-[#171E2B] border border-[rgba(240,243,250,0.1)] sm:border-transparent text-[#F0F3FA] sm:text-[#A6B1C5] hover:text-[#D6F36B] transition-all flex items-center justify-center space-x-2 group cursor-pointer active:scale-95 touch-manipulation shadow-sm sm:shadow-none"
-          title="qayta boshlash"
+          title={t('results_restart')}
         >
           <RotateCcw className="w-4 h-4 text-[#D6F36B] sm:text-inherit transition-transform group-hover:-rotate-90 duration-200" />
-          <span className="sm:hidden text-xs font-mono font-medium">Qayta boshlash</span>
+          <span className="sm:hidden text-xs font-mono font-medium">{t('results_restart')}</span>
         </button>
 
         {/* Desktop Keyboard Shortcut Prompt */}

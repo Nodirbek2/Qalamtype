@@ -1,3 +1,4 @@
+import { interfaceText } from '../data/interfaceCopy';
 import { LeaderboardFilter } from './LeaderboardFilter';
 import './leaderboardFilters.css';
 import {BattleArena} from './BattleArena';
@@ -483,7 +484,7 @@ export const GamesView: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-7">
         <div>
           <div className="flex items-center gap-2 text-[#D6F36B] font-mono text-xs uppercase tracking-[0.2em] mb-2"><Zap className="w-4 h-4" /> {g('arcade')}</div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-[#F0F3FA]">{gameMode === 'bomb' ? 'Bomba zararsizlantirish' : gameMode === 'boss' ? g('bossTitle') : g('raceTitle')}</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold text-[#F0F3FA]">{gameMode === 'bomb' ? interfaceText(siteLanguage,'bombTitle') : gameMode === 'boss' ? g('bossTitle') : g('raceTitle')}</h1>
           <p className="text-sm text-[#A6B1C5] mt-2">{g('subtitle')}</p>
         </div>
       </div>
@@ -495,13 +496,13 @@ export const GamesView: React.FC = () => {
       </div>}
       <div className="game-library grid sm:grid-cols-3 gap-5 mb-7">
         <button disabled={bossBusy || (phase !== 'ready' && phase !== 'finished')} aria-pressed={gameMode === 'race'} onClick={() => { reset(); setGameMode('race'); }} className={`game-card rounded-2xl text-left border transition-colors ${gameMode === 'race' ? 'border-[#D6F36B]/60 bg-[#D6F36B]/10' : 'border-white/10 bg-[#171E2B]'}`}>
-          <img className="game-cover" src="/images/sprint-race.webp" alt="" width="1200" height="600" /><div className="game-card-copy"><span className="game-tag">01 · GRAND PRIX</span><div className="flex items-center gap-2 font-bold"><Flag className="w-4 h-4 text-[#D6F36B]" /> {g('race')}</div><p className="text-xs text-[#A6B1C5] mt-1">{g('raceDesc')}</p><span className="game-launch">{g('race')} <span aria-hidden="true">↗</span></span></div>
+          <img className="game-cover" src="/images/sprint-race.webp" alt="" width="1200" height="600" /><div className="game-card-copy"><span className="game-tag">01 · {g('race')}</span><div className="flex items-center gap-2 font-bold"><Flag className="w-4 h-4 text-[#D6F36B]" /> {g('race')}</div><p className="text-xs text-[#A6B1C5] mt-1">{g('raceDesc')}</p><span className="game-launch">{g('race')} <span aria-hidden="true">↗</span></span></div>
         </button>
         <button disabled={bossBusy || (phase !== 'ready' && phase !== 'finished')} aria-pressed={gameMode === 'boss'} onClick={() => { reset(); setGameMode('boss'); }} className={`game-card rounded-2xl text-left border transition-colors ${gameMode === 'boss' ? 'border-[#D6F36B]/60 bg-[#D6F36B]/10' : 'border-white/10 bg-[#171E2B]'}`}>
-          <img className="game-cover" src="/images/word-boss.webp" alt="" width="1200" height="600" /><div className="game-card-copy"><span className="game-tag">02 · SPELL ARENA</span><div className="flex items-center gap-2 font-bold"><Swords className="w-4 h-4 text-[#D6F36B]" /> {g('boss')}</div><p className="text-xs text-[#A6B1C5] mt-1">{g('bossDesc')}</p><span className="game-launch">{g('boss')} <span aria-hidden="true">↗</span></span></div>
+          <img className="game-cover" src="/images/word-boss.webp" alt="" width="1200" height="600" /><div className="game-card-copy"><span className="game-tag">02 · {g('boss')}</span><div className="flex items-center gap-2 font-bold"><Swords className="w-4 h-4 text-[#D6F36B]" /> {g('boss')}</div><p className="text-xs text-[#A6B1C5] mt-1">{g('bossDesc')}</p><span className="game-launch">{g('boss')} <span aria-hidden="true">↗</span></span></div>
         </button>
         <button disabled={bossBusy || (phase !== 'ready' && phase !== 'finished')} aria-pressed={gameMode === 'bomb'} onClick={()=>{reset();setGameMode('bomb')}} className={`game-card rounded-2xl text-left border ${gameMode==='bomb'?'border-orange-400/60 bg-orange-400/10':'border-white/10 bg-[#171E2B]'}`}>
-          <div className="bomb-cover"><BombDevice remaining={30}/></div><div className="game-card-copy"><span className="game-tag">03 · DEFUSE LAB</span><div className="font-bold">Bomba zararsizlantirish</div><p className="text-xs text-[#A6B1C5] mt-1">3 ta signal · ortga sanoq · aniqlik sinovi</p><span className="game-launch">Bombani zararsizlantirish ↗</span></div>
+          <div className="bomb-cover"><BombDevice remaining={30}/></div><div className="game-card-copy"><span className="game-tag">03 · {interfaceText(siteLanguage,'bombTag')}</span><div className="font-bold">{interfaceText(siteLanguage,'bombTitle')}</div><p className="text-xs text-[#A6B1C5] mt-1">{interfaceText(siteLanguage,'bombDesc')}</p><span className="game-launch">{interfaceText(siteLanguage,'bombLaunch')} ↗</span></div>
         </button>
       </div>
 

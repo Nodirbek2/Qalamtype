@@ -204,7 +204,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
               </div>
               <div className="flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-[#63D9DA]" />
-                <span className="text-[#A6B1C5]">raw</span>
+                <span className="text-[#A6B1C5]">{t('results_raw')}</span>
               </div>
             </div>
           </div>
@@ -265,7 +265,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
             <div className="flex items-center justify-between gap-2 mb-2">
               <div className="flex items-center space-x-1.5 text-[#D6F36B] font-mono text-xs font-semibold">
                 <Trophy className="w-3.5 h-3.5 shrink-0" />
-                <span>Eng kuchlilar</span>
+                <span>{t('results_view_leaderboard')}</span>
               </div>
 
               {/* Time range pills: hafta / oy */}
@@ -310,7 +310,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
               {lbLoading ? (
                 <div className="py-6 flex items-center justify-center text-[#A6B1C5] font-mono text-xs space-x-2">
                   <Loader2 className="w-4 h-4 animate-spin text-[#D6F36B]" />
-                  <span>Yuklanmoqda...</span>
+                  <span>{t('lb_loading')}</span>
                 </div>
               ) : top5.length === 0 ? (
                 <div className="py-4 text-center text-[11px] font-mono text-[#A6B1C5]">
@@ -414,7 +414,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
                 onClick={onViewLeaderboard}
                 className="text-[11px] font-mono text-[#D6F36B] hover:underline cursor-pointer flex items-center space-x-1"
               >
-                <span>Barchasini ko'rish</span>
+                <span>{t('results_view_leaderboard')}</span>
                 <ArrowRight className="w-3 h-3" />
               </button>
             )}

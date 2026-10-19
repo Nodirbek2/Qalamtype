@@ -219,7 +219,7 @@ export const AcademyView: React.FC = () => {
       {guideOpen && <AcademyGuideModal language={siteLanguage} onDismiss={dismissGuide} />}
       <button type="button" className="academy-guide-launch" onClick={replayGuide}><PlayCircle size={20} aria-hidden="true" />{academyGuideLabels[siteLanguage].title}</button>
       <section className="academy-intro">
-        <span className="academy-eyebrow">QALAMTYPE / ACADEMY</span>
+        <span className="academy-eyebrow">QALAMTYPE / {t('nav_academy')}</span>
         <h2>{c[0]}</h2><p>{c[1]}</p>
         <button className="academy-start" type="button" onClick={() => setActiveLesson(suggested)}>{completedLessonsCount ? c[2] : c[3]} <ArrowRight size={18}/></button>
         <p className="academy-tip mt-4">{c[31]}</p>
@@ -385,7 +385,7 @@ export const AcademyView: React.FC = () => {
                       {completed && progress && (
                         <div className="pt-1 border-t border-[rgba(240,243,250,0.06)] flex items-center justify-between text-[10px] font-mono text-[#A6B1C5]">
                           <span>WPM: <strong className="text-[#63D9DA]">{progress.bestWpm}</strong></span>
-                          <span>Aniqlik: <strong className="text-[#71D9AF]">{progress.bestAccuracy}%</strong></span>
+                          <span>{t('results_acc')}: <strong className="text-[#71D9AF]">{progress.bestAccuracy}%</strong></span>
                         </div>
                       )}
                     </button>
@@ -604,14 +604,14 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
             </div>
 
             <div className="bg-[#0D111A] p-3 rounded-xl border border-[rgba(240,243,250,0.08)]">
-              <span className="text-[10px] font-mono text-[#A6B1C5] uppercase block">Aniqlik</span>
+              <span className="text-[10px] font-mono text-[#A6B1C5] uppercase block">{t('results_acc')}</span>
               <span className={`text-2xl font-mono font-bold ${result.accuracy >= 75 ? 'text-[#71D9AF]' : 'text-red-400'}`}>
                 {academyAccuracy(result)}%
               </span>
             </div>
 
             <div className="bg-[#0D111A] p-3 rounded-xl border border-[rgba(240,243,250,0.08)]">
-              <span className="text-[10px] font-mono text-[#A6B1C5] uppercase block">Vaqt</span>
+              <span className="text-[10px] font-mono text-[#A6B1C5] uppercase block">{t('mode_time')}</span>
               <span className="text-2xl font-mono font-bold text-[#F0F3FA]">
                 {result.timeSec}s
               </span>
