@@ -1,9 +1,11 @@
+import { LeaderboardFilter } from './LeaderboardFilter';
+import './leaderboardFilters.css';
 import {BattleArena} from './BattleArena';
 import {GameStage} from './GameStage';
 import {RaceLeaderboard, raceCopy} from './RaceLeaderboard';
 import {BombDefuse, BombDevice} from './BombDefuse';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Swords, Flag, Users, Bot, RotateCcw, Wifi, WifiOff, Trophy, Zap } from 'lucide-react';
+import { Swords, Flag, Users, Bot, RotateCcw, Wifi, WifiOff, Trophy, Zap, Globe } from 'lucide-react';
 import { AuthModal } from './AuthModal';
 import { authText } from '../data/authI18n';
 import { useAuth } from '../context/AuthContext';
@@ -488,7 +490,7 @@ export const GamesView: React.FC = () => {
 
       {gameMode!=='bomb' && <div className="arcade-controls flex flex-wrap gap-4 mb-5 rounded-2xl border border-white/10 bg-[#171E2B] p-4">
         {gameMode==='boss' && <label className="flex flex-col gap-2 text-xs text-[#b7afa1]">{g('difficulty')}<select aria-label={g('difficulty')} disabled={bossBusy || (phase!=='ready' && phase!=='finished')} value={difficulty} onChange={e=>{reset();setDifficulty(e.target.value as typeof difficulty)}} className="bg-[#222D40] rounded-lg px-3 py-2 text-[#F0F3FA]">{(['easy','medium','hard'] as const).map(v=><option key={v} value={v}>{g(v)}</option>)}</select></label>}
-        <label className="flex flex-col gap-2 text-xs text-[#b7afa1]">{g('language')}<select aria-label={g('language')} disabled={bossBusy || (phase!=='ready' && phase!=='finished')} value={typingLanguage} onChange={e=>{reset();setTypingLanguage(e.target.value as typeof typingLanguage)}} className="bg-[#222D40] rounded-lg px-3 py-2 text-[#F0F3FA]">{(['uzbek_latin','uzbek_cyrillic','russian','english'] as const).map(v=><option key={v} value={v}>{g(v)}</option>)}</select></label>
+        <div className="w-full sm:w-64"><LeaderboardFilter label={g('language')} icon={<Globe size={18}/>} disabled={bossBusy || (phase!=='ready' && phase!=='finished')} value={typingLanguage} options={(['uzbek_latin','uzbek_cyrillic','russian','english'] as const).map(value=>({value,label:g(value)}))} onChange={value=>{reset();setTypingLanguage(value)}}/></div>
         {currentUser ? (<div className="flex-1 text-xs min-w-48"><b>{g('record')}</b><div className="flex flex-wrap gap-4 mt-2 text-[#e8c186]"><span>{g('bestRace')}: {records.bestWpm} WPM</span><span>{g('wins')}: {records.wins+records.bossWins}</span><span>{g('bestCombo')}: ×{records.bestCombo}</span></div><p className="text-[#A6B1C5] mt-2">{g('localRecord')}</p></div>) : <div className="flex-1 text-sm"><p className="text-[#A6B1C5] mb-2">{authText(siteLanguage,"guestResults")}</p><button onClick={()=>setSignupOpen(true)} className="rounded-xl bg-[#D6F36B] px-4 py-3 font-semibold text-[#0D111A]">{authText(siteLanguage,"saveResults")}</button></div>}
       </div>}
       <div className="game-library grid sm:grid-cols-3 gap-5 mb-7">
