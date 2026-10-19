@@ -72,7 +72,7 @@ export function Donation({onClose}:{onClose:()=>void}) {
       <div className="donation-card donation-card-back" aria-hidden={!back}>
         <div className="card-top"><span>qalam<span>type</span></span><span className="card-back-mark" aria-hidden="true">✦</span></div>
         <div className="card-creator"><span className="card-creator-label">{cardText.creator}</span><strong>Baratov<br/>Nodirbek</strong></div>
-        <div className="card-bottom"><span>qalamtype.uz</span><span>CREATOR</span></div>
+        <div className="card-bottom"><span>qalamtype.uz</span><span>{cardText.creator}</span></div>
       </div>
       </motion.div></motion.div>
     </div>
