@@ -3,6 +3,7 @@ import { Check, ChevronDown } from 'lucide-react';
 
 export type FilterOption<T extends string> = { value: T; label: string; group?: string };
 interface Props<T extends string> {
+  disabled?: boolean;
   label: string;
   value: T;
   options: FilterOption<T>[];
@@ -11,7 +12,7 @@ interface Props<T extends string> {
 }
 const titleCase = (text: string) => text.charAt(0).toLocaleUpperCase() + text.slice(1);
 
-export function LeaderboardFilter<T extends string>({ label, value, options, icon, onChange }: Props<T>) {
+export function LeaderboardFilter<T extends string>({ label, value, options, icon, onChange, disabled = false }: Props<T>) {
   const id = useId();
   const root = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
@@ -98,7 +99,7 @@ export function LeaderboardFilter<T extends string>({ label, value, options, ico
   }
 
   return <div ref={root} className="lb-filter">
-    <button ref={trigger} type="button" role="combobox" className="lb-filter-trigger"
+    <button ref={trigger} type="button" role="combobox" disabled={disabled} className="lb-filter-trigger"
       aria-expanded={open} aria-haspopup="listbox" aria-controls={open ? `${id}-menu` : undefined}
       aria-labelledby={`${id}-label ${id}-value`} aria-activedescendant={open ? `${id}-option-${active}` : undefined}
       onClick={() => { setActive(selected); search.current.text = ''; setOpen(!open); }}
