@@ -1,3 +1,5 @@
+import { authText } from '../data/authI18n';
+import { interfaceText } from '../data/interfaceCopy';
 import React, { useState, useEffect } from 'react';
 import { useSettings } from '../context/SettingsContext';
 import { useAuth } from '../context/AuthContext';
@@ -25,6 +27,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
     t,
     testSound,
   } = useSettings();
+  const u = (key: Parameters<typeof interfaceText>[1]) => interfaceText(siteLanguage, key);
 
   const { currentUser, userProfile, updateUserProfile, checkUsernameAvailability } = useAuth();
 
@@ -81,15 +84,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
     const clean = usernameInput.trim();
     if (!clean || clean.length < 3) {
-      setUsernameError('username must be at least 3 characters');
+      setUsernameError(u('usernameShort'));
       return;
     }
     if (usernameStatus === 'taken') {
-      setUsernameError('username is already taken');
+      setUsernameError(u('usernameTaken'));
       return;
     }
     if (usernameStatus === 'invalid') {
-      setUsernameError('letters, numbers, and underscores only');
+      setUsernameError(u('usernameChars'));
       return;
     }
 
@@ -103,7 +106,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
       setUsernameSuccess(true);
       setTimeout(() => setUsernameSuccess(false), 3000);
     } catch (err: any) {
-      setUsernameError(err.message || 'failed to update username');
+      setUsernameError(u('saveFailed'));
     } finally {
       setUsernameSaving(false);
     }
@@ -196,7 +199,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                           testSound(opt.id);
                         }}
                         className="p-1 hover:text-[#D6F36B] transition-colors cursor-pointer"
-                        title="Preview sound"
+                        title={u('previewSound')}
                       >
                         <Play className="w-3 h-3 fill-current" />
                       </span>
@@ -332,17 +335,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 </div>
                 {usernameChecking && (
                   <span className="text-[10px] text-[#748199] flex items-center gap-1 font-mono">
-                    <Loader2 className="w-3 h-3 animate-spin" /> checking...
+                    <Loader2 className="w-3 h-3 animate-spin" /> {authText(siteLanguage, 'checking...')}
                   </span>
                 )}
                 {!usernameChecking && usernameStatus === 'available' && (
                   <span className="text-[10px] text-[#71D9AF] flex items-center gap-1 font-mono">
-                    <CheckCircle2 className="w-3 h-3" /> available
+                    <CheckCircle2 className="w-3 h-3" /> {authText(siteLanguage, 'available')}
                   </span>
                 )}
                 {!usernameChecking && usernameStatus === 'taken' && (
                   <span className="text-[10px] text-[#D64545] flex items-center gap-1 font-mono">
-                    <AlertCircle className="w-3 h-3" /> taken
+                    <AlertCircle className="w-3 h-3" /> {authText(siteLanguage, 'taken')}
                   </span>
                 )}
               </label>
@@ -354,7 +357,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     required
                     value={usernameInput}
                     onChange={(e) => setUsernameInput(e.target.value)}
-                    placeholder="taxallus"
+                    placeholder={t('acc_username')}
                     className="w-full bg-[#0D111A] border border-[rgba(240,243,250,0.12)] rounded-lg px-3 py-2 text-xs text-[#F0F3FA] font-mono focus:outline-none focus:border-[#D6F36B] transition-colors"
                   />
                 </div>
