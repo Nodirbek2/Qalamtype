@@ -19,3 +19,5 @@
 .lb-filter-group{margin:7px 6px 4px;padding:8px 6px 3px;border-top:1px solid #ffffff0d;color:#8997ad;font-size:11px;font-weight:500;letter-spacing:.03em}
 @media(max-width:639px){.lb-filter-trigger{min-height:64px;padding:11px 14px}.lb-filter-option{min-height:46px}.lb-filter-value{font-size:15px}}
 @media(prefers-reduced-motion:reduce){.lb-filter-trigger,.lb-filter-chevron{transition:none}}
+
+.lb-filter-trigger:disabled{opacity:.5;cursor:not-allowed}
