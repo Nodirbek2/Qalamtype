@@ -154,7 +154,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                         ? 'border-[#D6F36B] text-[#F0F3FA]'
                         : 'border-[rgba(240,243,250,0.1)] text-[#A6B1C5]'
                     }`}
-                    title="Go to account page"
+                    title={t('nav_account')}
                   >
                     {userProfile.photoURL ? (
                       <img
