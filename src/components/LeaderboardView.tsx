@@ -1,3 +1,4 @@
+import { interfaceText } from '../data/interfaceCopy';
 import React, { useState, useEffect } from 'react';
 import {
   subscribeToLeaderboard,
@@ -250,7 +251,7 @@ CREATE POLICY "Users insert own result" ON public.results FOR INSERT WITH CHECK 
           </div>
         ) : error && !isTableMissing ? (
           <div className="py-16 text-center text-[#D64545] font-mono text-xs">
-            {error}
+            {interfaceText(siteLanguage, 'loadFailed')}
           </div>
         ) : results.length === 0 ? (
           <div className="py-20 text-center space-y-2">
