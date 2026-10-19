@@ -11,6 +11,8 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
 import { Trophy, Filter, Globe, Zap, Loader2, Database, Copy, Check } from 'lucide-react';
+import { LeaderboardFilter } from './LeaderboardFilter';
+import './leaderboardFilters.css';
 
 export const LeaderboardView: React.FC = () => {
   const { currentUser } = useAuth();
@@ -165,7 +167,7 @@ CREATE POLICY "Users insert own result" ON public.results FOR INSERT WITH CHECK 
                   key={tr}
                   type="button"
                   onClick={() => setFilters((f) => ({ ...f, timeRange: tr }))}
-                  className={`px-3.5 py-1.5 rounded-lg text-xs font-mono font-medium transition-all whitespace-nowrap cursor-pointer ${
+                  className={`px-3.5 py-1.5 rounded-lg text-sm font-sans font-medium transition-all whitespace-nowrap cursor-pointer ${
                     active
                       ? 'bg-[#0D111A] text-[#D6F36B] border border-[rgba(240,243,250,0.12)] shadow-xs'
                       : 'text-[#A6B1C5] hover:text-[#F0F3FA] hover:bg-[rgba(240,243,250,0.04)]'
@@ -182,106 +184,36 @@ CREATE POLICY "Users insert own result" ON public.results FOR INSERT WITH CHECK 
           </div>
         </div>
 
-        {/* Dropdown Filters: Language, Mode, Difficulty */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {/* Language Filter */}
-          <div className="flex items-center space-x-2 bg-[#171E2B] px-3 py-2 rounded-lg border border-[rgba(240,243,250,0.08)]">
-            <Globe className="w-3.5 h-3.5 text-[#A6B1C5] shrink-0" />
-            <select
-              value={filters.language}
-              onChange={(e) =>
-                setFilters((f) => ({ ...f, language: e.target.value as LanguageFilter }))
-              }
-              className="bg-transparent text-xs font-mono text-[#F0F3FA] w-full focus:outline-none cursor-pointer"
-            >
-              <option value="all" className="bg-[#171E2B] text-[#F0F3FA]">
-                {t('lb_all_languages')}
-              </option>
-              <option value="uzbek_latin" className="bg-[#171E2B] text-[#F0F3FA]">
-                {t('lang_uzbek_latin')}
-              </option>
-              <option value="uzbek_cyrillic" className="bg-[#171E2B] text-[#F0F3FA]">
-                {t('lang_uzbek_cyrillic')}
-              </option>
-              <option value="russian" className="bg-[#171E2B] text-[#F0F3FA]">
-                {t('lang_russian')}
-              </option>
-              <option value="english" className="bg-[#171E2B] text-[#F0F3FA]">
-                {t('lang_english')}
-              </option>
-            </select>
-          </div>
-
-          {/* Mode Filter */}
-          <div className="flex items-center space-x-2 bg-[#171E2B] px-3 py-2 rounded-lg border border-[rgba(240,243,250,0.08)]">
-            <Zap className="w-3.5 h-3.5 text-[#A6B1C5] shrink-0" />
-            <select
-              value={filters.modeFilter}
-              onChange={(e) =>
-                setFilters((f) => ({ ...f, modeFilter: e.target.value as ModeFilter }))
-              }
-              className="bg-transparent text-xs font-mono text-[#F0F3FA] w-full focus:outline-none cursor-pointer"
-            >
-              <option value="all" className="bg-[#171E2B] text-[#F0F3FA]">
-                {t('lb_all_modes_durations')}
-              </option>
-              <option value="time" className="bg-[#171E2B] text-[#F0F3FA]">
-                {t('lb_time_mode')}
-              </option>
-              <option value="time_15" className="bg-[#171E2B] text-[#F0F3FA]">
-                15s
-              </option>
-              <option value="time_30" className="bg-[#171E2B] text-[#F0F3FA]">
-                30s
-              </option>
-              <option value="time_60" className="bg-[#171E2B] text-[#F0F3FA]">
-                60s
-              </option>
-              <option value="time_120" className="bg-[#171E2B] text-[#F0F3FA]">
-                120s
-              </option>
-              <option value="words" className="bg-[#171E2B] text-[#F0F3FA]">
-                {t('lb_words_mode')}
-              </option>
-              <option value="words_10" className="bg-[#171E2B] text-[#F0F3FA]">
-                10 {t('mode_words')}
-              </option>
-              <option value="words_25" className="bg-[#171E2B] text-[#F0F3FA]">
-                25 {t('mode_words')}
-              </option>
-              <option value="words_50" className="bg-[#171E2B] text-[#F0F3FA]">
-                50 {t('mode_words')}
-              </option>
-              <option value="words_100" className="bg-[#171E2B] text-[#F0F3FA]">
-                100 {t('mode_words')}
-              </option>
-            </select>
-          </div>
-
-          {/* Difficulty Filter */}
-          <div className="flex items-center space-x-2 bg-[#171E2B] px-3 py-2 rounded-lg border border-[rgba(240,243,250,0.08)]">
-            <Filter className="w-3.5 h-3.5 text-[#A6B1C5] shrink-0" />
-            <select
-              value={filters.difficulty}
-              onChange={(e) =>
-                setFilters((f) => ({ ...f, difficulty: e.target.value as DifficultyFilter }))
-              }
-              className="bg-transparent text-xs font-mono text-[#F0F3FA] w-full focus:outline-none cursor-pointer"
-            >
-              <option value="all" className="bg-[#171E2B] text-[#F0F3FA]">
-                {t('lb_all_difficulties')}
-              </option>
-              <option value="easy" className="bg-[#171E2B] text-[#F0F3FA]">
-                {t('diff_easy')}
-              </option>
-              <option value="medium" className="bg-[#171E2B] text-[#F0F3FA]">
-                {t('diff_medium')}
-              </option>
-              <option value="hard" className="bg-[#171E2B] text-[#F0F3FA]">
-                {t('diff_hard')}
-              </option>
-            </select>
-          </div>
+          <LeaderboardFilter<LanguageFilter>
+            label={t('lb_filter_language')} value={filters.language} icon={<Globe size={17}/>}
+            onChange={language => setFilters(f => ({ ...f, language }))}
+            options={[
+              { value: 'all', label: t('lb_all_languages') },
+              { value: 'uzbek_latin', label: t('lang_uzbek_latin') },
+              { value: 'uzbek_cyrillic', label: t('lang_uzbek_cyrillic') },
+              { value: 'russian', label: t('lang_russian') },
+              { value: 'english', label: t('lang_english') },
+            ]}/>
+          <LeaderboardFilter<ModeFilter>
+            label={t('lb_filter_mode')} value={filters.modeFilter} icon={<Zap size={17}/>}
+            onChange={modeFilter => setFilters(f => ({ ...f, modeFilter }))}
+            options={[
+              { value: 'all', label: t('lb_all_modes_durations') },
+              { value: 'time', label: t('lb_time_mode'), group: t('mode_time') },
+              ...([15, 30, 60, 120] as const).map(n => ({ value: `time_${n}` as ModeFilter, label: `${n}s`, group: t('mode_time') })),
+              { value: 'words', label: t('lb_words_mode'), group: t('mode_words') },
+              ...([10, 25, 50, 100] as const).map(n => ({ value: `words_${n}` as ModeFilter, label: `${n} ${t('mode_words')}`, group: t('mode_words') })),
+            ]}/>
+          <LeaderboardFilter<DifficultyFilter>
+            label={t('lb_filter_difficulty')} value={filters.difficulty} icon={<Filter size={17}/>}
+            onChange={difficulty => setFilters(f => ({ ...f, difficulty }))}
+            options={[
+              { value: 'all', label: t('lb_all_difficulties') },
+              { value: 'easy', label: t('diff_easy') },
+              { value: 'medium', label: t('diff_medium') },
+              { value: 'hard', label: t('diff_hard') },
+            ]}/>
         </div>
       </div>
 
