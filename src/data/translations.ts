@@ -61,6 +61,9 @@ export type TranslationKey =
   | 'results_time_sub'
   | 'results_press_hint'
   // Leaderboard
+  | 'lb_filter_language'
+  | 'lb_filter_mode'
+  | 'lb_filter_difficulty'
   | 'lb_title'
   | 'lb_subtitle'
   | 'lb_live'
@@ -232,6 +235,9 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     results_time_sub: 'testning umumiy davomiyligi',
     results_press_hint: 'keyingi test uchun enter yoki esc tugmasini bosing',
 
+    lb_filter_language: 'Til',
+    lb_filter_mode: 'Rejim',
+    lb_filter_difficulty: 'Qiyinchilik',
     lb_title: 'peshqadamlar jadvali',
     lb_subtitle: "barcha tillar va rejimlar bo'yicha eng yaxshi natijalar",
     lb_live: 'jonli ulanish',
@@ -395,6 +401,9 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     results_time_sub: 'тестнинг умамий давомийлиги',
     results_press_hint: 'кейинги тест учун enter ёки esc тугмасини босинг',
 
+    lb_filter_language: 'Тил',
+    lb_filter_mode: 'Режим',
+    lb_filter_difficulty: 'Қийинчилик',
     lb_title: 'пешқадамлар жадвали',
     lb_subtitle: 'барча тиллар ва режимлар бўйича энг яхши натижалар',
     lb_live: 'жонли уланиш',
@@ -558,6 +567,9 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     results_time_sub: 'общая длительность теста',
     results_press_hint: 'нажмите enter или esc для следующего теста',
 
+    lb_filter_language: 'Язык',
+    lb_filter_mode: 'Режим',
+    lb_filter_difficulty: 'Сложность',
     lb_title: 'глобальный рейтинг',
     lb_subtitle: 'лучшие результаты скоропечатания по языкам и режимам',
     lb_live: 'живая синхронизация',
@@ -721,6 +733,9 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     results_time_sub: 'total test duration',
     results_press_hint: 'press enter or esc for next test',
 
+    lb_filter_language: 'Language',
+    lb_filter_mode: 'Mode',
+    lb_filter_difficulty: 'Difficulty',
     lb_title: 'global rankings',
     lb_subtitle: 'real-time top typing test scores across languages & modes',
     lb_live: 'live sync active',
