@@ -7,3 +7,4 @@
 @media(prefers-reduced-motion:reduce){.qr-page *{animation:none!important;transition:none!important}.qr-reel{scroll-behavior:auto}}
 
 .qr-stage-anchor,.qr-page{scroll-margin-top:12px}.qr-road{height:clamp(240px,36vh,380px)}.qr-page .game-stage-large .qr-sky{height:clamp(60px,12vh,110px)}.qr-page .game-stage-large .qr-road{height:clamp(180px,38vh,380px)}@media(max-width:700px){.qr-road{height:clamp(200px,36vh,290px)}.qr-heading:has(+.qr-stage-anchor) .qr-wallet{display:none}}
+.qr-driver-name{position:absolute;top:-2px;left:50%;transform:translateX(-50%);flex-shrink:0;z-index:4}.qr-racer{justify-content:center}@media(max-width:700px){.qr-racer{width:100px}.qr-driver-name{transform:translateX(-50%);top:-1px}}
