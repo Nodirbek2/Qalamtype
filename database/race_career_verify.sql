@@ -12,7 +12,7 @@ begin
  perform public.finish_race_career(v_id,v_text,9,2);
  select coins into after_coins from public.race_careers where user_id=auth.uid();
  if before_coins<>after_coins then raise exception 'duplicate reward'; end if;
- perform public.equip_race_car('spark');
+ perform public.equip_race_car('tico');
  if (r->>'coins')::int<=0 then raise exception 'missing reward'; end if;
 end $$;
 rollback;
