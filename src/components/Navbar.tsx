@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { gameText } from '../data/gameI18n';
 import { Logo } from './Logo';
-import { LogIn, LogOut, ChevronDown, Trophy, Keyboard, GraduationCap, User as UserIcon, Settings, Info, BookOpen, Gamepad2 } from 'lucide-react';
+import { LogIn, LogOut, ChevronDown, Trophy, Keyboard, GraduationCap, User as UserIcon, Settings, Info, BookOpen, Flag } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
 import { AuthModal } from './AuthModal';
@@ -19,7 +19,7 @@ interface NavbarProps {
 const NAV_ITEMS = [
   { id: 'test', labelKey: 'nav_test', icon: Keyboard, requiresAuth: false },
   { id: 'academy', labelKey: 'nav_academy', icon: GraduationCap, requiresAuth: false },
-  { id: 'games', labelKey: 'games', icon: Gamepad2, requiresAuth: false },
+  { id: 'games', labelKey: 'games', icon: Flag, requiresAuth: false },
   { id: 'leaderboard', labelKey: 'nav_leaderboard', icon: Trophy, requiresAuth: false },
   { id: 'blog', labelKey: 'nav_blog', icon: BookOpen, requiresAuth: false },
 ] as const;

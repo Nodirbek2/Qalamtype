@@ -8,7 +8,7 @@ const BLOG_META: Record<string,{title:string;description:string}> = {
 export const PUBLIC_PAGES = [
   {path:'/', title:'Qalamtype — tez yozish testi va klaviatura mashqlari', description:'O‘zbek, rus va ingliz tilida yozish tezligi va aniqligini sinang. Qalamtype’da bepul typing test, Akademiya darslari va yozish o‘yinlari.'},
   {path:'/academy', title:'Klaviaturada yozishni o‘rganish — Qalamtype Akademiya', description:'Harflar va sodda birikmalardan boshlang. Qalamtype Akademiyada barmoqlar joylashuvi, raqamlar, so‘zlar va jumlalarni bosqichma-bosqich mashq qiling.'},
-  {path:'/games', title:'Tez yozish o‘yinlari — Qalamtype', description:'Qalamtype yozish o‘yinlarida tezlik va aniqlikni mashq qiling. Poyga va boshqa o‘yinlar orqali klaviaturada yozishni qiziqarli tarzda sinang.'},
+  {path:'/games', title:'Yozish poygasi — Qalamtype', description:'Qalamtype yozish poygasida raqiblarni ortda qoldiring. Tangalar yig‘ing, avtomobillar oching va poyga reytingida yuqorilang.'},
   {path:'/leaderboard', title:'Tez yozish reytingi — Qalamtype peshqadamlari', description:'Qalamtype peshqadamlar jadvalidagi yozish natijalarini ko‘ring. O‘z tezlik va aniqligingizni mashq qilib yaxshilang.'},
   {path:'/about', title:'Qalamtype haqida — o‘zbekcha tez yozish platformasi', description:'Qalamtype — klaviaturada yozishni mashq qilish platformasi. O‘zbek lotin va kirill, rus hamda ingliz tillarida test, darslar va o‘yinlar.'},
   {path:'/blog', title:'Tez yozish qo‘llanmalari — Qalamtype Blog', description:'Barmoqlarni joylashtirish, aniqlikni oshirish va samarali mashq qilish haqida o‘zbekcha qo‘llanmalar. Animatsiyalar yordamida o‘rganing va testni sinang.'},

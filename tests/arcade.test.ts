@@ -51,9 +51,9 @@ test('every game translation has all four variants and identical interpolation v
       assert.deepEqual(text.match(/\{\w+\}/g)?.sort()||[],english.match(/\{\w+\}/g)?.sort()||[]);
     }
   }
-  assert.equal(gameText('uzbek_latin','games'),'O‘yinlar');
-  assert.equal(gameText('russian','games'),'Игры');
-  assert.equal(gameText('english','games'),'Games');
+  assert.equal(gameText('uzbek_latin','games'),'Poyga');
+  assert.equal(gameText('russian','games'),'Гонка');
+  assert.equal(gameText('english','games'),'Race');
   assert.equal(gameText('russian','placed',{rank:2}),'Вы финишировали на месте №2');
 });
 test('all literal game labels resolve and both navbar layouts use the translated label',()=>{

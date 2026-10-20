@@ -1,33 +1,20 @@
-import { interfaceText } from '../data/interfaceCopy';
-import { LeaderboardFilter } from './LeaderboardFilter';
-import './leaderboardFilters.css';
-import {BattleArena} from './BattleArena';
-import {GameStage} from './GameStage';
-import {RaceLeaderboard, raceCopy} from './RaceLeaderboard';
-import {BombDefuse, BombDevice} from './BombDefuse';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Swords, Flag, Users, Bot, RotateCcw, Wifi, WifiOff, Trophy, Zap, Globe } from 'lucide-react';
-import { AuthModal } from './AuthModal';
-import { authText } from '../data/authI18n';
-import { useAuth } from '../context/AuthContext';
-import { useSettings } from '../context/SettingsContext';
-
-import { normalize, correctPrefix, initialBattle, battleReducer } from '../lib/arcadeRules';
-import { gameText, GameKey } from '../data/gameI18n';
-import { ARCADE_PASSAGES } from '../data/textCorpus';
-import { WORD_BANKS, GENERAL_VOCABULARY } from '../data/wordBanks';
-import { useArcadeRecords } from '../hooks/useArcadeRecords';
-import { supabase } from '../lib/supabase';
-
-type GameMode = 'race' | 'boss' | 'bomb';
-type RacePhase = 'ready' | 'matching' | 'countdown' | 'racing' | 'finished';
-type Player = { id: string; name: string; progress: number; wpm: number; isBot?: boolean; finishedAt?: number };
-type PresencePlayer = { id: string; name: string; joinedAt: number };
-type StartPayload = { text: string; startsAt: number; roomId: string };
-
-
-const PASSAGES = ARCADE_PASSAGES;
-
+import React,{useCallback,useEffect,useMemo,useRef,useState} from 'react';
+import {supabase} from '../lib/supabase';
+import {normalize,correctPrefix} from '../lib/arcadeRules';
+import {ARCADE_PASSAGES} from '../data/textCorpus';
+import {gameText,type GameKey} from '../data/gameI18n';
+import {raceText as raceTextLabel} from '../data/raceI18n';
+import {useAuth} from '../context/AuthContext';
+import {useSettings} from '../context/SettingsContext';
+import {useRaceCareer} from '../hooks/useRaceCareer';
+import {RaceDashboard} from './RaceDashboard';
+import {AuthModal} from './AuthModal';
+type GameMode='race';
+type RacePhase='ready'|'matching'|'countdown'|'racing'|'finished';
+type Player={id:string;name:string;progress:number;wpm:number;isBot?:boolean;finishedAt?:number};
+type PresencePlayer={id:string;name:string;joinedAt:number};
+type StartPayload={text:string;startsAt:number;roomId:string};
+const PASSAGES=ARCADE_PASSAGES;
 function botPerformance(id: string, raceSeed: number, elapsed: number, difficulty: 'easy'|'medium'|'hard') {
   // Both online players share the round seed; every new race has a new profile.
   let seed = 2166136261;
@@ -55,85 +42,10 @@ function botPerformance(id: string, raceSeed: number, elapsed: number, difficult
   return {characters:Math.max(0,distance),wpm:Math.round(wpm)};
 }
 
-function RaceCar({ color, number }: { color: string; number: number }) {
-  return <svg viewBox="0 0 160 66" aria-hidden="true" style={{width:'100%',filter:'drop-shadow(0 9px 5px #0009)'}}>
-    <ellipse cx="79" cy="56" rx="68" ry="5" fill="#0007" />
-    <path d="M10 40 L22 27 L48 23 L66 8 Q92 3 112 23 L140 29 L154 42 L151 51 L10 51 Z" fill={color} stroke="#ffffff55" strokeWidth="1.5"/>
-    <path d="M54 23 L70 12 L87 11 L88 24 Z M93 11 L105 16 L113 25 L95 24 Z" fill="#112c3c" stroke="#91d9e8"/>
-    <path d="M20 32 L140 34 M51 28 L119 29" stroke="#ffffff88" strokeWidth="2"/>
-    <path d="M6 27 H30 V31 H9 Z" fill="#17212a"/><path d="M138 36 L152 40 L150 44 L137 42 Z" fill="#fff8c9"/>
-    <path d="M15 36 H24 V42 H12" fill="#ff4545"/>
-    <rect x="72" y="31" width="25" height="15" rx="3" fill="#fff"/><text x="84" y="42" textAnchor="middle" fill="#111" fontSize="11" fontWeight="900">{number}</text>
-    {[37,125].map(x=><g key={x}><circle cx={x} cy="49" r="13" fill="#101015" stroke="#343440" strokeWidth="3"/><circle cx={x} cy="49" r="8" fill="#94a3b8"/><circle cx={x} cy="49" r="4" fill="#252530"/><path d={'M'+(x-6)+' 49h12 M'+x+' 43v12'} stroke="#e2e8f0" strokeWidth="2"/></g>)}
-  </svg>;
-}
-
 const BOT_NAMES = ['Azizbek', 'Madina', 'Jasur', 'Shahnoza', 'Bekzod', 'Malika', 'Sardor', 'Nilufar', 'Diyor', 'Zuhra', 'Oybek', 'Sevara'];
 const clientId = () => { try{return crypto.randomUUID()}catch{return Math.random().toString(36).slice(2)} };
 const CLIENT_ID = clientId();
 const clamp = (value: number, min = 0, max = 100) => Math.max(min, Math.min(max, value));
-
-function WordBoss({language, difficulty, onResult, onBusy}: {language:keyof typeof PASSAGES; difficulty: 'easy'|'medium'|'hard'; onResult: ReturnType<typeof useArcadeRecords>['save']; onBusy:(busy:boolean)=>void}) {
-  const {siteLanguage}=useSettings();
-  const g = (key:GameKey,vars:Record<string,string|number>={})=>gameText(siteLanguage,key,vars);
-  const interval={easy:12000,medium:8000,hard:6000}[difficulty];
-  const saved=useRef(false);
-  const [battle,dispatch]=React.useReducer(battleReducer,initialBattle);
-  const [words,setWords]=useState<string[]>([]);
-  const [input,setInput]=useState('');
-  const entry=useRef<HTMLInputElement>(null);
-  const wave=Math.min(2,Math.floor(battle.hits/6));
-  const names=[g('boss1'),g('boss2'),g('boss3')];
-  const hp=battle.status==='won'?0:100-(battle.hits%6)/6*100;
-  const remaining=Math.max(0,interval/1000-((battle.now-battle.started)/1000)%(interval/1000));
-  const active=battle.status==='playing' && !battle.paused;
-  useEffect(()=>{if(!active)return; const id=window.setInterval(()=>dispatch({type:'tick',now:Date.now()}),100);return()=>window.clearInterval(id)},[active]);
-  useEffect(()=>{if(active)entry.current?.focus()},[active]);
-  useEffect(()=>{onBusy(battle.status==='playing');return()=>onBusy(false)},[battle.status,onBusy]);
-  useEffect(()=>{
-    if(battle.status!=='won' && battle.status!=='lost')return;
-    if(saved.current)return;
-    saved.current=true;onResult({kind:'boss',won:battle.status==='won',combo:battle.best});
-  },[battle.status,battle.best,onResult]);
-  useEffect(()=>{const hide=()=>{if(document.hidden)dispatch({type:'pause',now:Date.now()})};document.addEventListener('visibilitychange',hide);return()=>document.removeEventListener('visibilitychange',hide)},[]);
-  const start=()=>{
-    saved.current=false;
-    const bank=difficulty==='easy' ? WORD_BANKS[language].easy.words || [] : GENERAL_VOCABULARY[language];
-    const candidates=bank.filter(word => difficulty==='easy' ? word.length<=7 : difficulty==='medium' ? word.length>=4 && word.length<=11 : word.length>=8);
-    const pool=[...(candidates.length>=18 ? candidates : bank)];
-    for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
-    setWords(pool.slice(0,18));setInput('');dispatch({type:'start',now:Date.now(),interval});
-  };
-  const attack=(value:string)=>{
-    if(!active || !value.trim())return;
-    if(normalize(value.trim()).toLocaleLowerCase()===normalize(words[battle.hits]).toLocaleLowerCase()) {dispatch({type:'hit',now:Date.now()});setInput('')}
-    else dispatch({type:'miss',now:Date.now()});
-  };
-  const seconds=Math.round(((battle.ended||battle.now)-battle.started)/1000);
-  return <div className="wb-shell">
-    <style>{`
-      .wb-shell{background:#101021;border:1px solid #52416d;border-radius:22px;padding:22px;color:#eee8ff}.wb-top{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;font:12px monospace;color:#c6b7e3}.wb-top b{color:#bfa0ff}.wb-meter{height:9px;background:#ffffff12;border-radius:8px;overflow:hidden;margin:8px 0 16px}.wb-meter i{display:block;height:100%;background:linear-gradient(90deg,#e95588,#b079ef);transition:width .35s}.wb-arena{height:270px;border-radius:16px;position:relative;overflow:hidden;background:radial-gradient(ellipse at 70% 25%,#493365,transparent 60%),linear-gradient(#141327,#252035);border-bottom:7px solid #554661}
-      .wb-moon{position:absolute;top:22px;right:22%;width:65px;height:65px;border-radius:50%;background:#dccbfa;box-shadow:0 0 70px #bc82fa77}.wb-floor{position:absolute;bottom:0;width:100%;height:50px;background:repeating-linear-gradient(100deg,#342f43 0 40px,#494050 41px 44px);transform:perspective(90px) rotateX(25deg)}
-      .wb-hero{position:absolute;left:8%;bottom:25px;width:85px;filter:drop-shadow(0 0 18px #64dddc88)}.wb-monster{position:absolute;right:7%;bottom:20px;width:155px;filter:drop-shadow(0 0 20px #b964d466);animation:wb-float 2s ease-in-out infinite alternate}.wb-monster.wb-defeated{transform:rotate(18deg) scale(.7);opacity:.25;animation:none;transition:all .7s}
-      .wb-bolt{position:absolute;left:20%;bottom:85px;width:60px;height:12px;background:#caffff;box-shadow:0 0 30px #67f9ff;border-radius:50%;animation:wb-bolt .5s ease-out forwards}.wb-bolt.wb-enemy{left:auto;right:20%;background:#ff8aa6;box-shadow:0 0 30px #ff4266;animation:wb-enemy .5s ease-out forwards}.wb-damage{position:absolute;right:16%;top:60px;font:bold 23px monospace;color:#ffdeb0;animation:wb-number .7s forwards}.wb-shield{position:absolute;left:5%;bottom:18px;width:115px;height:130px;border:3px solid #76f3d6;border-radius:50%;animation:wb-number .7s forwards}.wb-instructions{font-size:13px;color:#bcb2ca;line-height:1.7;margin:16px 0}.wb-entry{width:100%;background:#090b16;border:1px solid #72618f;border-radius:12px;padding:14px;color:white;outline:none}.wb-entry:focus{border-color:#a994ff;box-shadow:0 0 0 3px #a994ff22}.wb-word{text-align:center;font:bold 30px monospace;letter-spacing:1px;margin:16px 0 8px;color:#e5daff;overflow-wrap:anywhere}.wb-button{border:0;border-radius:12px;background:#b59aff;color:#18102c;padding:12px 24px;font-weight:bold;cursor:pointer}.wb-stats{display:flex;flex-wrap:wrap;gap:18px;font:12px monospace;color:#cfc1e8;margin-top:16px}.wb-result{text-align:center;padding:22px 8px}.wb-result h2{font-size:25px;font-weight:bold;margin-bottom:8px}
-      @keyframes wb-float{to{transform:translateY(-7px)}}@keyframes wb-bolt{to{left:78%;opacity:0;transform:scale(1.8)}}@keyframes wb-enemy{to{right:78%;opacity:0;transform:scale(1.8)}}@keyframes wb-number{to{transform:translateY(-32px);opacity:0}}
-      @media(max-width:500px){.wb-shell{padding:14px}.wb-arena{height:235px}.wb-monster{width:125px;right:4%}.wb-hero{left:4%;width:70px}.wb-top{font-size:10px}.wb-word{font-size:25px}}
-      @media(prefers-reduced-motion:reduce){.wb-monster,.wb-bolt,.wb-damage,.wb-shield{animation:none}.wb-meter i{transition:none}}
-    `}</style>
-    <div className="wb-top"><span>{g('boss')} · {g('stage',{wave:wave+1})}</span><b>{names[wave]}</b></div>
-    <div className="wb-meter" role="progressbar" aria-label={g('bossHealth')} aria-valuenow={Math.round(hp)} aria-valuemin={0} aria-valuemax={100}><i style={{width:hp+'%'}}/></div>
-    <BattleArena battle={battle} wave={wave} heroLabel={g('wizard')} enemyLabel={names[wave]} arenaLabel={g('arena')} hitLabel={g('hit')} shieldLabel={g('shield')}/>
-    <div className="wb-top" style={{marginTop:16}}><span>{g('yourHealth')} · {battle.health}/100</span><span>{active?g('nextAttack',{seconds:remaining.toFixed(1)}):g('bossInfo')}</span></div>
-    <div className="wb-meter" role="progressbar" aria-label={g('yourHealth')} aria-valuenow={battle.health} aria-valuemin={0} aria-valuemax={100}><i style={{width:battle.health+'%',background:'#52cbb3'}}/></div>
-    {battle.status==='ready' ? <div className="wb-result"><h2>{g('fightWords')}</h2><p className="wb-instructions">{g('bossRules',{interval:interval/1000})}</p><button className="wb-button" onClick={start}>{g('startBattle')}</button></div> : battle.paused ? <div className="wb-result" role="status"><h2>{g('paused')}</h2><button className="wb-button" onClick={()=>dispatch({type:'resume',now:Date.now()})}>{g('resume')}</button></div> : active ? <>
-      <button className="wb-button" onClick={()=>dispatch({type:'pause',now:Date.now()})}>{g('pause')}</button>
-      <div className="wb-word">{words[battle.hits]}</div><p style={{textAlign:'center',fontSize:12,color:'#b3a5c7',marginBottom:12}}>{g('attackHint')}</p>
-      <p role="status" aria-live="polite" style={{minHeight:20,color:'#f6b5b5'}}>{battle.effect==='miss'?g('wrongWord'):''}</p>
-      <form onSubmit={e=>{e.preventDefault();attack(input)}}><input ref={entry} className="wb-entry" value={input} aria-label={g('attackInput')} onChange={e=>{const value=e.target.value;if(/\s$/.test(value)){setInput(value.trim());attack(value)}else setInput(value)}} onPaste={e=>e.preventDefault()} autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false}/><button className="wb-button" type="submit" style={{marginTop:12}}>{g('attack')}</button></form>
-      <div className="wb-stats"><span>{g('hits',{hits:battle.hits})}</span><span>{g('combo',{combo:battle.combo})}</span><span>{g('time',{seconds})}</span></div>
-    </> : <div className="wb-result" role="status"><h2>{battle.status==='won'?g('wonBattle'):g('lostBattle')}</h2><p className="wb-instructions">{g('battleResult',{hits:battle.hits,best:battle.best,mistakes:battle.mistakes,seconds})}</p><button className="wb-button" onClick={start}>{g('again')}</button></div>}
-  </div>;
-}
 
 export const GamesView: React.FC = () => {
   const { currentUser, userProfile } = useAuth();
@@ -144,25 +56,7 @@ export const GamesView: React.FC = () => {
   const [selectedDifficulty,setDifficulty]=useState<'easy'|'medium'|'hard'>('medium');
   const [gameMode, setGameMode] = useState<GameMode>('race');
   const difficulty = gameMode==='race' ? 'medium' : selectedDifficulty;
-  const c=raceCopy[siteLanguage];
-  const [rankRevision,setRankRevision]=useState(0);
-  const [scoreError,setScoreError]=useState(false);
-  const pendingScores=useRef<{id:string;user_id:string;words:number;wpm:number}[]>([]);
-  const savingScore=useRef(false);
-  const persistScore=useCallback(async()=>{
-    if(savingScore.current)return;
-    savingScore.current=true;
-    try {
-      while(pendingScores.current.length){
-        const score=pendingScores.current[0];
-        const {error}=await supabase.from('race_finishes').upsert(score,{onConflict:'id',ignoreDuplicates:true});
-        if(error){setScoreError(true);return}
-        pendingScores.current.shift();setScoreError(false);setRankRevision(value=>value+1);
-      }
-    } catch {setScoreError(true)} finally {savingScore.current=false}
-  },[]);
-  const [bossBusy,setBossBusy]=useState(false);
-  const {records,save}=useArcadeRecords(typingLanguage+'.'+difficulty, currentUser?.id);
+  const career=useRaceCareer(currentUser?.id,typingLanguage);
   const [paused,setPaused]=useState(false);
   const [elapsed,setElapsed]=useState(0);
   const [timedOut,setTimedOut]=useState(false);
@@ -173,7 +67,6 @@ export const GamesView: React.FC = () => {
   const attempts=useRef({total:0,wrong:0});
   const generation=useRef(0);
   const playerState=useRef<Player[]>([]);
-  const [bossSession, setBossSession] = useState(0);
   const [phase, setPhase] = useState<RacePhase>('ready');
   const [online, setOnline] = useState(false);
   const [raceText, setRaceText] = useState('');
@@ -189,7 +82,7 @@ export const GamesView: React.FC = () => {
   const startTimerRef = useRef<number | null>(null);
   const handshakeTimerRef=useRef<number|null>(null);
   const matchTimerRef = useRef<number | null>(null);
-  const playerName = userProfile?.username || 'Mehmon';
+  const playerName = userProfile?.username || raceTextLabel(siteLanguage,'guest');
   playerState.current=players;
   const wordCount = useMemo(() => raceText.trim() ? raceText.trim().split(/\s+/).length : 0, [raceText]);
   const typedWords = useMemo(() => typed.trim().split(/\s+/).filter(Boolean).length, [typed]);
@@ -226,11 +119,7 @@ export const GamesView: React.FC = () => {
     if(finishedRef.current)return;
     finishedRef.current=true;
     setElapsed(Math.max(0,(finishTime-startedAtRef.current)/1000));
-    save({kind:'race',won:!playerState.current.some(p=>p.id!==CLIENT_ID && p.finishedAt && p.finishedAt<=finishTime),wpm:finalWpm});
-    if(currentUser && finalWpm>0 && finalWpm<=400){
-      pendingScores.current.push({id:crypto.randomUUID(),user_id:currentUser.id,words:raceText.trim().split(/\s+/).length,wpm:finalWpm});
-      void persistScore();
-    }
+    career.complete(raceText,Math.max(.001,(finishTime-startedAtRef.current)/1000),attempts.current.wrong);
     setPhase('finished');
     setPlayers((current) => current.map((player) =>
       player.id === CLIENT_ID ? { ...player, progress: 100, wpm: finalWpm, finishedAt: finishTime } : player
@@ -238,9 +127,10 @@ export const GamesView: React.FC = () => {
     if (raceRef.current && online) {
       raceRef.current.send({ type: 'broadcast', event: 'race-finish', payload: { id: CLIENT_ID, progress: 100, wpm: finalWpm, finishedAt: finishTime } });
     }
-  }, [online, wpm, save, currentUser, raceText, persistScore]);
+  }, [online, wpm, raceText, career.complete]);
 
   const beginCountdown = useCallback((text: string, participants: Player[], startAt = Date.now() + 4000) => {
+    career.begin(text,startAt);
     finishedRef.current=false;
     botRaceSeedRef.current=startAt;
     pausedRef.current=false;setPaused(false);setElapsed(0);setTimedOut(false);setAccuracy(100);
@@ -262,7 +152,7 @@ export const GamesView: React.FC = () => {
     };
     startTimerRef.current = window.setInterval(tick, 150);
     tick();
-  }, [clearTimers]);
+  }, [clearTimers,career.begin]);
 
   const startSolo = useCallback((mode: GameMode = gameMode) => {
     void cleanupChannels();
@@ -448,7 +338,6 @@ export const GamesView: React.FC = () => {
   const reset = useCallback(() => {
     void cleanupChannels();
     pausedRef.current=false;setPaused(false);setElapsed(0);setTimedOut(false);
-    setBossSession(n=>n+1);
     setPhase('ready');
     setOnline(false);
     setTyped('');
@@ -461,104 +350,5 @@ export const GamesView: React.FC = () => {
   const leaderboard = [...players].sort((a, b) => a.finishedAt && b.finishedAt ? a.finishedAt - b.finishedAt : b.progress - a.progress);
   const rank = leaderboard.findIndex((player) => player.id === CLIENT_ID) + 1;
 
-  return (
-    <section className="arcade-page w-full max-w-5xl mx-auto py-5 sm:py-10">
-      <style>{`
-        .race-world{overflow:hidden;border-radius:18px;border:1px solid #405061;margin-bottom:24px;background:#152434}
-        .race-sky{height:94px;position:relative;padding:20px;background:linear-gradient(135deg,#0b2540,#245979 65%,#e79570);overflow:hidden;display:flex;flex-direction:column;gap:8px;font:10px monospace;letter-spacing:3px;color:#d2ecff}
-        .race-sky b{font:italic 900 22px sans-serif;letter-spacing:1px;z-index:1;color:white}
-        .race-sun{position:absolute;right:12%;top:18px;width:60px;height:60px;border-radius:50%;background:#ffdda0;box-shadow:0 0 70px #ffc57a88}
-        .race-stands{display:flex;gap:10px;height:22px;padding:5px;background:#15202e;border-bottom:4px solid #718096;overflow:hidden}.race-stands i{min-width:13px;border-radius:50%;background:#acbace}
-        .race-road{position:relative;background:repeating-linear-gradient(5deg,#252c34 0px,#252c34 3px,#29313a 4px,#29313a 5px)}
-        .race-lane{height:96px;position:relative;border-bottom:2px dashed #ffffff40;margin:0 18px}.race-lane:last-child{border:0}
-        .race-name{position:absolute;top:7px;left:0;font:11px monospace;color:#fff;z-index:2;text-shadow:0 2px 3px black}.race-name small{color:#b6c7d7;font-size:9px}
-        .race-car-space{position:absolute;left:0;right:100px;top:29px}.race-car{position:absolute;width:100px;transition:left .35s cubic-bezier(.2,.65,.3,1);will-change:left;z-index:3}
-        .race-finish{position:absolute;right:25px;width:14px;top:0;bottom:0;background:repeating-conic-gradient(#fff 0% 25%,#111 0% 50%) 0 0/14px 14px;opacity:.85;z-index:1}
-        .race-curb{height:13px;background:repeating-linear-gradient(90deg,#e65341 0 30px,#e9e9df 30px 60px)}
-        .race-exhaust{position:absolute;width:26px;height:8px;left:-15px;top:30px;background:linear-gradient(90deg,transparent,#ffd76a);border-radius:50%;animation:exhaust .18s infinite alternate}
-        [data-running=true] .race-car svg{animation:engine .15s infinite alternate}
-        @keyframes engine{to{transform:translateY(-.7px)}}@keyframes exhaust{to{transform:scaleX(1.6);opacity:.4}}
-        @media(prefers-reduced-motion:reduce){.race-car{transition:none}[data-running=true] .race-car svg,.race-exhaust{animation:none}}
-        @media(max-width:500px){.race-lane{height:87px;margin:0 10px}.race-car{width:80px}.race-car-space{right:80px}.race-sky b{font-size:18px}}
-      `}</style>
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-7">
-        <div>
-          <div className="flex items-center gap-2 text-[#D6F36B] font-mono text-xs uppercase tracking-[0.2em] mb-2"><Zap className="w-4 h-4" /> {g('arcade')}</div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-[#F0F3FA]">{gameMode === 'bomb' ? interfaceText(siteLanguage,'bombTitle') : gameMode === 'boss' ? g('bossTitle') : g('raceTitle')}</h1>
-          <p className="text-sm text-[#A6B1C5] mt-2">{g('subtitle')}</p>
-        </div>
-      </div>
-
-      {gameMode!=='bomb' && <div className="arcade-controls flex flex-wrap gap-4 mb-5 rounded-2xl border border-white/10 bg-[#171E2B] p-4">
-        {gameMode==='boss' && <label className="flex flex-col gap-2 text-xs text-[#b7afa1]">{g('difficulty')}<select aria-label={g('difficulty')} disabled={bossBusy || (phase!=='ready' && phase!=='finished')} value={difficulty} onChange={e=>{reset();setDifficulty(e.target.value as typeof difficulty)}} className="bg-[#222D40] rounded-lg px-3 py-2 text-[#F0F3FA]">{(['easy','medium','hard'] as const).map(v=><option key={v} value={v}>{g(v)}</option>)}</select></label>}
-        <div className="w-full sm:w-64"><LeaderboardFilter label={g('language')} icon={<Globe size={18}/>} disabled={bossBusy || (phase!=='ready' && phase!=='finished')} value={typingLanguage} options={(['uzbek_latin','uzbek_cyrillic','russian','english'] as const).map(value=>({value,label:g(value)}))} onChange={value=>{reset();setTypingLanguage(value)}}/></div>
-        {currentUser ? (<div className="flex-1 text-xs min-w-48"><b>{g('record')}</b><div className="flex flex-wrap gap-4 mt-2 text-[#e8c186]"><span>{g('bestRace')}: {records.bestWpm} WPM</span><span>{g('wins')}: {records.wins+records.bossWins}</span><span>{g('bestCombo')}: ×{records.bestCombo}</span></div><p className="text-[#A6B1C5] mt-2">{g('localRecord')}</p></div>) : <div className="flex-1 text-sm"><p className="text-[#A6B1C5] mb-2">{authText(siteLanguage,"guestResults")}</p><button onClick={()=>setSignupOpen(true)} className="rounded-xl bg-[#D6F36B] px-4 py-3 font-semibold text-[#0D111A]">{authText(siteLanguage,"saveResults")}</button></div>}
-      </div>}
-      <div className="game-library grid sm:grid-cols-3 gap-5 mb-7">
-        <button disabled={bossBusy || (phase !== 'ready' && phase !== 'finished')} aria-pressed={gameMode === 'race'} onClick={() => { reset(); setGameMode('race'); }} className={`game-card rounded-2xl text-left border transition-colors ${gameMode === 'race' ? 'border-[#D6F36B]/60 bg-[#D6F36B]/10' : 'border-white/10 bg-[#171E2B]'}`}>
-          <img className="game-cover" src="/images/sprint-race.webp" alt="" width="1200" height="600" /><div className="game-card-copy"><span className="game-tag">01 · {g('race')}</span><div className="flex items-center gap-2 font-bold"><Flag className="w-4 h-4 text-[#D6F36B]" /> {g('race')}</div><p className="text-xs text-[#A6B1C5] mt-1">{g('raceDesc')}</p><span className="game-launch">{g('race')} <span aria-hidden="true">↗</span></span></div>
-        </button>
-        <button disabled={bossBusy || (phase !== 'ready' && phase !== 'finished')} aria-pressed={gameMode === 'boss'} onClick={() => { reset(); setGameMode('boss'); }} className={`game-card rounded-2xl text-left border transition-colors ${gameMode === 'boss' ? 'border-[#D6F36B]/60 bg-[#D6F36B]/10' : 'border-white/10 bg-[#171E2B]'}`}>
-          <img className="game-cover" src="/images/word-boss.webp" alt="" width="1200" height="600" /><div className="game-card-copy"><span className="game-tag">02 · {g('boss')}</span><div className="flex items-center gap-2 font-bold"><Swords className="w-4 h-4 text-[#D6F36B]" /> {g('boss')}</div><p className="text-xs text-[#A6B1C5] mt-1">{g('bossDesc')}</p><span className="game-launch">{g('boss')} <span aria-hidden="true">↗</span></span></div>
-        </button>
-        <button disabled={bossBusy || (phase !== 'ready' && phase !== 'finished')} aria-pressed={gameMode === 'bomb'} onClick={()=>{reset();setGameMode('bomb')}} className={`game-card rounded-2xl text-left border ${gameMode==='bomb'?'border-orange-400/60 bg-orange-400/10':'border-white/10 bg-[#171E2B]'}`}>
-          <div className="bomb-cover"><BombDevice remaining={30}/></div><div className="game-card-copy"><span className="game-tag">03 · {interfaceText(siteLanguage,'bombTag')}</span><div className="font-bold">{interfaceText(siteLanguage,'bombTitle')}</div><p className="text-xs text-[#A6B1C5] mt-1">{interfaceText(siteLanguage,'bombDesc')}</p><span className="game-launch">{interfaceText(siteLanguage,'bombLaunch')} ↗</span></div>
-        </button>
-      </div>
-
-      <GameStage key={gameMode} enabled={gameMode!=='bomb'} expandLabel={c[0]} shrinkLabel={c[1]}>
-      {gameMode === 'bomb' ? <BombDefuse key={typingLanguage+difficulty} language={typingLanguage} difficulty={difficulty} onBusy={setBossBusy}/> : gameMode === 'boss' ? <WordBoss key={bossSession + typingLanguage} language={typingLanguage} difficulty={difficulty} onResult={save} onBusy={setBossBusy}/> : phase === 'ready' || phase === 'matching' ? (
-        <div className="rounded-3xl border border-white/10 bg-[#171E2B] p-6 sm:p-10 text-center">
-          <div className="mx-auto mb-4 w-14 h-14 rounded-2xl bg-[#D6F36B]/10 flex items-center justify-center text-[#D6F36B]">{gameMode === 'race' ? <Flag /> : <Swords />}</div>
-          <h2 className="text-xl font-bold">{g(phase === 'matching' ? 'searching' : 'ready')}</h2>
-          <p className="text-sm text-[#A6B1C5] mt-2">{phase === 'matching' ? g(message || 'searching') : g('raceInfo')+' · '+g('roundLimit')}</p>
-          <div className="mt-6 flex flex-col sm:flex-row justify-center gap-3">
-            <button disabled={phase === 'matching'} onClick={() => startSolo(gameMode)} className="inline-flex justify-center items-center gap-2 rounded-xl bg-[#D6F36B] px-5 py-3 font-bold text-[#0D111A] disabled:opacity-50"><Bot className="w-4 h-4" /> {g('solo')}</button>
-            {gameMode === 'race' && <button disabled={phase === 'matching'} onClick={() => void startOnline()} className="inline-flex justify-center items-center gap-2 rounded-xl border border-white/15 px-5 py-3 font-bold hover:border-[#D6F36B] disabled:opacity-50"><Users className="w-4 h-4" /> {g('quick')}</button>}
-          </div>
-          {phase === 'matching' && <button className="mt-4 text-xs text-[#A6B1C5] underline" onClick={reset}>{g('cancel')}</button>}
-          {message && phase !== 'matching' && <p className="mt-4 text-xs text-[#A6B1C5]">{message && g(message)}</p>}
-        </div>
-      ) : (
-        <>
-          {phase === 'finished' && <div className="mb-4 rounded-2xl border border-[#D6F36B]/30 bg-[#D6F36B]/10 p-4 flex items-center gap-3"><Trophy className="text-[#D6F36B]" /><div><b>{timedOut ? g('dnf') : rank === 1 ? g('winner') : g('placed',{rank})}</b><p className="text-xs text-[#A6B1C5]">{players.find(p=>p.id===CLIENT_ID)?.wpm || 0} {g('wpm')} · {g('wordsTyped',{count:typedWords})}</p></div></div>}
-          <div className="rounded-3xl border border-white/10 bg-[#171E2B] p-4 sm:p-7">
-            {message && <p role="status" className="text-xs text-[#c7bbaa] mb-3">{g(message)}</p>}
-            {phase === 'countdown' && <div className="mb-5 text-center text-5xl font-black text-[#D6F36B] animate-pulse">{g('countdown',{count:countdown})}</div>}
-            <div className="race-world" data-running={phase === 'racing' && !paused}>
-              <div className="race-sky" style={{backgroundImage:"linear-gradient(90deg,#0d111acc,transparent),url(/images/sprint-race.webp)",backgroundSize:"cover",backgroundPosition:"center 55%"}}><span>{g('grandPrix')}</span><b>{g(phase === 'finished' ? 'finish' : phase === 'countdown' ? 'engines' : 'circuit')}</b><div className="race-sun" /></div>
-              <div className="race-stands">{Array.from({length:35},(_,i)=><i key={i} style={{opacity:0.3+(i%4)*0.2}} />)}</div>
-              <div className="race-road">
-                <div className="race-finish" />
-                {(players.length ? players : [{id:CLIENT_ID,name:playerName,progress:0,wpm:0},...BOT_NAMES.slice(0,3).map((name,i)=>({id:'demo'+i,name,progress:0,wpm:0,isBot:true}))]).map((player,i)=><div className="race-lane" key={player.id}>
-                  <div className="race-name">{player.id === CLIENT_ID ? g('you') : player.name} <small>{player.isBot ? g('bot') : ''} · {player.wpm} {g('wpm')}</small></div>
-                  <div className="race-car-space"><div className="race-car" style={{left:clamp(player.progress)+'%'}}><RaceCar color={['#f97345','#38bdf8','#a78bfa','#facc15'][i%4]} number={i+1}/>{phase === 'racing' && !paused && player.wpm>0 && <span className="race-exhaust"/>}</div></div>
-                </div>)}
-              </div>
-              <div className="race-curb" />
-            </div>
-            {phase !== 'finished' && <div className="rounded-xl bg-black/25 p-4 sm:p-6 mb-4 font-mono text-lg sm:text-xl leading-9 break-words select-none">{raceText.split('').map((char, i) => <span key={i} className={i < typed.length ? (normalize(typed[i]) === normalize(char) ? 'text-[#71D9AF]' : 'text-[#D64545] bg-[#D64545]/15') : i === typed.length ? 'text-[#F0F3FA] border-l-2 border-[#D6F36B]' : 'text-[#748199]'}>{char}</span>)}</div>}
-            {phase === 'racing' && !paused && <input autoFocus={typeof window !== 'undefined' && window.matchMedia('(hover: hover) and (pointer: fine)').matches} value={typed} onChange={onType} autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false} onPaste={(event) => event.preventDefault()} placeholder={g('placeholder')} className="w-full rounded-xl bg-black/30 border border-white/10 px-4 py-3 font-mono text-sm outline-none focus:border-[#D6F36B]" aria-label={g('raceInput')} />}
-            {phase==='racing' && !online && <div className="mt-4"><button className="rounded-lg border border-white/20 px-4 py-2" onClick={paused?resumeRace:pauseRace}>{g(paused?'resume':'pause')}</button><p className="text-xs text-[#A6B1C5] mt-2" role="status">{g(paused?'paused':'pauseHint')}</p></div>}
-            {(phase==='racing' || phase==='finished') && <div className="flex flex-wrap gap-5 mt-4 text-sm font-mono"><span>{g('accuracy')}: {accuracy}%</span><span>{g('elapsed')}: {g('seconds',{value:Math.floor(elapsed)})}</span></div>}
-            {phase === 'countdown' && <p className="text-center text-xs text-[#A6B1C5]">{g('getReady')}</p>}
-            <div className="mt-4 flex justify-between text-xs text-[#A6B1C5]"><span>{g('complete',{value:Math.round(progress)})}</span><span>{phase==='finished'?(players.find(p=>p.id===CLIENT_ID)?.wpm||0):wpm} {g('wpm')} · {g(online ? 'online' : 'soloLabel')}</span></div>
-            {phase === 'finished' && <button onClick={reset} className="mt-5 inline-flex items-center gap-2 rounded-xl bg-[#D6F36B] px-4 py-2 font-bold text-[#0D111A]"><RotateCcw className="w-4 h-4" /> {g('again')}</button>}
-            {online && <p className="mt-3 flex items-center gap-1 text-[11px] text-[#A6B1C5]"><Wifi className="w-3 h-3" /> {g('live')}</p>}
-          </div>
-        </>
-      )}
-      {gameMode === 'race' && <p className="mt-4 flex items-center justify-center gap-2 text-[11px] text-[#748199]"><WifiOff className="w-3 h-3" /> {g('rules')}</p>}
-      {gameMode==='race' && <>
-        {scoreError && <button type="button" role="alert" className="race-save-retry" onClick={()=>void persistScore()}>{c[11]}</button>}
-        <RaceLeaderboard language={siteLanguage} userId={currentUser?.id} revision={rankRevision}/>
-      </>}
-      </GameStage>
-      <AuthModal isOpen={signupOpen} initialMode="signup" onClose={closeSignup} />
-    </section>
-  );
+  return <><RaceDashboard language={siteLanguage} typingLanguage={typingLanguage} setTypingLanguage={setTypingLanguage} userId={currentUser?.id} name={playerName} phase={phase} players={players} me={CLIENT_ID} text={raceText} typed={typed} progress={progress} wpm={phase==='finished'?(players.find(p=>p.id===CLIENT_ID)?.wpm||0):wpm} accuracy={accuracy} elapsed={elapsed} countdown={countdown} rank={rank} paused={paused} online={online} timedOut={timedOut} message={message?g(message):''} onType={onType} start={()=>startSolo()} startOnline={()=>void startOnline()} reset={reset} pause={pauseRace} resume={resumeRace} signup={()=>setSignupOpen(true)} career={career}/><AuthModal isOpen={signupOpen} initialMode="signup" onClose={closeSignup}/></>;
 };
-
-
-
-

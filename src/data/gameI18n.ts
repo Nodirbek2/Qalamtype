@@ -1,6 +1,6 @@
 import type { Language } from '../types';
 const english = {
-  "games": "Games",
+  "games": "Race",
   "arcade": "Qalamtype Arcade",
   "raceTitle": "Type. Race. Win.",
   "bossTitle": "Word Boss · Spell battle",
@@ -94,7 +94,7 @@ const english = {
 export type GameKey = keyof typeof english;
 const dictionaries: Record<Language, Record<GameKey, string>> = {english,
 uzbek_latin: {
-  "games": "O‘yinlar",
+  "games": "Poyga",
   "arcade": "Qalamtype o‘yinlari",
   "raceTitle": "Yozing. Poyga qiling. Yuting.",
   "bossTitle": "So‘zlar jangi",
@@ -186,7 +186,7 @@ uzbek_latin: {
   "hurt": "Boss hujumi!"
 },
 russian: {
-  "games": "Игры",
+  "games": "Гонка",
   "arcade": "Игры Qalamtype",
   "raceTitle": "Печатай. Гоняй. Побеждай.",
   "bossTitle": "Word Boss · Битва слов",
@@ -278,7 +278,7 @@ russian: {
   "hurt": "Атака босса!"
 },
 uzbek_cyrillic: {
-  "games": "Ўйинлар",
+  "games": "Пойга",
   "arcade": "Qalamtype ўйинлари",
   "raceTitle": "Ёзинг. Пойга қилинг. Ютинг.",
   "bossTitle": "Сўзлар жанги",
