@@ -1,6 +1,6 @@
 import {useCallback,useEffect,useRef,useState} from 'react';
 import {supabase} from '../lib/supabase';
-import {addReward,emptyCareer,equipCar,readGuestCareer,rewardFor,type Career,type Reward} from '../lib/raceCareer';
+import {CAREER_STORAGE,addReward,emptyCareer,equipCar,readGuestCareer,rewardFor,type Career,type Reward} from '../lib/raceCareer';
 import type {Language} from '../types';
 export function useRaceCareer(userId:string|undefined,language:Language){
  const [career,setCareer]=useState<Career>(emptyCareer);const [reward,setReward]=useState<Reward|null>(null);const [saving,setSaving]=useState(false);const [failed,setFailed]=useState(false);const [revision,setRevision]=useState(0);
@@ -15,11 +15,11 @@ export function useRaceCareer(userId:string|undefined,language:Language){
    if(item.owner!==account.current)throw Error('account_changed');
    let r=rewardFor(item.text,item.seconds,item.errors);
    if(item.owner){const id=await session.current;if(!id)throw Error('session_unavailable');const {data,error}=await supabase.rpc('finish_race_career',{p_session:id,p_text:item.text,p_seconds:item.seconds,p_errors:item.errors});if(error)throw error;r=data as Reward;if(item.owner!==account.current)return;await reload();}
-   else {const next=addReward(readGuestCareer(),r,item.seconds);localStorage.setItem('qalamtype-race-career-v1',JSON.stringify(next));setCareer(next);}
+   else {const next=addReward(readGuestCareer(),r,item.seconds);localStorage.setItem(CAREER_STORAGE,JSON.stringify(next));setCareer(next);}
    setReward(r);pending.current=null;setRevision(n=>n+1);
   }catch{setFailed(true)}finally{setSaving(false);lock.current=false;}
  },[reload]);
  const complete=useCallback((text:string,seconds:number,errors:number)=>{pending.current={text,seconds,errors,owner:userId};void persist()},[userId,persist]);
- const equip=async(id:string)=>{if(lock.current)return;lock.current=true;setSaving(true);setFailed(false);try{if(userId){const {data,error}=await supabase.rpc('equip_race_car',{p_car:id});if(error)throw error;if(account.current===userId)setCareer((Array.isArray(data)?data[0]:data) as Career);}else{const next=equipCar(readGuestCareer(),id);localStorage.setItem('qalamtype-race-career-v1',JSON.stringify(next));setCareer(next);}}catch{setFailed(true)}finally{lock.current=false;setSaving(false)}};
+ const equip=async(id:string)=>{if(lock.current)return;lock.current=true;setSaving(true);setFailed(false);try{if(userId){const {data,error}=await supabase.rpc('equip_race_car',{p_car:id});if(error)throw error;if(account.current===userId)setCareer((Array.isArray(data)?data[0]:data) as Career);}else{const next=equipCar(readGuestCareer(),id);localStorage.setItem(CAREER_STORAGE,JSON.stringify(next));setCareer(next);}}catch{setFailed(true)}finally{lock.current=false;setSaving(false)}};
  return {career,reward,saving,failed,revision,begin,complete,equip,retry:persist,reload};
 }
