@@ -20,6 +20,6 @@ export function useRaceCareer(userId:string|undefined,language:Language){
   }catch{setFailed(true)}finally{setSaving(false);lock.current=false;}
  },[reload]);
  const complete=useCallback((text:string,seconds:number,errors:number)=>{pending.current={text,seconds,errors,owner:userId};void persist()},[userId,persist]);
- const equip=async(id:string)=>{if(lock.current)return;lock.current=true;setSaving(true);setFailed(false);try{if(userId){const {data,error}=await supabase.rpc('equip_race_car',{p_car:id});if(error)throw error;if(account.current===userId)setCareer(data as Career);}else{const next=equipCar(readGuestCareer(),id);localStorage.setItem('qalamtype-race-career-v1',JSON.stringify(next));setCareer(next);}}catch{setFailed(true)}finally{lock.current=false;setSaving(false)}};
+ const equip=async(id:string)=>{if(lock.current)return;lock.current=true;setSaving(true);setFailed(false);try{if(userId){const {data,error}=await supabase.rpc('equip_race_car',{p_car:id});if(error)throw error;if(account.current===userId)setCareer((Array.isArray(data)?data[0]:data) as Career);}else{const next=equipCar(readGuestCareer(),id);localStorage.setItem('qalamtype-race-career-v1',JSON.stringify(next));setCareer(next);}}catch{setFailed(true)}finally{lock.current=false;setSaving(false)}};
  return {career,reward,saving,failed,revision,begin,complete,equip,retry:persist,reload};
 }
