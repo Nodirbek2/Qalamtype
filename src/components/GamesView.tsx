@@ -1,3 +1,4 @@
+import {botPerformance} from '../lib/raceBots';
 import React,{useCallback,useEffect,useMemo,useRef,useState} from 'react';
 import {supabase} from '../lib/supabase';
 import {normalize,correctPrefix} from '../lib/arcadeRules';
@@ -15,32 +16,7 @@ type Player={id:string;name:string;progress:number;wpm:number;isBot?:boolean;fin
 type PresencePlayer={id:string;name:string;joinedAt:number};
 type StartPayload={text:string;startsAt:number;roomId:string};
 const PASSAGES=ARCADE_PASSAGES;
-function botPerformance(id: string, raceSeed: number, elapsed: number, difficulty: 'easy'|'medium'|'hard') {
-  // Both online players share the round seed; every new race has a new profile.
-  let seed = 2166136261;
-  for (const char of id + ':' + raceSeed) seed = Math.imul(seed ^ char.charCodeAt(0), 16777619);
-  const random = () => {
-    seed = (seed + 0x6D2B79F5) | 0;
-    let n = Math.imul(seed ^ seed >>> 15, 1 | seed);
-    n ^= n + Math.imul(n ^ n >>> 7, 61 | n);
-    return ((n ^ n >>> 14) >>> 0) / 4294967296;
-  };
-  const [low, high] = {easy:[25,40],medium:[40,60],hard:[65,85]}[difficulty];
-  const base = low + random() * (high - low);
-  const delay = 0.2 + random() * 1.4;
-  const period = 7 + random() * 10;
-  const phase = random() * Math.PI * 2;
-  const secondPhase = random() * Math.PI * 2;
-  const time = Math.max(0, elapsed - delay);
-  const wave = 2 * Math.PI / period;
-  const secondWave = 2 * Math.PI / 4.5;
-  // Integral of the speed curve: progress does not depend on timer/frame rate.
-  const distance = base * 5 / 60 * (time
-    + 0.35 * (Math.cos(phase) - Math.cos(wave*time+phase)) / wave
-    + 0.15 * (Math.cos(secondPhase) - Math.cos(secondWave*time+secondPhase)) / secondWave);
-  const wpm = elapsed < delay ? 0 : base * (1 + 0.35*Math.sin(wave*time+phase) + 0.15*Math.sin(secondWave*time+secondPhase));
-  return {characters:Math.max(0,distance),wpm:Math.round(wpm)};
-}
+
 
 const BOT_NAMES = ['Azizbek', 'Madina', 'Jasur', 'Shahnoza', 'Bekzod', 'Malika', 'Sardor', 'Nilufar', 'Diyor', 'Zuhra', 'Oybek', 'Sevara'];
 const clientId = () => { try{return crypto.randomUUID()}catch{return Math.random().toString(36).slice(2)} };
@@ -299,14 +275,14 @@ export const GamesView: React.FC = () => {
       setPlayers((current) => current.map((player) => {
         if (!player.isBot || player.progress >= 100) return player;
         const elapsed = Math.max(0,(Date.now()-startedAtRef.current)/1000);
-        const performance = botPerformance(player.id,botRaceSeedRef.current,elapsed,difficulty);
+        const performance = botPerformance(player.id,botRaceSeedRef.current,elapsed);
         const progress = raceText.length ? Math.min(100,performance.characters/raceText.length*100) : 0;
         let finishedAt: number | undefined;
         if (progress >= 100) {
           let low=0, high=elapsed;
           for(let i=0;i<24;i++){
             const middle=(low+high)/2;
-            if(botPerformance(player.id,botRaceSeedRef.current,middle,difficulty).characters>=raceText.length) high=middle;
+            if(botPerformance(player.id,botRaceSeedRef.current,middle).characters>=raceText.length) high=middle;
             else low=middle;
           }
           finishedAt=startedAtRef.current+high*1000;
