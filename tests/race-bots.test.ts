@@ -1,13 +1,23 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {botPerformance} from '../src/lib/raceBots';
-test('three opponents stay near 15, 25 and 40 WPM with individual human pauses',()=>{
- for(const seed of [1,100,17891])for(let slot=0;slot<3;slot++){
-  const id='bot-'+slot,target=[15,25,40][slot];
-  const average=botPerformance(id,seed,120).characters/5/2;
-  assert.ok(Math.abs(average-target)<5,`${id}: ${average}`);
+test('every bot can draw slow, medium or fast pace independently across races',()=>{
+ for(const id of ['bot-0','bot-1','bot-2','bot-fill-1','bot-fill-2']){
+  const averages=Array.from({length:150},(_,seed)=>botPerformance(id,seed,120).characters/10);
+  assert.ok(averages.some(v=>v>=10&&v<=20),id+' slow');
+  assert.ok(averages.some(v=>v>=30&&v<=40),id+' medium');
+  assert.ok(averages.some(v=>v>=50),id+' fast');
+  assert.ok(new Set(averages.map(v=>Math.round(v))).size>30);
+ }
+ const pace=(id:string,seed:number)=>botPerformance(id,seed,120).characters;
+ assert.ok(Array.from({length:100},(_,seed)=>pace('bot-0',seed)>pace('bot-2',seed)).some(Boolean));
+ assert.ok(Array.from({length:100},(_,seed)=>pace('bot-0',seed)<pace('bot-2',seed)).some(Boolean));
+});
+test('random opponents remain bounded, pause, and preserve deterministic monotonic progress',()=>{
+ for(const seed of [1,100,17891])for(const id of ['bot-0','bot-1','bot-2']){
   const speeds=Array.from({length:120},(_,t)=>botPerformance(id,seed,t).wpm);
   assert.ok(speeds.slice(3).includes(0));assert.ok(new Set(speeds).size>5);
+  assert.ok(speeds.every(v=>v===0||(v>=10&&v<=70)));
   let last=0;for(let t=0;t<120;t+=.1){const p=botPerformance(id,seed,t);assert.ok(p.characters>=last);last=p.characters;}
   assert.deepEqual(botPerformance(id,seed,49.35),botPerformance(id,seed,49.35));
  }
