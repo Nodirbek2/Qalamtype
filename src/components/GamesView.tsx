@@ -313,7 +313,7 @@ export const GamesView: React.FC = () => {
         }
         return { ...player, progress, wpm:performance.wpm, finishedAt };
       }));
-    }, 420);
+    }, 100);
     botTimerRef.current = botTimer;
     return () => {
       window.clearInterval(progressTimer);
