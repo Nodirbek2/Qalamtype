@@ -1,3 +1,4 @@
+import {RaceDriverProfile,type DriverSelection} from './RaceDriverProfile';
 import React, {useCallback, useEffect, useState} from 'react';
 import {Trophy, RotateCcw} from 'lucide-react';
 import {supabase} from '../lib/supabase';
@@ -10,9 +11,10 @@ export const raceCopy:Record<Language,string[]>={
 };
 type Row={user_id:string;username:string;total_words:number;races:number;best_wpm:number};
 export function RaceLeaderboard({language,userId,revision}: {language:Language;userId?:string;revision:number}) {
+ const [profile,setProfile]=useState<DriverSelection|null>(null);
  const c=raceCopy[language]; const [rows,setRows]=useState<Row[]>([]);const [status,setStatus]=useState<'loading'|'ready'|'error'>('loading');
  const load=useCallback(async()=>{setStatus('loading');const {data,error}=await supabase.from('race_leaderboard').select('user_id,username,total_words,races,best_wpm').order('total_words',{ascending:false}).order('races',{ascending:false}).order('user_id').limit(10);if(error){setStatus('error');return}setRows(data||[]);setStatus('ready')},[]);
  useEffect(()=>{void load()},[load,revision]);
  return <aside className="race-top-ten" aria-label={c[2]}><div className="race-top-heading"><div><h2><Trophy size={20}/> {c[2]}</h2><p>{c[3]}</p></div><button type="button" aria-label={c[9]} onClick={()=>void load()} disabled={status==='loading'}><RotateCcw size={16}/></button></div>
- {status==='loading'?<p role="status">{c[10]}</p>:status==='error'?<p role="alert">{c[8]}</p>:!rows.length?<p>{c[7]}</p>:<div className="race-top-scroll"><table><thead><tr><th>#</th><th>{c[4]}</th><th>{c[5]}</th><th>{c[6]}</th><th>WPM</th></tr></thead><tbody>{rows.map((row,index)=><tr key={row.user_id} className={row.user_id===userId?'race-top-self':''}><td>{index+1}</td><td>{row.username||c[4]}</td><td>{Number(row.total_words).toLocaleString()}</td><td>{row.races}</td><td>{row.best_wpm}</td></tr>)}</tbody></table></div>}<p className="race-top-note">{c[12]}</p></aside>;
+ {status==='loading'?<p role="status">{c[10]}</p>:status==='error'?<p role="alert">{c[8]}</p>:!rows.length?<p>{c[7]}</p>:<div className="race-top-scroll"><table><thead><tr><th>#</th><th>{c[4]}</th><th>{c[5]}</th><th>{c[6]}</th><th>WPM</th></tr></thead><tbody>{rows.map((row,index)=><tr key={row.user_id} className={row.user_id===userId?'race-top-self':''}><td><span className="qr-rank-badge" data-podium={index<3}>{index+1}</span></td><td><button className="qr-driver-link" onClick={()=>setProfile({...row,position:index+1,scope:'words'})}><span className="qr-driver-avatar">{(row.username||c[4]).slice(0,2).toUpperCase()}</span><span>{row.username||c[4]}</span><span className="qr-driver-chevron">›</span></button></td><td>{Number(row.total_words).toLocaleString()}</td><td>{row.races}</td><td>{row.best_wpm}</td></tr>)}</tbody></table></div>}<p className="race-top-note">{c[12]}</p>{profile&&<RaceDriverProfile driver={profile} language={language} onClose={()=>setProfile(null)}/>}</aside>;
 }

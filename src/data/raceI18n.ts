@@ -98,7 +98,12 @@ export const raceLabels={
     "refresh": "Yangilash",
     "raceProgress": "Poygadagi masofalar",
     "overtake": "Raqibni ortda qoldirdingiz!",
-    "randomTrack": "Har poygada tasodifiy shahar"
+    "randomTrack": "Har poygada tasodifiy shahar",
+    "driverProfile": "Poygachi profili",
+    "closeProfile": "Profilni yopish",
+    "carModel": "Mashina",
+    "viewProfile": "Profilni ochish",
+    "bestRace": "Poygadagi eng yuqori tezlik"
   },
   "uzbek_cyrillic": {
     "engineSound": "Мотор овози",
@@ -198,7 +203,12 @@ export const raceLabels={
     "refresh": "Янгилаш",
     "raceProgress": "Пойгадаги масофалар",
     "overtake": "Рақибни ортда қолдирдингиз!",
-    "randomTrack": "Ҳар пойгада тасодифий шаҳар"
+    "randomTrack": "Ҳар пойгада тасодифий шаҳар",
+    "driverProfile": "Пойгачи профили",
+    "closeProfile": "Профилни ёпиш",
+    "carModel": "Машина",
+    "viewProfile": "Профилни очиш",
+    "bestRace": "Пойгадаги энг юқори тезлик"
   },
   "russian": {
     "engineSound": "Звук двигателя",
@@ -298,7 +308,12 @@ export const raceLabels={
     "refresh": "Обновить",
     "raceProgress": "Дистанции гонщиков",
     "overtake": "Соперник позади!",
-    "randomTrack": "Случайный город в каждой гонке"
+    "randomTrack": "Случайный город в каждой гонке",
+    "driverProfile": "Профиль гонщика",
+    "closeProfile": "Закрыть профиль",
+    "carModel": "Автомобиль",
+    "viewProfile": "Открыть профиль",
+    "bestRace": "Лучшая скорость в гонке"
   },
   "english": {
     "engineSound": "Engine sound",
@@ -398,7 +413,12 @@ export const raceLabels={
     "refresh": "Refresh",
     "raceProgress": "Race distances",
     "overtake": "Overtake!",
-    "randomTrack": "A random city for every race"
+    "randomTrack": "A random city for every race",
+    "driverProfile": "Driver profile",
+    "closeProfile": "Close profile",
+    "carModel": "Car",
+    "viewProfile": "View profile",
+    "bestRace": "Best race speed"
   }
 } as const;
 export type RaceLabel=keyof typeof raceLabels.english;

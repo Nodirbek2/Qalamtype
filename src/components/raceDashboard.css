@@ -53,3 +53,49 @@
 .qr-page .game-stage-large .qr-race-surface[data-phase=finished] .qr-track{flex:0 0 30%;min-height:110px}
 .qr-page .game-stage-large .qr-race-surface[data-phase=finished] .qr-sky{display:block;height:50px}
 @media(max-height:600px){.qr-page .game-stage-large .qr-race-surface[data-phase=finished] .qr-track{min-height:65px;flex-basis:20%}.qr-page .game-stage-large .qr-race-surface[data-phase=finished] .qr-sky{display:none}}
+
+/* Per-car exhaust: soft puffs expand and drift behind the tailpipe. */
+.qr-physical-scene .qr-exhaust{left:1%;top:66%;width:1px;height:1px;background:none;border-radius:0;overflow:visible;pointer-events:none;opacity:1;animation:none!important}
+.qr-exhaust i{position:absolute;left:0;top:0;width:12px;height:9px;border-radius:50%;background:radial-gradient(ellipse,#c8d0d284 0%,#9eabad35 45%,transparent 72%);opacity:0;filter:blur(.7px);animation:qr-smoke-puff 1.35s linear infinite;animation-play-state:paused}
+.qr-racer[data-moving=true] .qr-exhaust i{animation-play-state:running}
+.qr-racer[data-moving=false] .qr-exhaust{opacity:0}
+.qr-exhaust i:nth-child(2){animation-delay:-.225s;top:2px}
+.qr-exhaust i:nth-child(3){animation-delay:-.45s;top:-2px}
+.qr-exhaust i:nth-child(4){animation-delay:-.675s;top:1px}
+.qr-exhaust i:nth-child(5){animation-delay:-.9s;top:-1px}
+.qr-exhaust i:nth-child(6){animation-delay:-1.125s;top:3px}
+@keyframes qr-smoke-puff{0%{transform:translate(0,0) scale(.35);opacity:calc(.25 + var(--qr-car-speed,0)*.4)}25%{opacity:.4}100%{transform:translate(calc(-28px - var(--qr-car-speed,0)*65px),-15px) scale(2.9);opacity:0}}
+/* Rank rows read as individual driver cards. */
+.qr-ranking table,.race-top-ten table{border-collapse:separate;border-spacing:0 8px}
+.qr-ranking tbody tr,.race-top-ten tbody tr{background:#1d2838}
+.qr-ranking tbody td,.race-top-ten tbody td{border-top:1px solid #ffffff09;border-bottom:1px solid #ffffff09;padding:12px;color:#e9eff9;font-variant-numeric:tabular-nums}
+.qr-ranking tbody td:first-child,.race-top-ten tbody td:first-child{border-radius:12px 0 0 12px;border-left:1px solid #ffffff09;width:58px}
+.qr-ranking tbody td:last-child,.race-top-ten tbody td:last-child{border-radius:0 12px 12px 0;border-right:1px solid #ffffff09}
+.qr-ranking tbody tr:hover,.race-top-ten tbody tr:hover{background:#253448}
+.qr-ranking .qr-league-self,.race-top-ten .race-top-self{background:#293a29;box-shadow:inset 3px 0 #d6f36b}
+.qr-rank-badge{display:grid;place-items:center;width:32px;height:32px;border-radius:10px;background:#ffffff09;color:#9bacc3;font-weight:700;font-size:13px}
+.qr-rank-badge[data-podium=true]{background:linear-gradient(140deg,#d6f36b30,#d6f36b09);color:#d6f36b;border:1px solid #d6f36b40}
+.qr-driver-link{display:flex;align-items:center;gap:11px;width:100%;padding:0!important;background:none!important;border:0!important;text-align:left;color:#f0f3fa!important;font:inherit;font-weight:650;cursor:pointer;min-width:145px}
+.qr-driver-link>span:nth-child(2){overflow-wrap:anywhere}
+.qr-driver-avatar{display:grid;place-items:center;flex:0 0 35px;height:35px;border-radius:11px;background:linear-gradient(145deg,#477b83,#31425c);color:#e1f8f7;font-size:11px;letter-spacing:.5px}
+.qr-driver-chevron{margin-left:auto;color:#8da2b9;font-size:24px}
+.qr-driver-link:focus-visible{outline:2px solid #d6f36b!important;outline-offset:6px;border-radius:4px}
+.qr-profile-overlay{position:fixed;inset:0;z-index:10000;background:#050914bd;backdrop-filter:blur(9px);display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
+.qr-driver-profile{position:relative;background:linear-gradient(155deg,#202e40,#111925);color:#f0f3fa;border:1px solid #637b9445;border-radius:24px;padding:28px;width:440px;max-width:100%;max-height:90dvh;overflow:auto;box-shadow:0 25px 100px #0009;font-family:Inter,system-ui,sans-serif;box-sizing:border-box}
+.qr-driver-profile h2{margin:9px 40px 10px 0;font-size:24px;line-height:1.25;overflow-wrap:anywhere}
+.qr-profile-close{position:absolute;right:16px;top:16px;border:1px solid #ffffff19;background:#ffffff09;color:#cad7e6;width:36px;height:36px;border-radius:12px;display:grid;place-items:center;cursor:pointer}
+.qr-profile-place{display:inline-block;padding:5px 10px;border-radius:8px;background:#d6f36b12;color:#d6f36b;font-size:12px}
+.qr-profile-car{margin:20px 0 12px;padding:12px;border-radius:16px;background:radial-gradient(ellipse at 50% 70%,#63d9da18,transparent 70%),#0d1522;text-align:center}
+.qr-profile-car img{display:block;width:100%;height:130px;object-fit:contain}
+.qr-profile-car span{display:block;color:#8f9fb6;font-size:11px;margin:4px 0}
+.qr-profile-car strong{font-size:20px}
+.qr-profile-league{display:flex;align-items:center;gap:10px;padding:14px 0;color:#d6f36b;flex-wrap:wrap}
+.qr-profile-league span{margin-left:auto;color:#9baec5;font-size:12px}
+.qr-profile-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0}
+.qr-profile-stats>div{padding:15px;background:#ffffff05;border:1px solid #ffffff0b;border-radius:12px}
+.qr-profile-stats dt{color:#9bacc0;font-size:12px}
+.qr-profile-stats dd{margin:7px 0 0;font-size:25px;font-weight:750;font-variant-numeric:tabular-nums}
+.qr-profile-stats .qr-profile-best{grid-column:1/-1;background:#63d9da09}
+.qr-profile-best dd{color:#63d9da}.qr-profile-best small{font-size:12px;font-weight:500}
+@media(max-width:600px){.qr-ranking tbody td,.race-top-ten tbody td{padding:10px 8px}.qr-driver-profile{padding:22px}.qr-profile-overlay{padding:12px}.qr-driver-avatar{flex-basis:30px;height:30px}.qr-driver-link{gap:8px}}
+@media(prefers-reduced-motion:reduce){.qr-exhaust i{animation:none!important}}
