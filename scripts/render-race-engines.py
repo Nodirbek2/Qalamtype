@@ -1,4 +1,4 @@
-"""Original combustion-pulse game effects, with four ElevenLabs texture layers.
+"""Original combustion-pulse game effects. Entirely local synthesis; no external audio.
 Run from project root. No manufacturer recordings are included.
 """
 from pathlib import Path
@@ -7,7 +7,7 @@ import numpy as np
 from scipy import signal
 from scipy.io import wavfile
 
-out=Path('public/audio/race-engines-v3');out.mkdir(parents=True,exist_ok=True)
+out=Path('public/audio/race-engines-v4');out.mkdir(parents=True,exist_ok=True)
 sr=22050;seconds=4;n=sr*seconds;t=np.arange(n)/sr
 # Cylinders, RPM, exhaust resonance, roughness, turbo, seed.
 voices=[('tico',3,2200,180,.65,0),('jiguli',4,1800,135,.8,0),
@@ -37,13 +37,6 @@ for index,(name,cyl,rpm,res,rough,turbo) in enumerate(voices):
  x=np.tanh(x*(1.0+rough))+.24*breath*(.5+.5*np.sin(phase))
  if turbo:
   x+=turbo*(.22*np.sin(2*np.pi*round((1800+index*170)*seconds)*t/seconds)+.6*signal.sosfilt(signal.butter(2,1800,btype='highpass',fs=sr,output='sos'),noise))
- raw=out/(name+'-raw.mp3')
- if raw.exists():
-  pcm=subprocess.check_output(['ffmpeg','-v','error','-i',str(raw),'-f','f32le','-ac','1','-ar',str(sr),'-'])
-  texture=np.frombuffer(pcm,dtype=np.float32)
-  if len(texture):
-   texture=np.resize(texture,n);texture/=max(.01,np.max(np.abs(texture)))
-   x=.65*x/max(.01,np.max(np.abs(x)))+.35*texture
  # Crossfade a short periodic boundary and normalize each preview equally.
  fade=220
  x[:fade]*=np.linspace(0,1,fade);x[-fade:]*=np.linspace(1,0,fade)

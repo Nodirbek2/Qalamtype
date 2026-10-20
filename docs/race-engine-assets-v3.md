@@ -1,5 +1,5 @@
-# Engine sound assets v3
+# Engine sound assets v4
 
-Original four-second combustion-pulse sound designs rendered by scripts/render-race-engines.py. All eleven files are different, with three/four/six/eight/ten/sixteen cylinder signatures, exhaust resonances, roughness and turbo layers. These are game effects, not manufacturer recordings. Nexia 1, Lacetti, Cobalt and Gentra include generated ElevenLabs Sound Effects v2 texture layers retained as *-raw.mp3. Other ElevenLabs generations were blocked by rate limits, so their final assets use original synthesis.
+All eleven four-second engine effects are created entirely through original local combustion-pulse synthesis by scripts/render-race-engines.py. No ElevenLabs or other third-party generated audio is used. Different cylinder counts, firing frequencies, exhaust resonances, roughness and turbo layers create distinct voices.
 
-Premium inspiration: Gentra boxer sports car; Malibu Ferrari-style V8; Tahoe Lamborghini-style V10; G-wagon Bugatti-style W16. Visual car models, prices and ownership remain unchanged. Preview and race use the same MP3. Web Audio decodes on demand, caches buffers, adjusts playback rate and gain to motion, and silences on pause/exit. Procedural audio remains a fallback if downloading fails.
+Premium inspiration: Gentra boxer sports car; Malibu Ferrari-style V8; Tahoe Lamborghini-style V10; G-wagon Bugatti-style W16. These are game sound effects, not authentic manufacturer recordings. Race and garage preview share the same MP3 assets. Playback speed follows vehicle motion. Existing 15/25/40 WPM human-paced bots are retained.
