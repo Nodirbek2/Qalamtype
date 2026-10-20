@@ -1,3 +1,5 @@
+import {raceWorldActive} from '../lib/raceLifecycle';
+import {raceCity,type RaceCity} from '../lib/raceTracks';
 import {botPerformance,botCarIndex} from '../lib/raceBots';
 import React,{useCallback,useEffect,useMemo,useRef,useState} from 'react';
 import {supabase} from '../lib/supabase';
@@ -33,6 +35,7 @@ export const GamesView: React.FC = () => {
   const [gameMode, setGameMode] = useState<GameMode>('race');
   const difficulty = gameMode==='race' ? 'medium' : selectedDifficulty;
   const career=useRaceCareer(currentUser?.id,typingLanguage);
+  const [track,setTrack]=useState<RaceCity>('city');
   const [paused,setPaused]=useState(false);
   const [elapsed,setElapsed]=useState(0);
   const [timedOut,setTimedOut]=useState(false);
@@ -109,6 +112,7 @@ export const GamesView: React.FC = () => {
     career.begin(text,startAt);
     finishedRef.current=false;
     botRaceSeedRef.current=startAt;
+    setTrack(raceCity(startAt));
     pausedRef.current=false;setPaused(false);setElapsed(0);setTimedOut(false);setAccuracy(100);
     attempts.current={total:0,wrong:0};
     startedAtRef.current = 0;
@@ -263,9 +267,9 @@ export const GamesView: React.FC = () => {
     return()=>window.clearInterval(id);
   },[phase]);
   useEffect(() => {
-    if (phase !== 'racing') return;
+    if (!raceWorldActive(phase,timedOut)) return;
     const progressTimer = window.setInterval(() => {
-      if (raceRef.current && online) {
+      if (phase==='racing' && raceRef.current && online) {
         const stats = liveStatsRef.current;
         raceRef.current.send({ type: 'broadcast', event: 'race-progress', payload: { id: CLIENT_ID, name: playerName, ...stats } });
       }
@@ -296,7 +300,7 @@ export const GamesView: React.FC = () => {
       window.clearInterval(botTimer);
       botTimerRef.current = null;
     };
-  }, [phase, online, playerName, raceText, difficulty]);
+  }, [phase, timedOut, online, playerName, raceText, difficulty]);
 
   const onType = (event: React.ChangeEvent<HTMLInputElement>) => {
     if(pausedRef.current || finishedRef.current || phase!=='racing')return;
@@ -326,5 +330,5 @@ export const GamesView: React.FC = () => {
   const leaderboard = [...players].sort((a, b) => a.finishedAt && b.finishedAt ? a.finishedAt - b.finishedAt : b.progress - a.progress);
   const rank = leaderboard.findIndex((player) => player.id === CLIENT_ID) + 1;
 
-  return <><RaceDashboard language={siteLanguage} typingLanguage={typingLanguage} setTypingLanguage={setTypingLanguage} userId={currentUser?.id} name={playerName} phase={phase} players={players} me={CLIENT_ID} text={raceText} typed={typed} progress={progress} wpm={phase==='finished'?(players.find(p=>p.id===CLIENT_ID)?.wpm||0):wpm} accuracy={accuracy} elapsed={elapsed} countdown={countdown} rank={rank} paused={paused} online={online} timedOut={timedOut} message={message?g(message):''} onType={onType} start={()=>startSolo()} startOnline={()=>void startOnline()} reset={reset} pause={pauseRace} resume={resumeRace} signup={()=>setSignupOpen(true)} career={career}/><AuthModal isOpen={signupOpen} initialMode="signup" onClose={closeSignup}/></>;
+  return <><RaceDashboard track={track} language={siteLanguage} typingLanguage={typingLanguage} setTypingLanguage={setTypingLanguage} userId={currentUser?.id} name={playerName} phase={phase} players={players} me={CLIENT_ID} text={raceText} typed={typed} progress={progress} wpm={phase==='finished'?(players.find(p=>p.id===CLIENT_ID)?.wpm||0):wpm} accuracy={accuracy} elapsed={elapsed} countdown={countdown} rank={rank} paused={paused} online={online} timedOut={timedOut} message={message?g(message):''} onType={onType} start={()=>startSolo()} startOnline={()=>void startOnline()} reset={reset} pause={pauseRace} resume={resumeRace} signup={()=>setSignupOpen(true)} career={career}/><AuthModal isOpen={signupOpen} initialMode="signup" onClose={closeSignup}/></>;
 };

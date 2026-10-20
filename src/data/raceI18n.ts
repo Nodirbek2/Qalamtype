@@ -24,9 +24,9 @@ export const raceLabels={
     "guestNote": "Mehmon natijalari shu brauzerda saqlanadi. Hisobingizga kirsangiz, yangi poygalar reytingga qo‘shiladi.",
     "login": "Hisobga kirish",
     "track": "Trassa",
-    "city": "Tungi shahar",
-    "coast": "Sokin sohil",
-    "forest": "Yashil vodiy",
+    "city": "Toshkent",
+    "coast": "Samarqand",
+    "forest": "Buxoro",
     "equipped": "Tanlangan",
     "equip": "Tanlash",
     "unlock": "Ochish",
@@ -97,7 +97,8 @@ export const raceLabels={
     "nextPage": "Keyingi",
     "refresh": "Yangilash",
     "raceProgress": "Poygadagi masofalar",
-    "overtake": "Raqibni ortda qoldirdingiz!"
+    "overtake": "Raqibni ortda qoldirdingiz!",
+    "randomTrack": "Har poygada tasodifiy shahar"
   },
   "uzbek_cyrillic": {
     "engineSound": "Мотор овози",
@@ -123,9 +124,9 @@ export const raceLabels={
     "guestNote": "Меҳмон натижалари шу браузерда сақланади. Ҳисобингизга кирсангиз, янги пойгалар рейтингга қўшилади.",
     "login": "Ҳисобга кириш",
     "track": "Трасса",
-    "city": "Тунги шаҳар",
-    "coast": "Сокин соҳил",
-    "forest": "Яшил водий",
+    "city": "Тошкент",
+    "coast": "Самарқанд",
+    "forest": "Бухоро",
     "equipped": "Танланган",
     "equip": "Танлаш",
     "unlock": "Очиш",
@@ -196,7 +197,8 @@ export const raceLabels={
     "nextPage": "Кейинги",
     "refresh": "Янгилаш",
     "raceProgress": "Пойгадаги масофалар",
-    "overtake": "Рақибни ортда қолдирдингиз!"
+    "overtake": "Рақибни ортда қолдирдингиз!",
+    "randomTrack": "Ҳар пойгада тасодифий шаҳар"
   },
   "russian": {
     "engineSound": "Звук двигателя",
@@ -222,9 +224,9 @@ export const raceLabels={
     "guestNote": "Результаты гостя хранятся в браузере. Войдите, чтобы новые гонки попадали в рейтинг.",
     "login": "Войти",
     "track": "Трасса",
-    "city": "Ночной город",
-    "coast": "Тихий берег",
-    "forest": "Зелёная долина",
+    "city": "Ташкент",
+    "coast": "Самарканд",
+    "forest": "Бухара",
     "equipped": "Выбрано",
     "equip": "Выбрать",
     "unlock": "Открыть",
@@ -295,7 +297,8 @@ export const raceLabels={
     "nextPage": "Далее",
     "refresh": "Обновить",
     "raceProgress": "Дистанции гонщиков",
-    "overtake": "Соперник позади!"
+    "overtake": "Соперник позади!",
+    "randomTrack": "Случайный город в каждой гонке"
   },
   "english": {
     "engineSound": "Engine sound",
@@ -321,9 +324,9 @@ export const raceLabels={
     "guestNote": "Guest progress stays in this browser. Sign in to add new races to the rankings.",
     "login": "Sign in",
     "track": "Track",
-    "city": "Night city",
-    "coast": "Quiet coast",
-    "forest": "Green valley",
+    "city": "Tashkent",
+    "coast": "Samarkand",
+    "forest": "Bukhara",
     "equipped": "Equipped",
     "equip": "Equip",
     "unlock": "Unlock",
@@ -394,7 +397,8 @@ export const raceLabels={
     "nextPage": "Next",
     "refresh": "Refresh",
     "raceProgress": "Race distances",
-    "overtake": "Overtake!"
+    "overtake": "Overtake!",
+    "randomTrack": "A random city for every race"
   }
 } as const;
 export type RaceLabel=keyof typeof raceLabels.english;

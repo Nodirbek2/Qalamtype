@@ -30,3 +30,26 @@
 .qr-league-heading h2>svg{flex-shrink:0;overflow:visible}
 .qr-league-heading p{margin:8px 0 0;overflow-wrap:anywhere}
 .qr-league-header>button{flex-shrink:0;display:grid;place-items:center;width:36px;height:36px;margin-top:22px;border:1px solid #ffffff16;border-radius:8px;color:#a6b1c5}
+
+/* City scenery is a repeating, distance-driven illustrated panorama. */
+.qr-track-auto{display:flex;gap:11px;align-items:center;min-width:0;flex:1;padding:10px 14px;border:1px solid #ffffff10;border-radius:10px;background:#111824}
+.qr-track-auto>svg{flex-shrink:0;color:#d6f36b}
+.qr-track-auto label{display:block;color:#a6b1c5;font-size:10px}
+.qr-track-auto p{margin:3px 0;font-size:12px;color:#f0f3fa}
+.qr-track-auto small{font-size:10px;color:#8599ac}
+.qr-city-landmarks{position:absolute;inset:0;background-repeat:repeat-x;background-size:auto 100%;background-position:var(--qr-landmark-offset,0px) bottom;pointer-events:none}
+.qr-track-city .qr-city-landmarks{background-image:url('/images/race-cities/tashkent.svg')}
+.qr-track-coast .qr-city-landmarks{background-image:url('/images/race-cities/samarkand.svg')}
+.qr-track-forest .qr-city-landmarks{background-image:url('/images/race-cities/bukhara.svg')}
+.qr-city-distant{position:absolute;inset:45% 0 0;background:repeating-linear-gradient(90deg,#152c3977 0 23px,transparent 23px 36px,#20394b66 36px 83px,transparent 83px 100px);background-size:300px 100%;background-position-x:var(--qr-mountain-camera,0px);clip-path:polygon(0 100%,0 50%,5% 50%,5% 15%,8% 15%,8% 50%,15% 50%,15% 0,20% 0,20% 60%,29% 60%,29% 20%,40% 20%,40% 80%,55% 80%,55% 10%,61% 10%,61% 50%,80% 50%,80% 0,86% 0,86% 70%,100% 70%,100% 100%)}
+.qr-track-city .qr-sky{background:linear-gradient(#14283e,#3b6374)}
+.qr-track-coast .qr-sky{background:linear-gradient(#23384f,#708e91)}
+.qr-track-forest .qr-sky{background:linear-gradient(#41394b,#a28569)}
+.qr-physical-scene .qr-track-title{z-index:2;top:9px;left:14px;padding:4px 8px;border-radius:5px;background:#101b2bbb;color:#dce9eb;font-size:10px;letter-spacing:.13em}
+.qr-page .game-stage-large .qr-sky{height:clamp(90px,18vh,165px)}
+@media(max-height:600px){.qr-page .game-stage-large .qr-sky{height:68px}.qr-physical-scene .qr-track-title{top:4px;font-size:8px;padding:2px 5px}}
+@media(max-width:600px){.qr-track-auto{width:100%}.qr-track-auto p{font-size:11px}}
+/* Completed drivers can watch the rest finish while choosing the next race. */
+.qr-page .game-stage-large .qr-race-surface[data-phase=finished] .qr-track{flex:0 0 30%;min-height:110px}
+.qr-page .game-stage-large .qr-race-surface[data-phase=finished] .qr-sky{display:block;height:50px}
+@media(max-height:600px){.qr-page .game-stage-large .qr-race-surface[data-phase=finished] .qr-track{min-height:65px;flex-basis:20%}.qr-page .game-stage-large .qr-race-surface[data-phase=finished] .qr-sky{display:none}}
