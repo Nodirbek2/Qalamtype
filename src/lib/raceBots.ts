@@ -16,3 +16,15 @@ export function botPerformance(id:string,raceSeed:number,elapsed:number){
  characters+=rate(Math.floor(time))*(time%1)*5/60;
  return {characters,wpm:elapsed<delay?0:Math.round(rate(Math.floor(time)))};
 }
+
+// Percent chances follow the catalog order. Premium cars remain possible but rare.
+export const BOT_CAR_WEIGHTS=[22,17,14,12,10,8,6,5,3,2,1] as const;
+export function botCarIndex(id:string,raceSeed:number){
+ let hash=2166136261;
+ for(const char of 'car:'+id+':'+raceSeed)hash=Math.imul(hash^char.charCodeAt(0),16777619);
+ // Avalanche the hash so neighboring round seeds do not produce neighboring cars.
+ hash=Math.imul(hash^(hash>>>16),0x7feb352d);hash=Math.imul(hash^(hash>>>15),0x846ca68b);hash^=hash>>>16;
+ let draw=(hash>>>0)/4294967296*100;
+ for(let i=0;i<BOT_CAR_WEIGHTS.length;i++){draw-=BOT_CAR_WEIGHTS[i];if(draw<0)return i;}
+ return 0;
+}

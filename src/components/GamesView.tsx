@@ -1,4 +1,4 @@
-import {botPerformance} from '../lib/raceBots';
+import {botPerformance,botCarIndex} from '../lib/raceBots';
 import React,{useCallback,useEffect,useMemo,useRef,useState} from 'react';
 import {supabase} from '../lib/supabase';
 import {normalize,correctPrefix} from '../lib/arcadeRules';
@@ -12,7 +12,7 @@ import {RaceDashboard} from './RaceDashboard';
 import {AuthModal} from './AuthModal';
 type GameMode='race';
 type RacePhase='ready'|'matching'|'countdown'|'racing'|'finished';
-type Player={id:string;name:string;progress:number;wpm:number;isBot?:boolean;finishedAt?:number};
+type Player={id:string;name:string;progress:number;wpm:number;isBot?:boolean;carIndex?:number;finishedAt?:number};
 type PresencePlayer={id:string;name:string;joinedAt:number};
 type StartPayload={text:string;startsAt:number;roomId:string};
 const PASSAGES=ARCADE_PASSAGES;
@@ -114,7 +114,7 @@ export const GamesView: React.FC = () => {
     startedAtRef.current = 0;
     setRaceText(text);
     setTyped('');
-    setPlayers(participants);
+    setPlayers(participants.map(player=>player.isBot?{...player,carIndex:botCarIndex(player.id,startAt)}:player));
     setPhase('countdown');
     clearTimers();
     const tick = () => {
