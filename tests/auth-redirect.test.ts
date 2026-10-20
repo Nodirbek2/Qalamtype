@@ -13,7 +13,7 @@ test('production OAuth and email callbacks use the public domain, including Verc
 
 test('fallback production hosts redirect every callback path while preview deployments stay independent', () => {
   const {redirects} = JSON.parse(readFileSync('vercel.json', 'utf8'));
-  assert.deepEqual([...new Set(redirects.map((rule: any) => rule.has[0].value))].sort(), ['qalamtype-k91x.vercel.app','qalamtype-ke6s.vercel.app'].sort());
+  assert.deepEqual([...new Set(redirects.map((rule: any) => rule.has[0].value))].sort(), ['qalamtype-k91x.vercel.app','qalamtype-ke6s.vercel.app','qalamtype.uz'].sort());
   for (const rule of redirects) {
     assert.ok(['/', '/:path*'].includes(rule.source));
     assert.equal(rule.destination, rule.source === '/' ? 'https://www.qalamtype.uz/' : 'https://www.qalamtype.uz/:path*');
