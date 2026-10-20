@@ -1,6 +1,8 @@
 import type {Language} from '../types';
 export const raceLabels={
   "uzbek_latin": {
+    "engineSound": "Motor ovozi",
+    "stopSound": "Ovozni to‘xtatish",
     "race": "Poyga",
     "lobby": "Poyga markazi",
     "garage": "Garaj",
@@ -98,6 +100,8 @@ export const raceLabels={
     "overtake": "Raqibni ortda qoldirdingiz!"
   },
   "uzbek_cyrillic": {
+    "engineSound": "Мотор овози",
+    "stopSound": "Овозни тўхтатиш",
     "race": "Пойга",
     "lobby": "Пойга маркази",
     "garage": "Гараж",
@@ -195,6 +199,8 @@ export const raceLabels={
     "overtake": "Рақибни ортда қолдирдингиз!"
   },
   "russian": {
+    "engineSound": "Звук двигателя",
+    "stopSound": "Остановить звук",
     "race": "Гонка",
     "lobby": "Центр гонок",
     "garage": "Гараж",
@@ -292,6 +298,8 @@ export const raceLabels={
     "overtake": "Соперник позади!"
   },
   "english": {
+    "engineSound": "Engine sound",
+    "stopSound": "Stop sound",
     "race": "Race",
     "lobby": "Race hub",
     "garage": "Garage",
