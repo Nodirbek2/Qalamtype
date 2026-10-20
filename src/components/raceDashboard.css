@@ -21,3 +21,12 @@
 /* A repeating tile moves modulo its own width, so markings never leave the track. */
 .qr-physical-scene .qr-road-marks{background-size:100px 2px;background-repeat:repeat-x;background-position-x:var(--qr-stripe-offset,0px)}
 .qr-engine-preview{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin:8px 0;padding:9px;border:1px solid #ffffff20;border-radius:8px;background:#ffffff07;color:#c4cede;font-size:12px}.qr-engine-preview[aria-pressed=true]{color:#d6f36b;border-color:#d6f36b66;background:#d6f36b12}
+
+/* Keep section headings independent of the global navigation header styles. */
+.qr-league-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:4px 0 20px;overflow:visible}
+.qr-league-heading{min-width:0;flex:1}
+.qr-leagues .qr-league-heading h2{height:auto;min-height:40px;line-height:1.5;padding:2px 0;overflow:visible;letter-spacing:normal;align-items:center}
+.qr-league-heading h2>span{display:block;line-height:1.5;padding-bottom:2px;overflow:visible;overflow-wrap:anywhere}
+.qr-league-heading h2>svg{flex-shrink:0;overflow:visible}
+.qr-league-heading p{margin:8px 0 0;overflow-wrap:anywhere}
+.qr-league-header>button{flex-shrink:0;display:grid;place-items:center;width:36px;height:36px;margin-top:22px;border:1px solid #ffffff16;border-radius:8px;color:#a6b1c5}
