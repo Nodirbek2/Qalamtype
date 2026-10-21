@@ -60,3 +60,6 @@
 @keyframes qr-smoke{0%{transform:translate(0,0) scale(.35);opacity:0}12%{opacity:.8}55%{opacity:.35}100%{transform:translate(calc(-25px - var(--qr-car-speed,0)*42px),-16px) scale(3.7);opacity:0}}
 .qr-racer[data-moving=false] .qr-exhaust{opacity:0}.qr-racer[data-moving=false] .qr-exhaust i{animation-play-state:paused}
 @media(prefers-reduced-motion:reduce){.qr-exhaust,.qr-dust{display:none}}
+
+.qr-leagues table{border-collapse:separate;border-spacing:0 8px}.qr-leagues tbody td{background:#243244;border-top:1px solid #ffffff0d;border-bottom:1px solid #ffffff12;padding:16px 12px}.qr-leagues tbody td:first-child{border-radius:12px 0 0 12px}.qr-leagues tbody td:last-child{border-radius:0 12px 12px 0}.qr-leagues tbody tr:hover td{background:#2c3e52}.qr-leagues .qr-league-self td{background:#d6f36b18}.qr-leagues .race-driver-link{display:inline-block;color:#edf4fb}.qr-leagues .race-driver-link[aria-expanded=true]{color:#d6f36b}
+@media(max-width:600px){.qr-leagues tbody td{padding:12px 6px}}
