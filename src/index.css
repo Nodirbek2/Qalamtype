@@ -462,3 +462,15 @@ body:has(.academy-runner) footer { display:none; }
   .academy-next-action { font-size:13px; }
   .academy-result-actions { padding:8px; }
 }
+/* Separate driver cards retain table semantics and a compact mobile layout. */
+.race-top-ten{background:linear-gradient(145deg,#1c2837,#111a27);border-color:#91a6ba40;box-shadow:0 16px 44px #0002}
+.race-top-ten table{border-collapse:separate;border-spacing:0 8px}
+.race-top-ten tbody td{background:#243244;border-top:1px solid #ffffff0d;border-bottom:1px solid #ffffff12;padding-top:16px;padding-bottom:16px}
+.race-top-ten tbody td:first-child{border-radius:12px 0 0 12px;width:54px}.race-top-ten tbody td:last-child{border-radius:0 12px 12px 0}
+.race-top-ten tbody tr:hover td{background:#2c3e52}.race-top-ten .race-top-self td{background:#d6f36b18}
+.race-rank-badge{display:inline-flex;align-items:center;justify-content:center;width:30px;height:32px;border-radius:9px;background:#ffffff0b;color:#b5c3d1;font-weight:800}
+.race-rank-1{background:#e9bc4833;color:#ffe098;box-shadow:inset 0 0 0 1px #e9bc4855}.race-rank-2{background:#b5c3d133;color:#e3eaf4}.race-rank-3{background:#c3895933;color:#edbc93}
+.race-driver-link{color:#edf4fb;font-weight:700;text-align:left;cursor:pointer;padding:5px 0;overflow-wrap:anywhere}.race-driver-link span{color:#d6f36b;font-size:12px}.race-driver-link:focus-visible{outline:2px solid #d6f36b;outline-offset:4px;border-radius:4px}.race-driver-link[aria-expanded=true]{color:#d6f36b}
+.race-driver-profile{display:grid;grid-template-columns:minmax(160px,1fr) 1.5fr;gap:24px;padding:24px;margin-top:16px;background:#0d1522;border:1px solid #d6f36b40;border-radius:16px}
+.race-driver-garage{display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(ellipse,#49667955,transparent 70%);min-height:150px}.race-driver-garage img{width:100%;max-width:300px;aspect-ratio:2;object-fit:contain}.race-driver-garage strong{color:#d6f36b}.race-driver-details{min-width:0}.race-driver-details h3{font-size:21px;color:#edf4fb;overflow-wrap:anywhere}.race-driver-details>p{font-size:12px;color:#91a6ba;margin-top:4px}.race-driver-details dl{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}.race-driver-details dl>div{background:#ffffff05;padding:12px;border-radius:10px}.race-driver-details dt{font-size:11px;color:#91a6ba}.race-driver-details dd{font-size:22px;font-weight:700;color:#edf4fb;margin-top:4px;font-variant-numeric:tabular-nums}.race-driver-details dd small{font-size:11px;color:#91a6ba}
+@media(max-width:600px){.race-driver-profile{grid-template-columns:1fr;gap:12px;padding:16px}.race-driver-garage{min-height:100px}.race-driver-garage img{max-width:240px}.race-rank-badge{width:24px;height:28px}.race-top-ten tbody td{padding:12px 6px}.race-top-ten table{font-size:12px}}
