@@ -18,6 +18,11 @@ test('driver selection displays matching car and stats and ignores a stale respo
  await act(async()=>{renderer=create(<RaceLeaderboard language="uzbek_latin" revision={0}/>)});
  const links=()=>renderer!.root.findAllByProps({className:'race-driver-link'});
  await act(async()=>links()[0].props.onClick());
+ const tableRows=renderer!.root.findByType('tbody').findAllByType('tr');
+ assert.equal(tableRows.length,3);
+ assert.equal(tableRows[1].props.className,'race-profile-row');
+ assert.equal(tableRows[1].findByType('td').props.colSpan,5);
+ assert.equal(tableRows[2].findByType('button').children[0],'Vali');
  await act(async()=>links()[1].props.onClick());
  assert.equal(renderer!.root.findByType('img').props.alt,'Malibu');
  await act(async()=>resolveA({data:{equipped:'tico',trophies:10},error:null}));
