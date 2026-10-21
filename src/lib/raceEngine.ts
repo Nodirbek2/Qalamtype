@@ -5,6 +5,7 @@ export const ENGINE_VOICES = {
  jiguli: {idle:33, rev:116, tone:'square', harmonic:2, mix:.13, cutoff:420, rumble:.28},
  nexia1: {idle:40, rev:143, tone:'sawtooth', harmonic:2, mix:.18, cutoff:570, rumble:.16},
  nexia2: {idle:43, rev:153, tone:'triangle', harmonic:2, mix:.28, cutoff:720, rumble:.12},
+ damas: {idle:51, rev:155, tone:'square', harmonic:1.5, mix:.19, cutoff:600, rumble:.23},
  spark: {idle:53, rev:183, tone:'triangle', harmonic:1.5, mix:.30, cutoff:950, rumble:.08},
  lacetti: {idle:38, rev:136, tone:'sawtooth', harmonic:2, mix:.24, cutoff:590, rumble:.15},
  cobalt: {idle:44, rev:148, tone:'triangle', harmonic:3, mix:.19, cutoff:680, rumble:.13},

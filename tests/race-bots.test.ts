@@ -1,3 +1,4 @@
+import {CARS} from '../src/lib/raceCareer';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {botPerformance,botCarIndex,BOT_CAR_WEIGHTS} from '../src/lib/raceBots';
@@ -25,13 +26,13 @@ test('random opponents remain bounded, pause, and preserve deterministic monoton
 
 test('bot cars shuffle per round and premium cars are rare, with stable assignments',()=>{
  assert.equal(BOT_CAR_WEIGHTS.reduce((sum,v)=>sum+v,0),100);
- const counts=Array(11).fill(0);
+ const counts=Array(CARS.length).fill(0);
  for(let seed=0;seed<10000;seed++)for(const id of ['bot-0','bot-1','bot-2']){
   const index=botCarIndex(id,seed);counts[index]++;assert.equal(botCarIndex(id,seed),index);
  }
  assert.ok(counts.every(v=>v>0));
- assert.ok(counts.slice(0,5).reduce((a,b)=>a+b,0)>22000);
- const premium=counts.slice(8).reduce((a,b)=>a+b,0);assert.ok(premium>1200&&premium<2400);
- assert.ok(counts[0]>counts[10]*12);
- for(const id of ['bot-0','bot-1','bot-2'])assert.ok(new Set(Array.from({length:1000},(_,seed)=>botCarIndex(id,seed))).size===11);
+ assert.ok(counts.slice(0,6).reduce((a,b)=>a+b,0)>22000);
+ const premium=counts.slice(9).reduce((a,b)=>a+b,0);assert.ok(premium>1200&&premium<2400);
+ assert.ok(counts[0]>counts[11]*12);
+ for(const id of ['bot-0','bot-1','bot-2'])assert.ok(new Set(Array.from({length:1000},(_,seed)=>botCarIndex(id,seed))).size===CARS.length);
 });

@@ -23,9 +23,15 @@ test('every racing interface message is present in all four system languages',()
 });
 
 test('real car prices increase strictly and legacy purchases migrate without lost balances',()=>{
- assert.equal(CARS.length,11);assert.equal(CARS[0].id,'tico');assert.equal(CARS[0].price,0);assert.equal(CARS.at(-1)?.id,'gwagon');
+ assert.equal(CARS.length,12);assert.equal(CARS[0].id,'tico');assert.equal(CARS[0].price,0);assert.equal(CARS.at(-1)?.id,'gwagon');
  for(let i=1;i<CARS.length;i++)assert.ok(CARS[i].price>CARS[i-1].price);
  const c=migrateLegacyCars({coins:10,owned:['spark','comet','pulse','phantom','apex'],equipped:'apex'});
  assert.deepEqual(c.owned,['tico','jiguli','nexia1','nexia2','lacetti']);assert.equal(c.coins,1060);assert.equal(c.equipped,'lacetti');
  const gaps=LEAGUES.slice(1).map((l,i)=>l.min-LEAGUES[i].min);for(let i=1;i<gaps.length;i++)assert.ok(gaps[i]>gaps[i-1]);
+});
+
+test('Damas follows Nexia 2 and costs 850 coins only on first purchase',()=>{
+ const index=CARS.findIndex(car=>car.id==='nexia2');assert.equal(CARS[index+1].id,'damas');assert.equal(CARS[index+1].name,'Damas');
+ let career={...emptyCareer(),coins:900};career=equipCar(career,'damas');assert.equal(career.coins,50);assert.equal(career.equipped,'damas');
+ career=equipCar(career,'tico');career=equipCar(career,'damas');assert.equal(career.coins,50);
 });

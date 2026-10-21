@@ -18,7 +18,7 @@ export function botPerformance(id:string,raceSeed:number,elapsed:number){
 }
 
 // Percent chances follow the catalog order. Premium cars remain possible but rare.
-export const BOT_CAR_WEIGHTS=[22,17,14,12,10,8,6,5,3,2,1] as const;
+export const BOT_CAR_WEIGHTS=[20,16,13,11,8,9,7,6,4,3,2,1] as const;
 export function botCarIndex(id:string,raceSeed:number){
  let hash=2166136261;
  for(const char of 'car:'+id+':'+raceSeed)hash=Math.imul(hash^char.charCodeAt(0),16777619);

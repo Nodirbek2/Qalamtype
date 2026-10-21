@@ -3,6 +3,7 @@ export const CARS = [
  {id:'jiguli',name:'Jiguli',price:150,color:'#E6C681',shape:1},
  {id:'nexia1',name:'Nexia 1',price:350,color:'#C7D2DF',shape:2},
  {id:'nexia2',name:'Nexia 2',price:650,color:'#A8C5CE',shape:3},
+ {id:'damas',name:'Damas',price:850,color:'#F1F2EE',shape:11},
  {id:'spark',name:'Spark',price:1000,color:'#71D9AF',shape:4},
  {id:'lacetti',name:'Lacetti',price:1500,color:'#CCD3DB',shape:5},
  {id:'cobalt',name:'Cobalt',price:2200,color:'#D8E4EE',shape:6},
