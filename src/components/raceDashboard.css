@@ -53,3 +53,10 @@
 .qr-page .game-stage-large .qr-race-surface[data-phase=finished] .qr-track{flex:0 0 30%;min-height:110px}
 .qr-page .game-stage-large .qr-race-surface[data-phase=finished] .qr-sky{display:block;height:50px}
 @media(max-height:600px){.qr-page .game-stage-large .qr-race-surface[data-phase=finished] .qr-track{min-height:65px;flex-basis:20%}.qr-page .game-stage-large .qr-race-surface[data-phase=finished] .qr-sky{display:none}}
+/* Exhaust starts at the rear bumper and disperses behind the car. */
+.qr-physical-scene .qr-exhaust{left:9%;top:73%;width:1px;height:1px;background:none;border-radius:0;animation:none;opacity:var(--qr-car-speed,0);pointer-events:none;z-index:0}
+.qr-exhaust i{position:absolute;left:0;top:0;width:12px;height:9px;border-radius:50%;background:radial-gradient(ellipse,#ced8df80 0%,#acbbc34a 35%,#acbbc300 72%);animation:qr-smoke 1.1s linear infinite;animation-delay:calc(var(--puff)*-.183s);will-change:transform,opacity}
+.qr-exhaust i:nth-child(1){--puff:0}.qr-exhaust i:nth-child(2){--puff:1}.qr-exhaust i:nth-child(3){--puff:2}.qr-exhaust i:nth-child(4){--puff:3}.qr-exhaust i:nth-child(5){--puff:4}.qr-exhaust i:nth-child(6){--puff:5}
+@keyframes qr-smoke{0%{transform:translate(0,0) scale(.35);opacity:0}12%{opacity:.8}55%{opacity:.35}100%{transform:translate(calc(-25px - var(--qr-car-speed,0)*42px),-16px) scale(3.7);opacity:0}}
+.qr-racer[data-moving=false] .qr-exhaust{opacity:0}.qr-racer[data-moving=false] .qr-exhaust i{animation-play-state:paused}
+@media(prefers-reduced-motion:reduce){.qr-exhaust,.qr-dust{display:none}}
