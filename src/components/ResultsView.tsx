@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { TelegramBlogPrompt } from './TelegramBlogPrompt';
 import { TestResult, Difficulty, Language, TestMode } from '../types';
 import { useSettings } from '../context/SettingsContext';
 import { useAuth } from '../context/AuthContext';
@@ -45,6 +46,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
   // Keyboard shortcut for Enter or Esc
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.defaultPrevented || document.querySelector('dialog[open]')) return;
       if (e.key === 'Enter' || e.key === 'Escape') {
         e.preventDefault();
         onNextTest();
@@ -153,6 +155,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
 
   return (
     <div className="w-full max-w-6xl mx-auto px-3 sm:px-4 py-2 sm:py-3 flex flex-col gap-3 font-sans select-none animate-fade-in">
+      <TelegramBlogPrompt />
       {/* 3-Column Grid on Desktop */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 items-stretch">
         {/* Column 1: Left (~25% width -> lg:col-span-3) */}
