@@ -15,7 +15,7 @@ test('display is counted before dismissal, repeats only after another completed 
     setTimeout(fn: () => void, delay: number) { assert.equal(delay, 2000); timer = fn; return 1; },
     clearTimeout() { timer = undefined; }, addEventListener() {}, removeEventListener() {},
   };
-  const output = await build({ entryPoints: ['src/components/TelegramBlogPrompt.tsx'], bundle: true, write: false, platform: 'node', format: 'esm', external: ['react', 'react/jsx-runtime', 'lucide-react'], plugins: [{ name: 'settings', setup(builder) {
+  const output = await build({ entryPoints: ['src/components/TelegramBlogPrompt.tsx'], bundle: true, write: false, platform: 'node', format: 'esm', loader: { '.css': 'empty' }, external: ['react', 'react/jsx-runtime', 'lucide-react'], plugins: [{ name: 'settings', setup(builder) {
     builder.onResolve({filter:/context\/SettingsContext$/},()=>({path:'settings',namespace:'mock'}));
     builder.onLoad({filter:/.*/,namespace:'mock'},()=>({contents:"export const useSettings=()=>({siteLanguage:'uzbek_latin'});",loader:'js'}));
   } }] });
