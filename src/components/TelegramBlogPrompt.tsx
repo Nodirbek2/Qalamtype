@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Send, X, ArrowUpRight } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
 import { canShowTelegramPrompt, localDay, TELEGRAM_PROMPT_KEY } from '../lib/telegramPrompt';
 
@@ -11,37 +10,41 @@ const copy = {
   english: { title: 'Take a typing break with my blog', description: 'I share my thoughts and projects on Telegram.', visit: 'Visit my Telegram blog', later: 'Maybe later', close: 'Close' },
 };
 
-let dismissedThisDay: string | null = null;
-function lastDismissedDay() {
-  try { return localStorage.getItem(TELEGRAM_PROMPT_KEY) || dismissedThisDay; }
-  catch { return dismissedThisDay; }
+let shownThisDay: string | null = null;
+function lastShownDay() {
+  try { return localStorage.getItem(TELEGRAM_PROMPT_KEY) || shownThisDay; }
+  catch { return shownThisDay; }
 }
 
 export function TelegramBlogPrompt() {
-  const { currentUser, loading } = useAuth();
   const { siteLanguage } = useSettings();
   const text = copy[siteLanguage] || copy.uzbek_latin;
   const dialog = useRef<HTMLDialogElement>(null);
   const [ready, setReady] = useState(false);
-  const visible = ready && !loading && !currentUser;
+  const visible = ready;
 
-  const dismiss = () => {
-    dismissedThisDay = localDay();
-    try { localStorage.setItem(TELEGRAM_PROMPT_KEY, dismissedThisDay); } catch { /* Session fallback above. */ }
-    setReady(false);
-  };
+  const dismiss = () => setReady(false);
 
   useEffect(() => {
-    if (loading || currentUser || !canShowTelegramPrompt(false, lastDismissedDay())) return;
+    if (!canShowTelegramPrompt(lastShownDay())) return;
     const timer = window.setTimeout(() => {
-      if (canShowTelegramPrompt(false, lastDismissedDay())) setReady(true);
+      if (canShowTelegramPrompt(lastShownDay())) setReady(true);
     }, 2000);
     return () => window.clearTimeout(timer);
-  }, [loading, currentUser]);
+  }, []);
 
   useEffect(() => {
     const node = dialog.current;
-    if (visible && node && !node.open) node.showModal();
+    if (visible && node && !node.open) {
+      if (!canShowTelegramPrompt(lastShownDay())) {
+        setReady(false);
+        return;
+      }
+      node.showModal();
+      // Count an actual display, even if the visitor leaves without closing it.
+      shownThisDay = localDay();
+      try { localStorage.setItem(TELEGRAM_PROMPT_KEY, shownThisDay); } catch { /* Session fallback above. */ }
+    }
     if (!visible && node?.open) node.close();
     const onStorage = (event: StorageEvent) => {
       if (event.key === TELEGRAM_PROMPT_KEY && event.newValue === localDay()) setReady(false);

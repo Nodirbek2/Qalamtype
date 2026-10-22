@@ -19,6 +19,7 @@ export function AcademyResultActions({ nextLabel, retryLabel, onNext, onRetry }:
     actions.current?.closest('.academy-completion')?.scrollIntoView({ block: 'start' });
     primaryButton.current?.focus({ preventScroll: true });
     const handleEnter = (event: KeyboardEvent) => {
+      if (typeof document !== 'undefined' && document.querySelector('dialog[open]')) return;
       if (event.key !== 'Enter' || event.repeat || event.isComposing || event.ctrlKey || event.altKey || event.metaKey || event.shiftKey || !nextAction.current) return;
       event.preventDefault();
       event.stopPropagation();

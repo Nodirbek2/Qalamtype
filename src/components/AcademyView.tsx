@@ -1,3 +1,4 @@
+import { TelegramBlogPrompt } from './TelegramBlogPrompt';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
@@ -526,6 +527,7 @@ const ActiveLessonRunner: React.FC<ActiveLessonRunnerProps> = ({
       {/* Lesson Complete / Results View */}
       {phase === 'completed' && result ? (
         <div className="academy-completion bg-[#171E2B] rounded-2xl border border-[rgba(240,243,250,0.12)] p-6 sm:p-8 shadow-2xl text-center space-y-6 animate-fade-in max-w-xl mx-auto">
+          <TelegramBlogPrompt />
           {/* New Record Banner if applicable */}
           {isNewRecord && (
             <div className="inline-flex items-center space-x-1.5 bg-[#63D9DA]/15 text-[#63D9DA] border border-[#63D9DA]/30 px-3 py-1 rounded-full text-xs font-mono font-bold animate-bounce-slow">
