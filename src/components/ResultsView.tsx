@@ -1,3 +1,4 @@
+import { UserAvatar } from './UserAvatar';
 import React, { useState, useEffect } from 'react';
 import { TelegramBlogPrompt } from './TelegramBlogPrompt';
 import { TestResult, Difficulty, Language, TestMode } from '../types';
@@ -345,18 +346,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
                     >
                       <div className="flex items-center space-x-2 min-w-0">
                         <span className="w-4 font-bold text-center shrink-0">{rank}</span>
-                        {row.photoURL ? (
-                          <img
-                            src={row.photoURL}
-                            alt={row.username}
-                            referrerPolicy="no-referrer"
-                            className="w-4 h-4 rounded-full object-cover shrink-0"
-                          />
-                        ) : (
-                          <div className="w-4 h-4 rounded-full bg-[#171E2B] border border-[rgba(240,243,250,0.12)] text-[#D6F36B] flex items-center justify-center font-bold text-[8px] shrink-0">
-                            {row.username.charAt(0).toUpperCase()}
-                          </div>
-                        )}
+                        <UserAvatar uid={row.uid} name={row.username} photoURL={row.photoURL} className="w-5 h-5"/>
                         <span className="truncate text-[#F0F3FA] text-[11px]">@{row.username}</span>
                         {isCurrUser && (
                           <span className="text-[8px] px-1 py-0.2 rounded bg-[#D6F36B]/20 text-[#D6F36B] font-bold border border-[#D6F36B]/30 shrink-0">
@@ -381,18 +371,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
                       <span className="w-4 font-bold text-center text-[#A6B1C5] shrink-0">
                         {userRankIndex >= 0 ? userRankIndex + 1 : '-'}
                       </span>
-                      {currentUserRow.photoURL ? (
-                        <img
-                          src={currentUserRow.photoURL}
-                          alt={currentUserRow.username}
-                          referrerPolicy="no-referrer"
-                          className="w-4 h-4 rounded-full object-cover shrink-0"
-                        />
-                      ) : (
-                        <div className="w-4 h-4 rounded-full bg-[#D6F36B] text-[#0D111A] flex items-center justify-center font-bold text-[8px] shrink-0">
-                          {currentUserRow.username.charAt(0).toUpperCase()}
-                        </div>
-                      )}
+                      <UserAvatar uid={currentUserRow.uid} name={currentUserRow.username} photoURL={currentUserRow.photoURL} className="w-5 h-5"/>
                       <span className="truncate text-[#F0F3FA] text-[11px]">
                         @{currentUserRow.username}
                       </span>

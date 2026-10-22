@@ -1,3 +1,4 @@
+import { defaultAvatar } from '../lib/avatars';
 import { getAuthRedirectUrl } from '../lib/authRedirect';
 import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { User } from '@supabase/supabase-js';
@@ -66,7 +67,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         username: user.email?.split('@')[0] || 'user',
         usernameLower: (user.email?.split('@')[0] || 'user').toLowerCase(),
         email: user.email || '',
-        photoURL: user.user_metadata?.avatar_url || '',
+        photoURL: user.user_metadata?.avatar_url || defaultAvatar(user.id),
         createdAt: new Date().toISOString(),
         preferredSiteLanguage: 'uzbek_latin',
         preferredTypingLanguage: 'uzbek_latin',
@@ -93,7 +94,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           email: user.email || '',
           firstName: data.first_name || '',
           lastName: data.last_name || '',
-          photoURL: data.avatar_url || '',
+          photoURL: data.avatar_url || defaultAvatar(user.id),
           createdAt: data.updated_at || new Date().toISOString(),
           preferredSiteLanguage: 'uzbek_latin',
           preferredTypingLanguage: 'uzbek_latin',
@@ -130,7 +131,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         email: user.email || '',
         firstName: firstName,
         lastName: lastName,
-        photoURL: meta.avatar_url || meta.picture || '',
+        photoURL: meta.avatar_url || meta.picture || defaultAvatar(user.id),
         createdAt: new Date().toISOString(),
         preferredSiteLanguage: 'uzbek_latin',
         preferredTypingLanguage: 'uzbek_latin',

@@ -1,3 +1,4 @@
+import { UserAvatar } from './UserAvatar';
 import React, { useState, useRef, useEffect } from 'react';
 import { gameText } from '../data/gameI18n';
 import { Logo } from './Logo';
@@ -156,18 +157,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     }`}
                     title={t('nav_account')}
                   >
-                    {userProfile.photoURL ? (
-                      <img
-                        src={userProfile.photoURL}
-                        alt={userProfile.username}
-                        referrerPolicy="no-referrer"
-                        className="w-4 h-4 sm:w-5 sm:h-5 rounded-full object-cover shrink-0"
-                      />
-                    ) : (
-                      <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[#D6F36B] text-[#0D111A] flex items-center justify-center font-mono font-bold text-[9px] sm:text-[10px] shrink-0">
-                        {userProfile.username.charAt(0).toUpperCase()}
-                      </div>
-                    )}
+                    <UserAvatar uid={currentUser.id} name={userProfile.username} photoURL={userProfile.photoURL} className="w-4 h-4 sm:w-5 sm:h-5"/>
                     <span className="font-mono text-xs text-[#F0F3FA] max-w-[65px] sm:max-w-[110px] overflow-hidden text-ellipsis whitespace-nowrap block shrink">
                       {userProfile.username}
                     </span>

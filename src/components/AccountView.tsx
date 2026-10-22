@@ -1,3 +1,6 @@
+import { AVATAR_PRESETS } from '../lib/avatars';
+import { avatarText } from '../data/avatarI18n';
+import { UserAvatar } from './UserAvatar';
 import { authText } from '../data/authI18n';
 import { interfaceText } from '../data/interfaceCopy';
 import React, { useState, useEffect, useRef } from 'react';
@@ -53,6 +56,8 @@ export const AccountView: React.FC = () => {
   // Avatar upload states
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [avatarError, setAvatarError] = useState<string | null>(null);
+  const [avatarSaved, setAvatarSaved] = useState(false);
+  const avatarCopy = avatarText(siteLanguage);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Results & Stats states
@@ -179,17 +184,34 @@ export const AccountView: React.FC = () => {
     }
 
     setAvatarError(null);
+    setAvatarSaved(false);
     setUploadingAvatar(true);
 
     try {
       const downloadUrl = await uploadAvatarImage(currentUser.id, file);
       await updateUserProfile({ photoURL: downloadUrl });
+      setAvatarSaved(true);
     } catch (err: any) {
       console.error('Avatar upload error:', err);
       setAvatarError(u('imageFailed'));
     } finally {
       setUploadingAvatar(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const chooseAvatar = async (photoURL: string) => {
+    if (uploadingAvatar) return;
+    setAvatarError(null);
+    setAvatarSaved(false);
+    setUploadingAvatar(true);
+    try {
+      await updateUserProfile({ photoURL });
+      setAvatarSaved(true);
+    } catch {
+      setAvatarError(u('imageFailed'));
+    } finally {
+      setUploadingAvatar(false);
     }
   };
 
@@ -285,12 +307,6 @@ export const AccountView: React.FC = () => {
     return { diff, label: t(labelKey as any), count, avg, max };
   });
 
-  // Initials for fallback avatar
-  const initials =
-    (userProfile.firstName?.[0] || '') + (userProfile.lastName?.[0] || '') ||
-    userProfile.username?.[0]?.toUpperCase() ||
-    'U';
-
   return (
     <div className="w-full max-w-5xl mx-auto py-6 sm:py-10 px-4 font-sans animate-fade-in select-none space-y-8">
       {/* Page Header */}
@@ -312,25 +328,14 @@ export const AccountView: React.FC = () => {
           <div className="flex flex-col items-center space-y-3 shrink-0 mx-auto lg:mx-0">
             <div className="relative group">
               {/* Circular Avatar */}
-              {userProfile.photoURL ? (
-                <img
-                  src={userProfile.photoURL}
-                  alt={userProfile.username}
-                  referrerPolicy="no-referrer"
-                  className="w-28 h-28 rounded-full object-cover border-2 border-[rgba(240,243,250,0.12)] shadow-md"
-                />
-              ) : (
-                <div className="w-28 h-28 rounded-full bg-[#0D111A] border-2 border-[rgba(240,243,250,0.12)] text-[#D6F36B] flex items-center justify-center font-mono font-bold text-3xl shadow-md">
-                  {initials}
-                </div>
-              )}
+              <UserAvatar uid={currentUser.id} name={userProfile.username} photoURL={userProfile.photoURL} className="w-28 h-28 border-2 border-white/10 shadow-md"/>
 
               {/* Upload Overlay Button */}
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploadingAvatar}
-                className="absolute inset-0 rounded-full bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-[#F0F3FA] cursor-pointer"
+                className="absolute inset-0 rounded-full bg-black/60 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity flex flex-col items-center justify-center text-[#F0F3FA] cursor-pointer"
                 title={t('acc_change_photo')}
               >
                 {uploadingAvatar ? (
@@ -346,7 +351,7 @@ export const AccountView: React.FC = () => {
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/*"
+                accept="image/jpeg,image/png,image/webp,image/gif"
                 onChange={handleAvatarFileChange}
                 className="hidden"
               />
@@ -360,11 +365,24 @@ export const AccountView: React.FC = () => {
               className="text-xs font-mono text-[#D6F36B] hover:underline cursor-pointer flex items-center gap-1"
             >
               <Camera className="w-3.5 h-3.5" />
-              <span>{uploadingAvatar ? t('acc_saving') : t('acc_change_photo')}</span>
+              <span>{uploadingAvatar ? t('acc_saving') : avatarCopy.upload}</span>
             </button>
 
+            <fieldset disabled={uploadingAvatar} className="w-full max-w-[240px] border-t border-white/10 pt-4">
+              <legend className="px-2 text-xs text-[#F0F3FA] font-medium">{avatarCopy.choose}</legend>
+              <p className="mb-3 text-center text-[11px] leading-relaxed text-[#A6B1C5]">{avatarCopy.hint}</p>
+              <div className="grid grid-cols-4 gap-2">
+                {AVATAR_PRESETS.map((photoURL, index) => <button key={photoURL} type="button"
+                  aria-label={`${avatarCopy.pick} ${index + 1}`} aria-pressed={userProfile.photoURL === photoURL}
+                  onClick={() => chooseAvatar(photoURL)}
+                  className={`rounded-full border-2 p-0.5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#63D9DA] disabled:opacity-50 ${userProfile.photoURL === photoURL ? 'border-[#63D9DA] bg-[#63D9DA]/10' : 'border-transparent hover:border-white/30'}`}>
+                  <img src={photoURL} alt="" className="aspect-square w-full rounded-full"/>
+                </button>)}
+              </div>
+            </fieldset>
+            <p role="status" className="text-xs text-[#71D9AF]">{avatarSaved ? avatarCopy.saved : ''}</p>
             {avatarError && (
-              <p className="text-[11px] font-mono text-[#D64545] max-w-xs text-center">
+              <p role="alert" className="text-[11px] font-mono text-[#D64545] max-w-xs text-center">
                 {avatarError}
               </p>
             )}

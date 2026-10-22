@@ -1,0 +1,20 @@
+.qt-podium{display:flex;justify-content:center;align-items:flex-end;gap:14px;max-width:760px;margin:44px auto 28px;padding:0 8px}
+.qt-podium-card{--podium-color:#e9bc59;flex:1;min-width:0;max-width:250px;text-align:center;order:2}
+.qt-podium-rank-2{--podium-color:#b7cbe4;order:1}
+.qt-podium-rank-3{--podium-color:#d69b79;order:3}
+.qt-podium-person{position:relative;padding:16px 8px 22px}
+.qt-podium-crown{color:var(--podium-color);margin:0 auto 9px;filter:drop-shadow(0 0 12px #e9bc5940)}
+.qt-podium-portrait{position:relative;width:78px;margin:auto}
+.qt-podium-avatar{width:78px;height:78px;border:3px solid var(--podium-color);box-shadow:0 0 0 6px color-mix(in srgb,var(--podium-color) 9%,transparent)}
+.qt-podium-rank-1 .qt-podium-portrait,.qt-podium-rank-1 .qt-podium-avatar{width:96px;height:96px}
+.qt-podium-medal{position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);display:grid;place-items:center;width:27px;height:27px;border-radius:50%;background:var(--podium-color);color:#0d111a;font-weight:800;border:3px solid #0d111a;font-size:12px}
+.qt-podium-person h2{color:#f0f3fa;font-size:14px;font-weight:600;margin:20px 0 8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qt-podium-person p{display:flex;align-items:baseline;justify-content:center;gap:5px;color:var(--podium-color)}
+.qt-podium-person strong{font-size:32px;line-height:1.2;font-weight:700;font-variant-numeric:tabular-nums}
+.qt-podium-person p span{font-size:10px;letter-spacing:.1em}
+.qt-podium-person small{display:block;color:#a6b1c5;font-size:11px;margin-top:5px}
+.qt-podium-step{height:100px;border:1px solid color-mix(in srgb,var(--podium-color) 25%,transparent);border-bottom:0;border-radius:16px 16px 0 0;background:linear-gradient(180deg,color-mix(in srgb,var(--podium-color) 13%,#171e2b),#171e2b55);display:grid;place-items:center;color:var(--podium-color)}
+.qt-podium-step span{font-size:44px;font-weight:800;opacity:.4}
+.qt-podium-rank-2 .qt-podium-step{height:70px}
+.qt-podium-rank-3 .qt-podium-step{height:48px}
+@media(max-width:480px){.qt-podium{gap:8px;padding:0;margin-top:28px}.qt-podium-person{padding:12px 0 16px}.qt-podium-portrait,.qt-podium-avatar{width:58px;height:58px}.qt-podium-rank-1 .qt-podium-portrait,.qt-podium-rank-1 .qt-podium-avatar{width:74px;height:74px}.qt-podium-person h2{font-size:11px}.qt-podium-person strong{font-size:25px}.qt-podium-person small{font-size:9px}.qt-podium-step{height:82px}.qt-podium-rank-2 .qt-podium-step{height:58px}.qt-podium-rank-3 .qt-podium-step{height:40px}}

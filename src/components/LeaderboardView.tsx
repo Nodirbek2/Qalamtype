@@ -1,3 +1,5 @@
+import { LeaderboardPodium } from './LeaderboardPodium';
+import { UserAvatar } from './UserAvatar';
 import { interfaceText } from '../data/interfaceCopy';
 import React, { useState, useEffect } from 'react';
 import {
@@ -242,6 +244,7 @@ CREATE POLICY "Users insert own result" ON public.results FOR INSERT WITH CHECK 
         </div>
       )}
 
+      {!loading && !error && <LeaderboardPodium results={results}/>}
       {/* Leaderboard Table Container */}
       <div className="bg-[#171E2B] rounded-xl border border-[rgba(240,243,250,0.08)] overflow-hidden shadow-lg">
         {loading ? (
@@ -313,18 +316,7 @@ CREATE POLICY "Users insert own result" ON public.results FOR INSERT WITH CHECK 
                       {/* User Avatar + Username */}
                       <td className="py-3.5 px-4">
                         <div className="flex items-center space-x-2.5">
-                          {row.photoURL ? (
-                            <img
-                              src={row.photoURL}
-                              alt={row.username}
-                              referrerPolicy="no-referrer"
-                              className="w-6 h-6 rounded-full object-cover shrink-0"
-                            />
-                          ) : (
-                            <div className="w-6 h-6 rounded-full bg-[#171E2B] border border-[rgba(240,243,250,0.12)] text-[#D6F36B] flex items-center justify-center font-mono font-bold text-[10px] shrink-0">
-                              {row.username.charAt(0).toUpperCase()}
-                            </div>
-                          )}
+                          <UserAvatar uid={row.uid} name={row.username} photoURL={row.photoURL} className="w-8 h-8"/>
                           <div className="flex items-center gap-1.5">
                             <span className="font-medium text-[#F0F3FA] hover:text-[#D6F36B] transition-colors">
                               @{row.username}

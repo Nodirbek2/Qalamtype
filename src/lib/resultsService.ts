@@ -169,70 +169,50 @@ export async function saveTestResult(
   }
 }
 
-/**
- * Uploads a profile image to Supabase Storage, with compressed base64 fallback.
- */
+/** Decode and crop before upload so every gallery photo is small and square. */
 export async function uploadAvatarImage(uid: string, file: File): Promise<string> {
-  if (isSupabaseConfigured) {
-    try {
-      const fileExt = file.name.split('.').pop() || 'jpg';
-      const filePath = `${uid}/avatar.${fileExt.toLowerCase()}`;
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, file, { upsert: true });
-
-      if (!uploadError) {
-        const { data: publicUrlData } = supabase.storage
-          .from('avatars')
-          .getPublicUrl(filePath);
-
-        if (publicUrlData?.publicUrl) {
-          return `${publicUrlData.publicUrl}?v=${Date.now()}`;
-        }
-      }
-    } catch (err) {
-      console.warn('Supabase storage upload failed, using fallback:', err);
-    }
-  }
-
-  return new Promise((resolve, reject) => {
+  const compressed = await new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = () => {
       const img = new Image();
       img.onload = () => {
         const canvas = document.createElement('canvas');
-        const MAX_SIZE = 256;
-        let width = img.width;
-        let height = img.height;
-
-        if (width > height) {
-          if (width > MAX_SIZE) {
-            height *= MAX_SIZE / width;
-            width = MAX_SIZE;
-          }
-        } else {
-          if (height > MAX_SIZE) {
-            width *= MAX_SIZE / height;
-            height = MAX_SIZE;
-          }
-        }
-
-        canvas.width = width;
-        canvas.height = height;
+        canvas.width = canvas.height = 256;
         const ctx = canvas.getContext('2d');
-        if (ctx) {
-          ctx.drawImage(img, 0, 0, width, height);
-          resolve(canvas.toDataURL('image/jpeg', 0.85));
-        } else {
-          resolve(e.target?.result as string);
+        if (!ctx || !img.width || !img.height) {
+          reject(new Error('Failed to process image file'));
+          return;
         }
+        const side = Math.min(img.width, img.height);
+        ctx.fillStyle = '#171E2B';
+        ctx.fillRect(0, 0, 256, 256);
+        ctx.drawImage(img, (img.width - side) / 2, (img.height - side) / 2, side, side, 0, 0, 256, 256);
+        resolve(canvas.toDataURL('image/jpeg', 0.85));
       };
       img.onerror = () => reject(new Error('Failed to process image file'));
-      img.src = e.target?.result as string;
+      img.src = String(reader.result);
     };
-    reader.onerror = (e) => reject(e);
+    reader.onerror = () => reject(new Error('Failed to read image file'));
     reader.readAsDataURL(file);
   });
+
+  if (isSupabaseConfigured) {
+    try {
+      const bytes = Uint8Array.from(atob(compressed.split(',')[1]), char => char.charCodeAt(0));
+      const filePath = `${uid}/avatar.jpg`;
+      const { error } = await supabase.storage.from('avatars').upload(filePath, new Blob([bytes], { type: 'image/jpeg' }), {
+        upsert: true, contentType: 'image/jpeg', cacheControl: '0',
+      });
+      if (!error) {
+        const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
+        if (data?.publicUrl) return `${data.publicUrl}?v=${Date.now()}`;
+      }
+    } catch (err) {
+      console.warn('Avatar storage unavailable, saving compressed image in profile:', err);
+    }
+  }
+  // Still persisted through profiles.avatar_url if Storage is temporarily unavailable.
+  return compressed;
 }
 
 /**
@@ -547,6 +527,9 @@ export function subscribeToLeaderboard(
   const channel = supabase
     .channel('leaderboard-changes')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'results' }, () => {
+      fetchLeaderboard();
+    })
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles' }, () => {
       fetchLeaderboard();
     })
     .subscribe();
