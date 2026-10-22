@@ -277,8 +277,8 @@ CREATE POLICY "Users insert own result" ON public.results FOR INSERT WITH CHECK 
                 </tr>
               </thead>
               <tbody className="divide-y divide-[rgba(240,243,250,0.05)]">
-                {results.map((row, index) => {
-                  const rank = index + 1;
+                {results.slice(3).map((row, index) => {
+                  const rank = index + 4;
                   const isTop1 = rank === 1;
                   const isTop2 = rank === 2;
                   const isTop3 = rank === 3;
