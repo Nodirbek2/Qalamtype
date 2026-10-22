@@ -1,3 +1,4 @@
+import { createCaretMotion } from '../lib/caretMotion';
 import React, { useRef, useEffect, useState, useLayoutEffect } from 'react';
 import { TypingWord } from './TypingWord';
 import { CARET_SPEED_MS } from '../types';
@@ -56,6 +57,12 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
 
   const caretRef = useRef<HTMLDivElement>(null);
   const previousCaret = useRef<{ x: number; y: number } | null>(null);
+  const caretMotion = useRef<ReturnType<typeof createCaretMotion> | null>(null);
+  useLayoutEffect(() => () => {
+    caretMotion.current?.stop();
+    caretMotion.current = null;
+    previousCaret.current = null;
+  }, []);
 
   const moveCaret = (position: { x: number; y: number; height: number; visible: boolean }) => {
     const caret = caretRef.current;
@@ -65,8 +72,16 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
     const duration = CARET_SPEED_MS[smoothCaret] ?? 100;
     // A wrap/reset should not sweep diagonally across an entire line of text.
     const snap = !previous || Math.abs(position.y - previous.y) > 1 || phase === 'idle' || reducedMotion || duration === 0;
-    caret.style.transition = snap ? 'none' : `transform ${duration}ms cubic-bezier(.22,.61,.36,1)`;
-    caret.style.transform = `translate3d(${position.x}px, ${position.y}px, 0)`;
+    if (!caretMotion.current) {
+      caretMotion.current = createCaretMotion(({ x, y }) => {
+        caret.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+      }, {
+        request: callback => window.requestAnimationFrame(callback),
+        cancel: id => window.cancelAnimationFrame(id),
+        now: () => performance.now(),
+      });
+    }
+    caretMotion.current.move({ x: position.x, y: position.y }, duration, snap);
     caret.style.height = `${position.height}px`;
     previousCaret.current = { x: position.x, y: position.y };
   };

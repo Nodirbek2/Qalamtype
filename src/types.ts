@@ -17,8 +17,8 @@ export const FONT_FAMILIES: Record<TypingFont, string> = {
 export const CARET_SPEED_MS: Record<CaretSpeed, number> = {
   off: 0,
   slow: 150,
-  medium: 90,
-  fast: 50,
+  medium: 100,
+  fast: 85,
 };
 
 export interface CharacterState {

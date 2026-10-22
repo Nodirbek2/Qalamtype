@@ -8,8 +8,9 @@ import {writeFile,unlink} from 'node:fs/promises';
 
 test('caret moves in the text layout commit without a second render, and wraps without a diagonal sweep',async()=>{
   let renders=0, row=0;
+  let animationFrame: FrameRequestCallback | undefined;
   (globalThis as any).__caretSettings=()=>{renders++;return {smoothCaret:'medium',typingFont:'jetbrains_mono',t:(key:string)=>key}};
-  (globalThis as any).window={matchMedia:()=>({matches:false}),addEventListener(){},removeEventListener(){}};
+  (globalThis as any).window={matchMedia:()=>({matches:false}),requestAnimationFrame(fn:FrameRequestCallback){animationFrame=fn;return 1},cancelAnimationFrame(){animationFrame=undefined},addEventListener(){},removeEventListener(){}};
   (globalThis as any).document={};
   const caret={style:{} as Record<string,string>};
   const container={getBoundingClientRect:()=>({top:0,left:0}),clientHeight:260,scrollTop:0,querySelector:()=>null};
@@ -30,16 +31,17 @@ test('caret moves in the text layout commit without a second render, and wraps w
   try{
     const {TypingArea}=await import(path.href);
     await act(async()=>{renderer=create(<TypingArea {...props}/>,{createNodeMock})});
-    assert.equal(caret.style.transition,'none');
+    assert.equal(caret.style.transition,undefined);
     const baseline=renders;
     await act(async()=>renderer!.update(<TypingArea {...props} currentIndex={1} wordsDisplay={word(1)}/>));
     assert.equal(renders,baseline+1,'position updates must not cause a second full text render');
+    assert.ok(animationFrame);
+    animationFrame!(performance.now()+110);
     assert.equal(caret.style.transform,'translate3d(12px, 0px, 0)');
-    assert.match(caret.style.transition,/^transform 90ms/);
-    assert.ok(!caret.style.transition.includes('height'));
+    assert.equal(caret.style.transition,undefined);
     row=42;
     await act(async()=>renderer!.update(<TypingArea {...props} currentIndex={2} wordsDisplay={word(2)}/>));
-    assert.equal(caret.style.transition,'none');
+    assert.equal(caret.style.transition,undefined);
     assert.equal(caret.style.transform,'translate3d(24px, 42px, 0)');
   }finally{
     if(renderer)await act(async()=>renderer!.unmount());
