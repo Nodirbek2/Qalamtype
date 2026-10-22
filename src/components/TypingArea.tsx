@@ -1,4 +1,6 @@
 import React, { useRef, useEffect, useState, useLayoutEffect } from 'react';
+import { TypingWord } from './TypingWord';
+import { CARET_SPEED_MS } from '../types';
 import { WordDisplayInfo } from '../hooks/useTypingEngine';
 import { Caret } from './Caret';
 import { TestMode, Duration, WordCount, Difficulty, Language, FONT_FAMILIES } from '../types';
@@ -52,7 +54,22 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
   const handledInputTimeRef = useRef<number>(0);
   const isComposingRef = useRef<boolean>(false);
 
-  const [caretPos, setCaretPos] = useState({ x: 0, y: 0, height: 28, visible: true });
+  const caretRef = useRef<HTMLDivElement>(null);
+  const previousCaret = useRef<{ x: number; y: number } | null>(null);
+
+  const moveCaret = (position: { x: number; y: number; height: number; visible: boolean }) => {
+    const caret = caretRef.current;
+    if (!caret) return;
+    const previous = previousCaret.current;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const duration = CARET_SPEED_MS[smoothCaret] ?? 100;
+    // A wrap/reset should not sweep diagonally across an entire line of text.
+    const snap = !previous || Math.abs(position.y - previous.y) > 1 || phase === 'idle' || reducedMotion || duration === 0;
+    caret.style.transition = snap ? 'none' : `transform ${duration}ms cubic-bezier(.22,.61,.36,1)`;
+    caret.style.transform = `translate3d(${position.x}px, ${position.y}px, 0)`;
+    caret.style.height = `${position.height}px`;
+    previousCaret.current = { x: position.x, y: position.y };
+  };
 
   const focusInput = () => {
     if (inputRef.current) {
@@ -283,7 +300,7 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
       const y = targetRect.top - textRect.top;
       const height = targetRect.height || 28;
 
-      setCaretPos({
+      moveCaret({
         x,
         y,
         height,
@@ -309,7 +326,7 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
         const y = prevRect.top - textRect.top;
         const height = prevRect.height || 28;
 
-        setCaretPos({
+        moveCaret({
           x,
           y,
           height,
@@ -327,8 +344,8 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
     }
 
     // 3. Fallback: Maintain previous valid caret position
-    setCaretPos((prev) => ({ ...prev, visible: true }));
-  }, [currentIndex, wordsDisplay, typingFont]);
+    // Keep the last measured position while text is being reset.
+  }, [currentIndex, wordsDisplay, typingFont, smoothCaret, phase]);
 
   // Window resize handler to recalculate caret position
   useEffect(() => {
@@ -342,7 +359,7 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
       if (el) {
         const targetRect = el.getBoundingClientRect();
         const isRight = el.getAttribute('data-caret-pos') === 'right';
-        setCaretPos({
+        moveCaret({
           x: (isRight ? targetRect.right : targetRect.left) - textRect.left,
           y: targetRect.top - textRect.top,
           height: targetRect.height || 28,
@@ -352,7 +369,7 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
         const prevEl = container.querySelector<HTMLSpanElement>(`[data-char-idx="${currentIndex - 1}"]`);
         if (prevEl) {
           const prevRect = prevEl.getBoundingClientRect();
-          setCaretPos({
+          moveCaret({
             x: prevRect.right - textRect.left,
             y: prevRect.top - textRect.top,
             height: prevRect.height || 28,
@@ -362,8 +379,16 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
       }
     };
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [currentIndex]);
+    const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(handleResize) : null;
+    if (containerRef.current) observer?.observe(containerRef.current);
+    let active = true;
+    document.fonts?.ready.then(() => { if (active) handleResize(); });
+    return () => {
+      active = false;
+      observer?.disconnect();
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [currentIndex, smoothCaret, phase]);
 
   const completedWordsCount = wordsDisplay.filter(
     (w) => !w.isCurrentWord && w.chars.every((c) => c.status !== 'untouched') && w.chars.length > 0
@@ -462,50 +487,12 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
         >
           {/* Smooth Floating Caret */}
           <Caret
-            x={caretPos.x}
-            y={caretPos.y}
-            height={caretPos.height}
+            ref={caretRef}
             speed={smoothCaret}
             isIdle={phase === 'idle'}
-            visible={caretPos.visible}
           />
 
-          {wordsDisplay.map((word, wIdx) => {
-            return (
-              <span key={`word-${wIdx}`} className="inline-flex flex-wrap relative my-0.5">
-                {word.chars.map((charObj) => {
-                  let colorClass = 'text-[#748199]';
-                  let bgClass = '';
-
-                  if (charObj.status === 'correct') {
-                    colorClass = 'text-[#F0F3FA]';
-                  } else if (charObj.status === 'incorrect') {
-                    colorClass = 'text-[#D64545] underline decoration-[#D64545] decoration-2';
-                    bgClass = 'bg-[#D64545]/15 rounded-sm';
-                  } else if (charObj.status === 'extra') {
-                    colorClass = 'text-[#D64545]/80 line-through';
-                    bgClass = 'bg-[#D64545]/20 rounded-sm';
-                  }
-
-                  const isTargetChar = charObj.isCurrent || charObj.isCurrentRight;
-                  const caretPosSide = charObj.isCurrentRight ? 'right' : 'left';
-                  const displayChar = charObj.isSpace ? '\u00A0' : charObj.char;
-
-                  return (
-                    <span
-                      key={`char-${charObj.globalIndex}`}
-                      ref={isTargetChar ? activeCharRef : null}
-                      data-char-idx={charObj.globalIndex}
-                      data-caret-pos={caretPosSide}
-                      className={`relative px-[0.5px] transition-colors duration-75 ${colorClass} ${bgClass}`}
-                    >
-                      {displayChar}
-                    </span>
-                  );
-                })}
-              </span>
-            );
-          })}
+          {wordsDisplay.map((word) => <TypingWord key={word.wordIndex} word={word} activeCharRef={activeCharRef}/>)}
         </div>
       </div>
 
