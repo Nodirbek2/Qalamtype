@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback, useRef, Suspense, lazy } from 
 import { LayoutGroup } from 'motion/react';
 import { TestMode, Duration, WordCount, Difficulty, Language, TestResult } from './types';
 import { useTypingEngine } from './hooks/useTypingEngine';
+import { useTestRestartShortcut } from './hooks/useTestRestartShortcut';
 import { useAuth } from './context/AuthContext';
 import { useSettings } from './context/SettingsContext';
 import { saveTestResult } from './lib/resultsService';
@@ -161,21 +162,17 @@ export default function App() {
     }
   }, [resetTest, activeView, navigateTo]);
 
-  // Global keydown handler for restart shortcuts (Tab or Esc)
-  useEffect(() => {
-    const handleGlobalShortcuts = (e: KeyboardEvent) => {
-      if (activeView === 'test' && e.key === 'Escape') {
-        e.preventDefault();
-        handleNextTest();
-      }
-    };
-    window.addEventListener('keydown', handleGlobalShortcuts);
-    return () => window.removeEventListener('keydown', handleGlobalShortcuts);
-  }, [activeView, handleNextTest]);
-
   const liveStats = getLiveStats();
   const articleTestVisible = activeView === 'blog' && blogSlug === 'klaviaturada-tez-yozish';
-  const restartArticleTest = () => { savedResultRef.current = null; setSavedToLeaderboard(false); resetTest(); };
+  const restartArticleTest = useCallback(() => {
+    savedResultRef.current = null;
+    setSavedToLeaderboard(false);
+    resetTest();
+  }, [resetTest]);
+  useTestRestartShortcut(
+    (activeView === 'test' || articleTestVisible) && !isSettingsOpen && !isPrivacyOpen && !isDonationOpen,
+    articleTestVisible ? restartArticleTest : handleNextTest,
+  );
   const typingFocus = (activeView === 'test' || articleTestVisible) && phase === 'running' && !isPaused && !isSettingsOpen && !isPrivacyOpen && !isDonationOpen;
 
   return (
