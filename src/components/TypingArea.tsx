@@ -293,117 +293,61 @@ export const TypingArea: React.FC<TypingAreaProps> = ({
     }
   };
 
-  // Compute caret position based on DOM elements relative to text container
   useLayoutEffect(() => {
-    if (!containerRef.current || !textRef.current) return;
+    const updateCaretAndScroll = () => {
+      const container = containerRef.current;
+      const text = textRef.current;
+      if (!container || !text) return;
 
-    const container = containerRef.current;
-    const textContainer = textRef.current;
-    const containerRect = container.getBoundingClientRect();
-    const textRect = textContainer.getBoundingClientRect();
+      let target = activeCharRef.current;
+      if (target?.getAttribute('data-char-idx') !== String(currentIndex)) {
+        target = container.querySelector<HTMLSpanElement>(`[data-char-idx="${currentIndex}"]`);
+      }
+      const useRightEdge = !target || target.getAttribute('data-caret-pos') === 'right';
+      if (!target && currentIndex > 0) {
+        target = container.querySelector<HTMLSpanElement>(`[data-char-idx="${currentIndex - 1}"]`);
+      }
+      if (!target) return;
 
-    // 1. Find active target element matching current index or query DOM
-    let targetEl = activeCharRef.current;
-    if (!targetEl || targetEl.getAttribute('data-char-idx') !== String(currentIndex)) {
-      targetEl = container.querySelector<HTMLSpanElement>(`[data-char-idx="${currentIndex}"]`);
-    }
-
-    if (targetEl) {
-      const targetRect = targetEl.getBoundingClientRect();
-      const isRight = targetEl.getAttribute('data-caret-pos') === 'right';
-      const x = (isRight ? targetRect.right : targetRect.left) - textRect.left;
-      const y = targetRect.top - textRect.top;
+      const targetRect = target.getBoundingClientRect();
+      const textRect = text.getBoundingClientRect();
       const height = targetRect.height || 28;
-
       moveCaret({
-        x,
-        y,
+        x: (useRightEdge ? targetRect.right : targetRect.left) - textRect.left,
+        y: targetRect.top - textRect.top,
         height,
         visible: true,
       });
 
-      // Handle container scrolling for desktop and mobile viewport heights
-      const relTop = targetRect.top - containerRect.top;
-      if (relTop + height > container.clientHeight - 25) {
-        container.scrollTop += (relTop + height) - (container.clientHeight - 25);
-      } else if (relTop < 15) {
-        container.scrollTop = Math.max(0, container.scrollTop + relTop - 15);
-      }
-      return;
-    }
+      const styles = window.getComputedStyle(text);
+      const lineHeight = Number.parseFloat(styles.lineHeight) || height;
+      const viewportTop = container.getBoundingClientRect().top + container.clientTop;
+      const viewportBottom = viewportTop + container.clientHeight;
+      const rowTop = targetRect.top - Math.max(0, (lineHeight - height) / 2);
+      // Leave one full row ahead when the text continues below the caret.
+      const previewBottom = Math.min(textRect.bottom, rowTop + 2 * lineHeight);
+      const topOverflow = rowTop - viewportTop;
+      const bottomOverflow = previewBottom + 4 - viewportBottom;
 
-    // 2. Fallback to previous element (currentIndex - 1) right edge
-    if (currentIndex > 0) {
-      const prevEl = container.querySelector<HTMLSpanElement>(`[data-char-idx="${currentIndex - 1}"]`);
-      if (prevEl) {
-        const prevRect = prevEl.getBoundingClientRect();
-        const x = prevRect.right - textRect.left;
-        const y = prevRect.top - textRect.top;
-        const height = prevRect.height || 28;
-
-        moveCaret({
-          x,
-          y,
-          height,
-          visible: true,
-        });
-
-        const relTop = prevRect.top - containerRect.top;
-        if (relTop + height > container.clientHeight - 25) {
-          container.scrollTop += (relTop + height) - (container.clientHeight - 25);
-        } else if (relTop < 15) {
-          container.scrollTop = Math.max(0, container.scrollTop + relTop - 15);
-        }
-        return;
-      }
-    }
-
-    // 3. Fallback: Maintain previous valid caret position
-    // Keep the last measured position while text is being reset.
-  }, [currentIndex, wordsDisplay, typingFont, smoothCaret, phase]);
-
-  // Window resize handler to recalculate caret position
-  useEffect(() => {
-    const handleResize = () => {
-      if (!containerRef.current || !textRef.current) return;
-      const container = containerRef.current;
-      const textContainer = textRef.current;
-      const textRect = textContainer.getBoundingClientRect();
-
-      let el = container.querySelector<HTMLSpanElement>(`[data-char-idx="${currentIndex}"]`);
-      if (el) {
-        const targetRect = el.getBoundingClientRect();
-        const isRight = el.getAttribute('data-caret-pos') === 'right';
-        moveCaret({
-          x: (isRight ? targetRect.right : targetRect.left) - textRect.left,
-          y: targetRect.top - textRect.top,
-          height: targetRect.height || 28,
-          visible: true,
-        });
-      } else if (currentIndex > 0) {
-        const prevEl = container.querySelector<HTMLSpanElement>(`[data-char-idx="${currentIndex - 1}"]`);
-        if (prevEl) {
-          const prevRect = prevEl.getBoundingClientRect();
-          moveCaret({
-            x: prevRect.right - textRect.left,
-            y: prevRect.top - textRect.top,
-            height: prevRect.height || 28,
-            visible: true,
-          });
-        }
+      if (topOverflow < 0) {
+        container.scrollTop = Math.max(0, container.scrollTop + topOverflow);
+      } else if (bottomOverflow > 0) {
+        container.scrollTop += Math.min(topOverflow, bottomOverflow);
       }
     };
-    window.addEventListener('resize', handleResize);
-    const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(handleResize) : null;
+
+    updateCaretAndScroll();
+    window.addEventListener('resize', updateCaretAndScroll);
+    const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(updateCaretAndScroll) : null;
     if (containerRef.current) observer?.observe(containerRef.current);
     let active = true;
-    document.fonts?.ready.then(() => { if (active) handleResize(); });
+    document.fonts?.ready.then(() => { if (active) updateCaretAndScroll(); });
     return () => {
       active = false;
       observer?.disconnect();
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('resize', updateCaretAndScroll);
     };
-  }, [currentIndex, smoothCaret, phase]);
+  }, [currentIndex, wordsDisplay, typingFont, smoothCaret, phase]);
 
   const completedWordsCount = wordsDisplay.filter(
     (w) => !w.isCurrentWord && w.chars.every((c) => c.status !== 'untouched') && w.chars.length > 0
