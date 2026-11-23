@@ -59,6 +59,15 @@ export const BLOG_ARTICLES: BlogArticle[] = [
         ]
       },
       {
+        heading: '10 daqiqalik tez yozish mashqi',
+        listItems: [
+          '1 daqiqa: vaqtli testda boshlang‘ich tezlik va aniqlikni o‘lchang.',
+          '3 daqiqa: F va J tugmalarini toping va asosiy qatordagi harflarni klaviaturaga qaramasdan yozing.',
+          '4 daqiqa: qisqa so‘zlarni yozing. Ko‘p adashgan harf birikmalarini sekin takrorlang.',
+          '2 daqiqa: xuddi shu tilda va rejimda testni qayta bajaring. Tezlik va aniqlikni birinchi natija bilan solishtiring.'
+        ]
+      },
+      {
         heading: "Qalamtype bilan mashq qiling",
         paragraphs: [
           "Qalamtype'ning Akademiya bo'limi aynan shu bosqichma-bosqich tizim asosida qurilgan — harflardan boshlab, so'zlar, tinish belgilari, raqamlar va murakkab matnlargacha. Har bir darsdan so'ng yulduzcha bahosi bilan o'z natijangizni ko'rasiz va qayerda ko'proq mashq kerakligini aniq bilib olasiz. O'zbek, rus va ingliz tillarida — bepul."

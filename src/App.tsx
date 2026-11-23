@@ -1,3 +1,4 @@
+import { TypingPracticeInfo } from './components/TypingPracticeInfo';
 import { applyPageSeo } from './lib/seo';
 import React, { useState, useEffect, useCallback, useRef, Suspense, lazy } from 'react';
 import { LayoutGroup } from 'motion/react';
@@ -201,6 +202,7 @@ export default function App() {
         <main className="site-main flex-1 flex flex-col px-4 sm:px-6 py-6 sm:py-10 max-w-6xl w-full mx-auto overflow-x-hidden">
           {activeView === 'test' && phase !== 'completed' && <HomeExperience onGames={() => navigateTo('games')} onAcademy={() => navigateTo('academy')} />}
           {activeView === 'test' && phase !== 'completed' && <div className="test-chrome">
+          <h1 className="mb-4 text-center text-lg font-semibold">{{ uzbek_latin: 'Tez yozish testi', uzbek_cyrillic: 'Тез ёзиш тести', english: 'Typing speed test', russian: 'Тест скорости печати' }[siteLanguage]}</h1>
           <ModeSelector
             mode={mode}
             duration={duration}
@@ -272,6 +274,8 @@ export default function App() {
             />
           )}
           </Suspense>
+          {activeView === 'test' && phase === 'idle' && <div className="test-chrome"><TypingPracticeInfo /></div>}
+          {activeView === 'academy' && <TypingPracticeInfo academy />}
         </main>
 
         <div className="test-chrome" aria-hidden={typingFocus}>

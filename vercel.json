@@ -39,10 +39,6 @@
     {
       "source": "/account",
       "destination": "/seo/account.html"
-    },
-    {
-      "source": "/((?!sitemap\\.xml|robots\\.txt|manifest\\.json|favicon\\.ico|.*\\.(?:ico|png|svg|jpg|jpeg|webp|gif|mp4|webm|vtt|xml|txt|json)).*)",
-      "destination": "/index.html"
     }
   ],
   "redirects": [
@@ -101,5 +97,6 @@
       "destination": "https://www.qalamtype.uz/:path*",
       "permanent": true
     }
-  ]
+  ],
+  "trailingSlash": false
 }

@@ -1,3 +1,4 @@
+import {TypingPracticeInfo} from '../src/components/TypingPracticeInfo';
 import React from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
 import {readFileSync,writeFileSync,mkdirSync,readdirSync} from 'node:fs';
@@ -17,12 +18,12 @@ for(const page of routes){
   for(const [key,value] of Object.entries({'twitter:title':page.title,'twitter:description':page.description}))html=html.replace(new RegExp(`(<meta name="${key}" content=")[^"]*("\\s*\\/?>)`),`$1${escape(value)}$2`);
   const article=BLOG_ARTICLES.find(article=>'/blog/'+article.slug===page.path);
   html=html.replace('</head>',`<meta name="robots" content="${'noindex' in page?'noindex, follow':'index, follow'}"/><link rel="stylesheet" href="/assets/${stylesheet}"/>${article?`<script id="article-schema" type="application/ld+json">${JSON.stringify(articleSchema(article)).replace(/</g,'\\u003c')}</script>`:''}</head>`);
-  const content=page.path.startsWith('/blog')?<BlogView currentSlug={article?.slug} onNavigateBlog={()=>{}} onNavigateHome={()=>{}}/>:<main className="max-w-4xl mx-auto p-8 text-[#F0F3FA]"><h1 className="text-3xl font-bold mb-5">{page.title}</h1><p className="text-[#A6B1C5]">{page.description}</p><p className="mt-6">Interaktiv mashqlar yuklanmoqda. JavaScript’ni yoqing va yozishni boshlang.</p></main>;
+  const content=page.path.startsWith('/blog')?<BlogView currentSlug={article?.slug} onNavigateBlog={()=>{}} onNavigateHome={()=>{}}/>:<main className="max-w-4xl mx-auto p-8 text-[#F0F3FA]"><h1 className="text-3xl font-bold mb-5">{page.title}</h1><p className="text-[#A6B1C5]">{page.description}</p>{(page.path==='/'||page.path==='/academy')&&<TypingPracticeInfo academy={page.path==='/academy'}/> }</main>;
   html=html.replace('<div id="root"></div>',`<div id="root">${renderToStaticMarkup(<>{navigation}{page.path==='/blog/klaviaturada-tez-yozish' && <section id="article-typing-test" className="max-w-4xl mx-auto p-8 text-center text-[#F0F3FA]"><h2 className="text-3xl font-bold mb-3">Tez yozishni hoziroq sinab ko‘ring</h2><p>Matnni yozishni boshlang — taymer birinchi harfdan ishlaydi. Qo‘llanma test ostida.</p><p className="mt-5 text-[#A6B1C5]">Interaktiv test yuklanmoqda. JavaScript yoqilganda shu yerda yozishingiz mumkin.</p><a href="/" className="text-[#D6F36B]">Asosiy yozish testiga o‘tish</a></section>}{content}</>)}</div>`);
   const name=page.path==='/'?'home':page.path.slice(1).replaceAll('/','--');
   writeFileSync(`dist/seo/${name}.html`,html);
   if(page.path==='/')writeFileSync('dist/index.html',html);
 }
-const sitemap=`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${PUBLIC_PAGES.map(page=>`  <url><loc>${SITE_ORIGIN+page.path}</loc><lastmod>2026-10-11</lastmod></url>`).join('\n')}\n</urlset>\n`;
+const sitemap=`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${PUBLIC_PAGES.map(page=>`  <url><loc>${SITE_ORIGIN+page.path}</loc><lastmod>${['/', '/academy', '/blog/klaviaturada-tez-yozish'].includes(page.path)?'2026-11-23':'2026-10-11'}</lastmod></url>`).join('\n')}\n</urlset>\n`;
 writeFileSync('dist/sitemap.xml',sitemap);
 console.log(`Generated ${routes.length} HTML pages and ${PUBLIC_PAGES.length} sitemap URLs`);

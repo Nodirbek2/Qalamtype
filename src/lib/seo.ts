@@ -6,7 +6,7 @@ const BLOG_META: Record<string,{title:string;description:string}> = {
   'tez-yozish-oyinlari':{title:'Tez yozish o‘yinlari haqida qo‘llanma — Qalamtype',description:'Poyga, vaqtli test va bosqichli darslar qanday yordam beradi? O‘zbekcha qo‘llanmani o‘qing, Qalamtype’da yozish tezligi va aniqligini sinang.'},
 };
 export const PUBLIC_PAGES = [
-  {path:'/', title:'Qalamtype — tez yozish testi va klaviatura mashqlari', description:'O‘zbek, rus va ingliz tilida yozish tezligi va aniqligini sinang. Qalamtype’da bepul typing test, Akademiya darslari va yozish o‘yinlari.'},
+  {path:'/', title:'O‘zbekcha tez yozish testi — QalamType', description:'O‘zbek, rus va ingliz tilida yozish tezligi va aniqligini sinang. Qalamtype’da bepul typing test, Akademiya darslari va yozish o‘yinlari.'},
   {path:'/academy', title:'Klaviaturada yozishni o‘rganish — Qalamtype Akademiya', description:'Harflar va sodda birikmalardan boshlang. Qalamtype Akademiyada barmoqlar joylashuvi, raqamlar, so‘zlar va jumlalarni bosqichma-bosqich mashq qiling.'},
   {path:'/games', title:'Yozish poygasi — Qalamtype', description:'Qalamtype yozish poygasida raqiblarni ortda qoldiring. Tangalar yig‘ing, avtomobillar oching va poyga reytingida yuqorilang.'},
   {path:'/leaderboard', title:'Tez yozish reytingi — Qalamtype peshqadamlari', description:'Qalamtype peshqadamlar jadvalidagi yozish natijalarini ko‘ring. O‘z tezlik va aniqligingizni mashq qilib yaxshilang.'},
@@ -39,5 +39,5 @@ export function applyPageSeo(path:string) {
   if(article){const schema=document.createElement('script');schema.id='article-schema';schema.type='application/ld+json';schema.textContent=JSON.stringify(articleSchema(article));document.head.appendChild(schema);}
 }
 export function articleSchema(article:typeof BLOG_ARTICLES[number]) {
-  return {'@context':'https://schema.org','@type':'Article',headline:article.title,description:article.description,inLanguage:'uz',datePublished:article.date,dateModified:'2026-10-11',mainEntityOfPage:SITE_ORIGIN+'/blog/'+article.slug,image:SITE_ORIGIN+'/og-image.png',author:{'@type':'Organization',name:'Qalamtype',url:SITE_ORIGIN,logo:SITE_ORIGIN+'/android-chrome-512x512.png'},publisher:{'@type':'Organization',name:'Qalamtype',logo:{'@type':'ImageObject',url:SITE_ORIGIN+'/android-chrome-512x512.png'}}};
+  return {'@context':'https://schema.org','@type':'Article',headline:article.title,description:article.description,inLanguage:'uz',datePublished:article.date,dateModified:article.slug==='klaviaturada-tez-yozish'?'2026-11-23':'2026-10-11',mainEntityOfPage:SITE_ORIGIN+'/blog/'+article.slug,image:SITE_ORIGIN+'/og-image.png',author:{'@type':'Organization',name:'Qalamtype',url:SITE_ORIGIN,logo:SITE_ORIGIN+'/android-chrome-512x512.png'},publisher:{'@type':'Organization',name:'Qalamtype',logo:{'@type':'ImageObject',url:SITE_ORIGIN+'/android-chrome-512x512.png'}}};
 }
