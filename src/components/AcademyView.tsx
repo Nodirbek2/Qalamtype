@@ -32,31 +32,12 @@ import {
 } from 'lucide-react';
 
 export const AcademyView: React.FC = () => {
-  const { currentUser, userProfile } = useAuth();
-  const { t, typingSound, setTypingLanguage, siteLanguage } = useSettings();
+  const { currentUser } = useAuth();
+  const { t, typingSound, typingLanguage: academyLang, setTypingLanguage, siteLanguage } = useSettings();
 
   const c = academyCopy[siteLanguage];
   const { guideOpen, dismissGuide, replayGuide } = useAcademyGuide();
   const [authModalOpen, setAuthModalOpen] = useState(false);
-
-  // Selected language for Academy lessons
-  const [academyLang, setAcademyLang] = useState<Language>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('qalampir_academy_lang');
-      if (saved === 'uzbek_latin' || saved === 'uzbek_cyrillic' || saved === 'russian' || saved === 'english') {
-        return saved;
-      }
-    }
-    return userProfile?.preferredTypingLanguage || 'uzbek_latin';
-  });
-
-  const handleLanguageChange = (lang: Language) => {
-    setAcademyLang(lang);
-    setTypingLanguage(lang);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('qalampir_academy_lang', lang);
-    }
-  };
 
   // Active Lesson State (null = Skill Map view)
   const [activeLesson, setActiveLesson] = useState<AcademyLesson | null>(null);
@@ -272,7 +253,7 @@ export const AcademyView: React.FC = () => {
                 <button
                   key={lang.id}
                   type="button"
-                  onClick={() => handleLanguageChange(lang.id)}
+                  onClick={() => setTypingLanguage(lang.id)}
                   className={`px-3 py-2 rounded-lg border text-xs font-mono transition-colors cursor-pointer text-center ${
                     active
                       ? 'bg-[#0D111A] border-[#D6F36B] text-[#D6F36B] font-semibold shadow-sm'

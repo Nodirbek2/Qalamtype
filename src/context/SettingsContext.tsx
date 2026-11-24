@@ -35,7 +35,7 @@ export function sanitizeLanguage(lang: any): Language {
   return 'uzbek_latin';
 }
 
-export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const SettingsProvider: React.FC<{ children: React.ReactNode; region: { country: string; language: Language } }> = ({ children, region }) => {
   const { userProfile, updateUserProfile } = useAuth();
 
   const [typingSound, setTypingSoundState] = useState<TypingSound>(() => {
@@ -50,8 +50,10 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return sanitizeLanguage(localStorage.getItem(LS_SITE_LANG));
   });
 
+  const preferenceKey = LS_TYPING_LANG + ':' + region.country;
   const [typingLanguage, setTypingLanguageState] = useState<Language>(() => {
-    return sanitizeLanguage(localStorage.getItem(LS_TYPING_LANG));
+    const saved = localStorage.getItem(preferenceKey);
+    return saved ? sanitizeLanguage(saved) : region.language;
   });
 
   const [typingFont, setTypingFontState] = useState<TypingFont>(() => {
@@ -66,11 +68,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setSiteLanguageState(cleanSiteLang);
         localStorage.setItem(LS_SITE_LANG, cleanSiteLang);
       }
-      if (userProfile.preferredTypingLanguage) {
-        const cleanTypingLang = sanitizeLanguage(userProfile.preferredTypingLanguage);
-        setTypingLanguageState(cleanTypingLang);
-        localStorage.setItem(LS_TYPING_LANG, cleanTypingLang);
-      }
+
     }
   }, [userProfile]);
 
@@ -104,12 +102,9 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     (lang: Language) => {
       const cleanLang = sanitizeLanguage(lang);
       setTypingLanguageState(cleanLang);
-      localStorage.setItem(LS_TYPING_LANG, cleanLang);
-      if (userProfile) {
-        updateUserProfile({ preferredTypingLanguage: cleanLang }).catch(() => {});
-      }
+      localStorage.setItem(preferenceKey, cleanLang);
     },
-    [userProfile, updateUserProfile]
+    [preferenceKey]
   );
 
   const setTypingFont = useCallback((font: TypingFont) => {
