@@ -1,5 +1,5 @@
 import { UserAvatar } from './UserAvatar';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { TelegramBlogPrompt } from './TelegramBlogPrompt';
 import { TestResult, Difficulty, Language, TestMode } from '../types';
 import { useSettings } from '../context/SettingsContext';
@@ -10,7 +10,7 @@ import {
   LeaderboardFilters,
   ModeFilter,
 } from '../lib/resultsService';
-import { RotateCcw, ArrowRight, Trophy, Share2, Check, Loader2 } from 'lucide-react';
+import { RotateCcw, ArrowRight, Trophy, Share2, Download, Loader2 } from 'lucide-react';
 import {
   ResponsiveContainer,
   LineChart,
@@ -20,6 +20,8 @@ import {
   Tooltip,
   CartesianGrid,
 } from 'recharts';
+
+const resultShareText = 'qalamtype.uz da rekord qo‘ydim. Siz ham sinab ko‘ring!\nhttps://qalamtype.uz';
 
 interface ResultsViewProps {
   result: TestResult;
@@ -38,7 +40,11 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
   const { t } = useSettings();
   const { currentUser, userProfile } = useAuth();
 
-  const [copied, setCopied] = useState(false);
+  const captureRef = useRef<HTMLDivElement>(null);
+  const [shareFile, setShareFile] = useState<File | null>(null);
+  const [sharing, setSharing] = useState(false);
+  const [shareError, setShareError] = useState(false);
+  const [downloadReady, setDownloadReady] = useState(false);
   const [lbDifficulty, setLbDifficulty] = useState<Difficulty>(result.difficulty || 'easy');
   const [lbTimeRange, setLbTimeRange] = useState<'week' | 'month'>('week');
   const [lbData, setLbData] = useState<LeaderboardResult[]>([]);
@@ -119,15 +125,53 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
   const langText = t(`lang_${language}` as any) || language;
   const diffText = t(`diff_${difficulty}` as any) || difficulty;
 
-  // Handle sharing test result to clipboard
-  const handleShare = () => {
-    const text = `QalampirType: ${wpm} WPM | ${accuracy}% aniqlik | ${
-      result.mode === 'time' ? `${result.duration}s` : `${result.wordCount} so'z`
-    } | ${diffText} | ${langText}`;
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleShare = async () => {
+    if (!captureRef.current || sharing) return;
+    setSharing(true);
+    setShareError(false);
+    try {
+      let file = shareFile;
+      if (!file) {
+        const { captureResult } = await import('../lib/captureResult');
+        if (!captureRef.current) return;
+        file = await captureResult(captureRef.current);
+        setShareFile(file);
+      }
+
+      const shareData = { files: [file], text: resultShareText };
+      if (downloadReady || !navigator.canShare?.(shareData)) {
+        const url = URL.createObjectURL(file);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = file.name;
+        link.click();
+        window.setTimeout(() => URL.revokeObjectURL(url), 30_000);
+        setShareFile(null);
+        return;
+      }
+
+      // A slow capture can outlast the browser's activation window.
+      // Keep the PNG ready so the next click can share it immediately.
+      if (navigator.userActivation?.isActive === false) return;
+      try {
+        await navigator.share(shareData);
+        setShareFile(null);
+      } catch (error) {
+        if (error instanceof DOMException && error.name === 'AbortError') {
+          setShareFile(null);
+          return;
+        }
+        if (!shareFile && error instanceof DOMException && error.name === 'NotAllowedError') return;
+        setDownloadReady(true);
+      }
+    } catch {
+      setShareError(true);
+    } finally {
+      setSharing(false);
+    }
   };
+
+  const showDownload = downloadReady || (shareFile && !navigator.canShare?.({ files: [shareFile], text: resultShareText }));
 
   // Process leaderboard top 5 and current user row
   const top5 = lbData.slice(0, 5);
@@ -157,6 +201,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
   return (
     <div className="w-full max-w-6xl mx-auto px-3 sm:px-4 py-2 sm:py-3 flex flex-col gap-3 font-sans select-none animate-fade-in">
       <TelegramBlogPrompt />
+      <div ref={captureRef} className="flex flex-col gap-3">
       {/* 3-Column Grid on Desktop */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 items-stretch">
         {/* Column 1: Left (~25% width -> lg:col-span-3) */}
@@ -242,6 +287,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
                   itemStyle={{ color: '#F0F3FA' }}
                 />
                 <Line
+                  isAnimationActive={false}
                   type="monotone"
                   dataKey="wpm"
                   stroke="#D6F36B"
@@ -250,6 +296,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
                   activeDot={{ r: 4 }}
                 />
                 <Line
+                  isAnimationActive={false}
                   type="monotone"
                   dataKey="rawWpm"
                   stroke="#63D9DA"
@@ -439,15 +486,20 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
         </div>
       </div>
 
+      </div>
+
       {/* Action Buttons Row */}
       <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-3 pt-2 touch-manipulation">
         <button
           type="button"
           onClick={handleShare}
+          onKeyDown={event => { if (event.key === 'Enter') event.stopPropagation(); }}
+          disabled={sharing}
+          aria-busy={sharing}
           className="w-full sm:w-auto min-h-[44px] px-5 py-2.5 bg-[#171E2B] text-[#A6B1C5] hover:text-[#F0F3FA] font-mono text-xs font-semibold rounded-xl border border-[rgba(240,243,250,0.08)] hover:border-[rgba(240,243,250,0.2)] transition-all flex items-center justify-center space-x-2 cursor-pointer touch-manipulation active:scale-95"
         >
-          {copied ? <Check className="w-3.5 h-3.5 text-[#71D9AF]" /> : <Share2 className="w-3.5 h-3.5" />}
-          <span>{copied ? 'Nusxalandi!' : 'Ulashish'}</span>
+          {sharing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : showDownload ? <Download className="w-3.5 h-3.5" /> : <Share2 className="w-3.5 h-3.5" />}
+          <span>{t(sharing ? 'results_share_preparing' : showDownload ? 'results_share_download' : 'results_share')}</span>
         </button>
 
         <button
@@ -468,6 +520,8 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
           <span>{t('results_restart') || 'Qaytadan'}</span>
         </button>
       </div>
+
+      {shareError && <p role="status" className="text-center text-xs text-[#A6B1C5]">{t('results_share_error')}</p>}
 
       <div className="text-center font-mono text-[11px] text-[#748199]">
         {t('results_press_hint')}
