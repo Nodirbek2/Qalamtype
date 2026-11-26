@@ -23,6 +23,7 @@ import { Footer } from './components/Footer';
 import { Donation, DonationButton } from './components/Donation';
 import { HomeExperience } from './components/HomeExperience';
 import { PrivacyModal } from './components/PrivacyModal';
+import { SideAdBanner } from './components/SideAdBanner';
 
 export default function App() {
   const { currentUser, userProfile } = useAuth();
@@ -178,7 +179,7 @@ export default function App() {
 
   return (
     <LayoutGroup id="app-intro-group">
-      <div data-typing-focus={typingFocus ? "true" : "false"} className="min-h-screen bg-[#0D111A] text-[#F0F3FA] flex flex-col font-sans selection:bg-[#D6F36B] selection:text-[#0D111A] relative overflow-x-hidden w-full max-w-full">
+      <div data-typing-focus={typingFocus ? "true" : "false"} className="min-h-screen bg-[#0D111A] text-[#F0F3FA] flex flex-col font-sans selection:bg-[#D6F36B] selection:text-[#0D111A] relative overflow-x-clip w-full max-w-full">
         <style>{`
           .test-chrome { transition: opacity 180ms ease; }
           [data-typing-focus="true"] .test-chrome { opacity: 0; visibility: hidden; pointer-events: none; }
@@ -198,8 +199,10 @@ export default function App() {
         </Navbar>
         </div>
 
-        {/* Main Container */}
-        <main className="site-main flex-1 flex flex-col px-4 sm:px-6 py-6 sm:py-10 max-w-6xl w-full mx-auto overflow-x-hidden">
+        {/* Main Container with Side Ad Banners */}
+        <div className="w-full max-w-[1600px] mx-auto flex-1 flex items-stretch justify-center gap-3 xl:gap-5 px-2 lg:px-4">
+        <SideAdBanner side="left" dimmed={typingFocus} />
+        <main className="site-main flex-1 min-w-0 flex flex-col px-4 sm:px-6 py-6 sm:py-10 max-w-6xl w-full mx-auto overflow-x-clip">
           {activeView === 'test' && phase !== 'completed' && <HomeExperience onGames={() => navigateTo('games')} onAcademy={() => navigateTo('academy')} />}
           {activeView === 'test' && phase !== 'completed' && <div className="test-chrome">
           <h1 className="mb-4 text-center text-lg font-semibold">{{ uzbek_latin: 'Tez yozish testi', uzbek_cyrillic: 'Тез ёзиш тести', english: 'Typing speed test', russian: 'Тест скорости печати' }[siteLanguage]}</h1>
@@ -277,6 +280,8 @@ export default function App() {
           {activeView === 'test' && phase === 'idle' && <div className="test-chrome"><TypingPracticeInfo /></div>}
           {activeView === 'academy' && <TypingPracticeInfo academy />}
         </main>
+        <SideAdBanner side="right" dimmed={typingFocus} />
+        </div>
 
         <div className="test-chrome" aria-hidden={typingFocus}>
           <DonationButton onClick={() => setIsDonationOpen(true)} />
