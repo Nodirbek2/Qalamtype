@@ -100,8 +100,6 @@ header > div { padding-top: 20px; padding-bottom: 20px; }
 .floating-label,.floating-speed { position:absolute;font:10px monospace;letter-spacing:.05em;border:1px solid #ffffff12;border-radius:10px;padding:10px 14px;background:#171e2b;box-shadow:0 8px 30px #0004; }
 .floating-label { top: 5px; right: 15px; color:#63d9da; }
 .floating-speed { bottom: 0; left:20px;color:#d6f36b; }
-.studio-label { display:flex;justify-content:space-between;gap:15px;align-items:center;margin-bottom:12px; }
-.studio-label > span:last-child { font-size:11px;color:#748199; }
 .typing-studio { padding: 18px 0 26px !important; }
 .typing-paper { border-radius: 22px !important; background: linear-gradient(130deg,#171e2b,#131a26) !important; border-color:#ffffff13!important; box-shadow:0 16px 50px #0002; }
 .discovery-grid { order: 5; display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:22px 0 35px; }
@@ -133,10 +131,10 @@ header > div { padding-top: 20px; padding-bottom: 20px; }
 .wb-shell { box-shadow:0 20px 65px #0003; }
 main > section:not(.arcade-page), main > div:not(.home-experience) { animation: page-reveal .35s ease-out; }
 @keyframes page-reveal { from { opacity:0;transform:translateY(8px); } to { opacity:1;transform:none; } }
-[data-typing-focus=true] .home-hero,[data-typing-focus=true] .studio-label,[data-typing-focus=true] .discovery-grid { display:none; }
+[data-typing-focus=true] .home-hero,[data-typing-focus=true] .discovery-grid { display:none; }
 [data-typing-focus=true] main { justify-content:center; }
 footer { border-top:1px solid #ffffff0d;margin-top:auto; }
-@media(max-width:640px) { .home-hero { grid-template-columns:1fr;padding-bottom:28px;gap:18px; }.keyboard-art { display:none; }.hero-copy h1 { font-size:39px; }.discovery-grid { grid-template-columns:1fr; }.studio-label { flex-direction:column;align-items:flex-start;gap:6px; }.game-cover { height:190px; }.mode-console { padding:10px!important; } }
+@media(max-width:640px) { .home-hero { grid-template-columns:1fr;padding-bottom:28px;gap:18px; }.keyboard-art { display:none; }.hero-copy h1 { font-size:39px; }.discovery-grid { grid-template-columns:1fr; }.game-cover { height:190px; }.mode-console { padding:10px!important; } }
 @media(prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important; }.discovery-card:hover,.game-card:hover {transform:none;} }
 
 /* Preserve both opponents and the full illustration on narrow game cards too. */
