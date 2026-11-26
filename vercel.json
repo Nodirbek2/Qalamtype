@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/academy/video",
+      "destination": "/seo/academy--video.html"
+    },
+    {
       "source": "/",
       "destination": "/seo/home.html"
     },

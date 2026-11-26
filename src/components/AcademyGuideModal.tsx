@@ -1,3 +1,4 @@
+import { academyVideo } from '../data/academyVideo';
 import React, { useEffect, useRef, useState } from 'react';
 import { PlayCircle, X } from 'lucide-react';
 import type { Language } from '../types';
@@ -36,9 +37,9 @@ export function AcademyGuideModal({ language, onDismiss }: { language: Language;
         <button type="button" className="academy-guide-close" aria-label={labels.skip} onClick={onDismiss}><X size={20} /></button>
       </header>
       <div className="academy-guide-player">
-        <video ref={videoRef} controls playsInline preload="metadata" poster="/videos/academy-typing-guide-poster.jpg"
+        <video ref={videoRef} controls playsInline preload="metadata" poster={academyVideo.poster}
           aria-label={labels.title} onEnded={onDismiss} onError={() => setFailed(true)}>
-          <source src="/videos/academy-typing-guide-v1.mp4" type="video/mp4" />
+          <source src={academyVideo.source} type="video/mp4" />
         </video>
         <button type="button" autoFocus className="academy-guide-skip" onClick={onDismiss}>{labels.skip} <span aria-hidden="true">→</span></button>
       </div>

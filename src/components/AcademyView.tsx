@@ -1,3 +1,4 @@
+import { academyVideo } from '../data/academyVideo';
 import { TelegramBlogPrompt } from './TelegramBlogPrompt';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
@@ -199,7 +200,12 @@ export const AcademyView: React.FC = () => {
   return (
     <div className="w-full max-w-5xl mx-auto py-6 sm:py-8 px-4 font-sans animate-fade-in select-none space-y-8">
       {guideOpen && <AcademyGuideModal language={siteLanguage} onDismiss={dismissGuide} />}
-      <button type="button" className="academy-guide-launch" onClick={replayGuide}><PlayCircle size={20} aria-hidden="true" />{academyGuideLabels[siteLanguage].title}</button>
+      <div className="flex flex-wrap items-center gap-3">
+        <button type="button" className="academy-guide-launch" onClick={replayGuide}><PlayCircle size={20} aria-hidden="true" />{academyGuideLabels[siteLanguage].title}</button>
+        <a href={academyVideo.path} className="inline-flex min-h-11 items-center px-2 text-sm text-[#D6F36B] hover:underline">
+          {{ uzbek_latin: 'Video sahifasi', uzbek_cyrillic: 'Видео саҳифаси', russian: 'Страница видео', english: 'Video page' }[siteLanguage]}
+        </a>
+      </div>
       <section className="academy-intro">
         <span className="academy-eyebrow">QALAMTYPE / {t('nav_academy')}</span>
         <h2>{c[0]}</h2><p>{c[1]}</p>
