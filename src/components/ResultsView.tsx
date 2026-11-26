@@ -21,6 +21,8 @@ import {
   CartesianGrid,
 } from 'recharts';
 
+const resultShareText = 'qalamtype.uz da rekord qo‘ydim. Siz ham sinab ko‘ring!\nhttps://qalamtype.uz';
+
 interface ResultsViewProps {
   result: TestResult;
   savedToLeaderboard?: boolean;
@@ -136,7 +138,8 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
         setShareFile(file);
       }
 
-      if (downloadReady || !navigator.canShare?.({ files: [file] })) {
+      const shareData = { files: [file], text: resultShareText };
+      if (downloadReady || !navigator.canShare?.(shareData)) {
         const url = URL.createObjectURL(file);
         const link = document.createElement('a');
         link.href = url;
@@ -151,7 +154,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
       // Keep the PNG ready so the next click can share it immediately.
       if (navigator.userActivation?.isActive === false) return;
       try {
-        await navigator.share({ files: [file] });
+        await navigator.share(shareData);
         setShareFile(null);
       } catch (error) {
         if (error instanceof DOMException && error.name === 'AbortError') {
@@ -168,7 +171,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
     }
   };
 
-  const showDownload = downloadReady || (!!shareFile && !navigator.canShare?.({ files: [shareFile] }));
+  const showDownload = downloadReady || (shareFile && !navigator.canShare?.({ files: [shareFile], text: resultShareText }));
 
   // Process leaderboard top 5 and current user row
   const top5 = lbData.slice(0, 5);
@@ -496,7 +499,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
           className="w-full sm:w-auto min-h-[44px] px-5 py-2.5 bg-[#171E2B] text-[#A6B1C5] hover:text-[#F0F3FA] font-mono text-xs font-semibold rounded-xl border border-[rgba(240,243,250,0.08)] hover:border-[rgba(240,243,250,0.2)] transition-all flex items-center justify-center space-x-2 cursor-pointer touch-manipulation active:scale-95"
         >
           {sharing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : showDownload ? <Download className="w-3.5 h-3.5" /> : <Share2 className="w-3.5 h-3.5" />}
-          <span>{t(sharing ? 'results_share_preparing' : showDownload ? 'results_share_download' : shareFile ? 'results_share_image' : 'results_share')}</span>
+          <span>{t(sharing ? 'results_share_preparing' : showDownload ? 'results_share_download' : 'results_share')}</span>
         </button>
 
         <button

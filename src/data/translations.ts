@@ -63,7 +63,6 @@ export type TranslationKey =
   | 'results_share'
   | 'results_share_preparing'
   | 'results_share_download'
-  | 'results_share_image'
   | 'results_share_error'
   // Leaderboard
   | 'lb_filter_language'
@@ -239,10 +238,9 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     results_params_sub: 'til / qiyinchilik / rejim',
     results_time_sub: 'testning umumiy davomiyligi',
     results_press_hint: 'keyingi test uchun enter yoki esc tugmasini bosing',
-    results_share: 'Ulashish',
+    results_share: 'PNG ulashish',
     results_share_preparing: 'Rasm tayyorlanmoqda…',
     results_share_download: 'Rasmni yuklab olish',
-    results_share_image: 'Rasmni ulashish',
     results_share_error: 'Rasmni tayyorlab bo‘lmadi. Qayta urinib ko‘ring.',
 
     lb_filter_language: 'Til',
@@ -410,10 +408,9 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     results_params_sub: 'тил / қийинчилик / режим',
     results_time_sub: 'тестнинг умамий давомийлиги',
     results_press_hint: 'кейинги тест учун enter ёки esc тугмасини босинг',
-    results_share: 'Улашиш',
+    results_share: 'PNG улашиш',
     results_share_preparing: 'Расм тайёрланмоқда…',
     results_share_download: 'Расмни юклаб олиш',
-    results_share_image: 'Расмни улашиш',
     results_share_error: 'Расмни тайёрлаб бўлмади. Қайта уриниб кўринг.',
 
     lb_filter_language: 'Тил',
@@ -581,10 +578,9 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     results_params_sub: 'язык / сложность / режим',
     results_time_sub: 'общая длительность теста',
     results_press_hint: 'нажмите enter или esc для следующего теста',
-    results_share: 'Поделиться',
+    results_share: 'Поделиться PNG',
     results_share_preparing: 'Готовим изображение…',
     results_share_download: 'Скачать изображение',
-    results_share_image: 'Поделиться изображением',
     results_share_error: 'Не удалось создать изображение. Попробуйте ещё раз.',
 
     lb_filter_language: 'Язык',
@@ -752,10 +748,9 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     results_params_sub: 'language / difficulty / mode',
     results_time_sub: 'total test duration',
     results_press_hint: 'press enter or esc for next test',
-    results_share: 'Share',
+    results_share: 'Share PNG',
     results_share_preparing: 'Preparing image…',
     results_share_download: 'Download image',
-    results_share_image: 'Share image',
     results_share_error: 'Could not create the image. Please try again.',
 
     lb_filter_language: 'Language',
